@@ -1,0 +1,80 @@
+{
+  "timestamp": "2025-08-13T17:28:36.073Z",
+  "contractAddresses": {
+    "factory": "0x73bF19534DA1c60772E40136A4e5E77921b7a632",
+    "router": "0xD70399962f491c4d38f4ACf7E6a9345B0B9a3A7A",
+    "settlement": "0x543C050a536457c47c569D26AABd52Fae17cbA4B",
+    "hyperindex": "0x6065Ab1ec8334ab6099aF27aF145411902EAef40",
+    "usdc": "0x53aE8e677f34BC709148085381Ce2D4b6ceA1Fc3",
+    "pair": "0x5706084ad9Cac84393eaA1Eb265Db9b22bA63cd1"
+  },
+  "tests": [
+    {
+      "name": "System Health Check",
+      "status": "failed",
+      "duration": 3742,
+      "error": "Request failed with status code 503",
+      "data": null
+    },
+    {
+      "name": "AMM Swap Quote",
+      "status": "passed",
+      "duration": 53,
+      "error": null,
+      "data": {
+        "input": "1000.0 USDC",
+        "output": "979.319375177645086112 HYPERINDEX",
+        "price": "1.021117 USDC per HYPERINDEX",
+        "priceImpact": "Calculated from reserves"
+      }
+    },
+    {
+      "name": "AMM Small Swap",
+      "status": "passed",
+      "duration": 23001,
+      "error": null,
+      "data": {
+        "expectedOutput": "98.806294145908013582",
+        "actualOutput": "98.806294145908013582",
+        "slippage": "0.000%",
+        "gasUsed": "130702",
+        "gasPrice": "100000000",
+        "swapDuration": "22482ms",
+        "blockNumber": 29552836,
+        "blockType": "small",
+        "blockGasLimit": "2000000",
+        "txHash": "0x3747f2e54b3d8d1c26a16f234f999fd555b03eb0a34daeba327c5b4640f4f5c7"
+      }
+    },
+    {
+      "name": "SmartRouterV2 API",
+      "status": "failed",
+      "duration": 6058,
+      "error": "Request failed with status code 500",
+      "data": null
+    },
+    {
+      "name": "Orderbook API",
+      "status": "failed",
+      "duration": 2288,
+      "error": "Request failed with status code 500",
+      "data": null
+    },
+    {
+      "name": "Limit Order Placement",
+      "status": "passed",
+      "duration": 2256,
+      "error": null,
+      "data": {
+        "success": false,
+        "validationError": true,
+        "message": "Validation failed"
+      }
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 3,
+    "total": 6
+  }
+}

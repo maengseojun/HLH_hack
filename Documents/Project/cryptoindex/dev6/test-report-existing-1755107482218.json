@@ -1,0 +1,76 @@
+{
+  "timestamp": "2025-08-13T17:50:11.959Z",
+  "contractAddresses": {
+    "factory": "0x73bF19534DA1c60772E40136A4e5E77921b7a632",
+    "router": "0xD70399962f491c4d38f4ACf7E6a9345B0B9a3A7A",
+    "settlement": "0x543C050a536457c47c569D26AABd52Fae17cbA4B",
+    "hyperindex": "0x6065Ab1ec8334ab6099aF27aF145411902EAef40",
+    "usdc": "0x53aE8e677f34BC709148085381Ce2D4b6ceA1Fc3",
+    "pair": "0x5706084ad9Cac84393eaA1Eb265Db9b22bA63cd1"
+  },
+  "tests": [
+    {
+      "name": "System Health Check",
+      "status": "failed",
+      "duration": 5061,
+      "error": "timeout of 5000ms exceeded",
+      "data": null
+    },
+    {
+      "name": "AMM Swap Quote",
+      "status": "passed",
+      "duration": 185,
+      "error": null,
+      "data": {
+        "input": "1000.0 USDC",
+        "output": "973.530337158751933146 HYPERINDEX",
+        "price": "1.027189 USDC per HYPERINDEX",
+        "priceImpact": "Calculated from reserves"
+      }
+    },
+    {
+      "name": "AMM Small Swap",
+      "status": "passed",
+      "duration": 43941,
+      "error": null,
+      "data": {
+        "expectedOutput": "98.219634945351033612",
+        "actualOutput": "98.219634945351033612",
+        "slippage": "0.000%",
+        "gasUsed": "130702",
+        "gasPrice": "100000000",
+        "swapDuration": "43363ms",
+        "blockNumber": 29554178,
+        "blockType": "small",
+        "blockGasLimit": "2000000",
+        "txHash": "0x25ed7d9d956dee6e4d5ad8a0bebd8decaf34bfc914f59fd84835f9b735f6a13f"
+      }
+    },
+    {
+      "name": "SmartRouterV2 API",
+      "status": "failed",
+      "duration": 10024,
+      "error": "timeout of 10000ms exceeded",
+      "data": null
+    },
+    {
+      "name": "Orderbook API",
+      "status": "failed",
+      "duration": 5033,
+      "error": "timeout of 5000ms exceeded",
+      "data": null
+    },
+    {
+      "name": "Limit Order Placement",
+      "status": "failed",
+      "duration": 5028,
+      "error": "timeout of 5000ms exceeded",
+      "data": null
+    }
+  ],
+  "summary": {
+    "passed": 2,
+    "failed": 4,
+    "total": 6
+  }
+}

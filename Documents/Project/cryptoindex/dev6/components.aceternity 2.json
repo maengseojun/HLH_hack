@@ -1,0 +1,15 @@
+{
+  "style": "default",
+  "tailwind": {
+    "config": "tailwind.config.ts",
+    "css": "app/globals.css",
+    "baseColor": "neutral"
+  },
+  "rsc": false,
+  "tsx": true,
+  "paths": {
+    "components": "./components",
+    "utils": "./lib/utils",
+    "ui": "./components/ui"
+  }
+}

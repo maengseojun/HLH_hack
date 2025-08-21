@@ -1,0 +1,32 @@
+'npx hardhat clean' running (wd: /Users/maengseojun/Documents/Project/cryptoindex/dev5)
+'npx hardhat clean --global' running (wd: /Users/maengseojun/Documents/Project/cryptoindex/dev5)
+'npx hardhat compile --force' running (wd: /Users/maengseojun/Documents/Project/cryptoindex/dev5)
+'npx' returned non-zero exit code 1
+Error HH404: File @openzeppelin/contracts/security/ReentrancyGuard.sol, imported from contracts/SmartAggregator.sol, not found.
+stderr: For more info go to https://hardhat.org/HH404 or run Hardhat with --show-stack-traces
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/maengseojun/.local/lib/python3.12/site-packages/slither/__main__.py", line 989, in <module>
+    main()
+  File "/Users/maengseojun/.local/lib/python3.12/site-packages/slither/__main__.py", line 776, in main
+    main_impl(all_detector_classes=detectors, all_printer_classes=printers)
+  File "/Users/maengseojun/.local/lib/python3.12/site-packages/slither/__main__.py", line 882, in main_impl
+    ) = process_all(filename, args, detector_classes, printer_classes)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maengseojun/.local/lib/python3.12/site-packages/slither/__main__.py", line 96, in process_all
+    compilations = compile_all(target, **vars(args))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maengseojun/.local/lib/python3.12/site-packages/crytic_compile/crytic_compile.py", line 722, in compile_all
+    compilations.append(CryticCompile(target, **kwargs))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maengseojun/.local/lib/python3.12/site-packages/crytic_compile/crytic_compile.py", line 211, in __init__
+    self._compile(**kwargs)
+  File "/Users/maengseojun/.local/lib/python3.12/site-packages/crytic_compile/crytic_compile.py", line 633, in _compile
+    self._platform.compile(self, **kwargs)
+  File "/Users/maengseojun/.local/lib/python3.12/site-packages/crytic_compile/platform/hardhat.py", line 184, in compile
+    hardhat_like_parsing(crytic_compile, self._target, build_directory, hardhat_working_dir)
+  File "/Users/maengseojun/.local/lib/python3.12/site-packages/crytic_compile/platform/hardhat.py", line 52, in hardhat_like_parsing
+    raise InvalidCompilation(txt)
+crytic_compile.platform.exceptions.InvalidCompilation: Compilation failed. Can you run build command?
+/Users/maengseojun/Documents/Project/cryptoindex/dev5/artifacts/build-info is not a directory.

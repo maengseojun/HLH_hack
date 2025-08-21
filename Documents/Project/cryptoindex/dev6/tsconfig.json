@@ -1,0 +1,63 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "esnext",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "types": ["node"],
+    "typeRoots": ["node_modules/@types"],
+    
+    // 핵심: JavaScript 파일 허용
+    "allowJs": true,
+    "checkJs": false,
+    
+    // 엄격함 완화 (점진적 마이그레이션용)
+    "strict": false,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    
+    // Next.js 호환성
+    "jsx": "preserve",
+    "incremental": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    
+    // 모듈 해석 최적화
+    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
+    
+    // 경로 해석 개선
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"],
+      "~/": ["./"],
+      "@/components/*": ["./components/*"],
+      "@/lib/*": ["./lib/*"],
+      "@/app/*": ["./app/*"],
+      "@/types/*": ["./types/*"]
+    },
+    
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
+    ".next/types/**/*.ts",
+    "types/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next",
+    "out",
+    "dist"
+  ]
+}

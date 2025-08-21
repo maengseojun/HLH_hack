@@ -1,0 +1,69 @@
+{
+  "timestamp": "2025-08-13T17:07:48.615Z",
+  "contractAddresses": {
+    "factory": "0x73bF19534DA1c60772E40136A4e5E77921b7a632",
+    "router": "0xD70399962f491c4d38f4ACf7E6a9345B0B9a3A7A",
+    "settlement": "0x543C050a536457c47c569D26AABd52Fae17cbA4B",
+    "hyperindex": "0x6065Ab1ec8334ab6099aF27aF145411902EAef40",
+    "usdc": "0x53aE8e677f34BC709148085381Ce2D4b6ceA1Fc3",
+    "pair": "0x5706084ad9Cac84393eaA1Eb265Db9b22bA63cd1"
+  },
+  "tests": [
+    {
+      "name": "System Health Check",
+      "status": "failed",
+      "duration": 5126,
+      "error": "timeout of 5000ms exceeded",
+      "data": null
+    },
+    {
+      "name": "AMM Swap Quote",
+      "status": "passed",
+      "duration": 129,
+      "error": null,
+      "data": {
+        "input": "1000.0 USDC",
+        "output": "983.20748284563064661 HYPERINDEX",
+        "price": "1.017079 USDC per HYPERINDEX",
+        "priceImpact": "Calculated from reserves"
+      }
+    },
+    {
+      "name": "AMM Small Swap",
+      "status": "failed",
+      "duration": 826,
+      "error": "transaction underpriced",
+      "data": null
+    },
+    {
+      "name": "SmartRouterV2 API",
+      "status": "failed",
+      "duration": 10011,
+      "error": "timeout of 10000ms exceeded",
+      "data": null
+    },
+    {
+      "name": "Orderbook API",
+      "status": "failed",
+      "duration": 3347,
+      "error": "Request failed with status code 500",
+      "data": null
+    },
+    {
+      "name": "Limit Order Placement",
+      "status": "passed",
+      "duration": 2665,
+      "error": null,
+      "data": {
+        "success": false,
+        "validationError": true,
+        "message": "Validation failed"
+      }
+    }
+  ],
+  "summary": {
+    "passed": 2,
+    "failed": 4,
+    "total": 6
+  }
+}

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyperliquid 인덱스 토큰 플랫폼 2차 검증 대시보드</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 -->
+        <header class="header">
+            <h1>Hyperliquid 인덱스 토큰 플랫폼</h1>
+            <p class="subtitle">2차 검증 및 개선 대시보드</p>
+        </header>
+
+        <!-- 메인 대시보드 -->
+        <section class="dashboard-section">
+            <h2>검증 프로세스 현황</h2>
+            
+            <!-- 워크플로우 이미지 -->
+            <div class="workflow-image">
+                <img src="https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/2a830c43bf1a409d6d058b06967150cd/cdbc1ca9-43e7-499e-adad-3d8f5e258cf7/63759f3f.png" alt="검증 워크플로우" />
+            </div>
+
+            <!-- 전체 진행률 -->
+            <div class="progress-overview">
+                <div class="progress-card">
+                    <h3>전체 진행률</h3>
+                    <div class="chart-container" style="position: relative; height: 200px;">
+                        <canvas id="overallProgressChart"></canvas>
+                    </div>
+                    <div class="progress-stats">
+                        <span class="stat">완료: <strong id="completedCount">0</strong>개</span>
+                        <span class="stat">진행중: <strong id="inProgressCount">0</strong>개</span>
+                        <span class="stat">대기: <strong id="pendingCount">25</strong>개</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 단계별 진행률 -->
+            <div class="stages-grid">
+                <div class="stage-card" data-stage-id="1">
+                    <div class="stage-header">
+                        <h4>1단계: AI 한계 극복</h4>
+                        <span class="stage-badge critical">Critical</span>
+                    </div>
+                    <div class="stage-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-text">0/5 완료</span>
+                    </div>
+                    <p class="stage-description">Claude 1차 검증에서 놓칠 수 있는 논리적 오류와 복잡한 상호작용 검증</p>
+                </div>
+
+                <div class="stage-card" data-stage-id="2">
+                    <div class="stage-header">
+                        <h4>2단계: 전문가 수동 검증</h4>
+                        <span class="stage-badge high">High</span>
+                    </div>
+                    <div class="stage-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-text">0/5 완료</span>
+                    </div>
+                    <p class="stage-description">인간 전문가만이 수행할 수 있는 고급 보안 분석</p>
+                </div>
+
+                <div class="stage-card" data-stage-id="3">
+                    <div class="stage-header">
+                        <h4>3단계: 도구 조합 검증</h4>
+                        <span class="stage-badge high">High</span>
+                    </div>
+                    <div class="stage-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-text">0/5 완료</span>
+                    </div>
+                    <p class="stage-description">여러 보안 도구를 조합한 포괄적 취약점 분석</p>
+                </div>
+
+                <div class="stage-card" data-stage-id="4">
+                    <div class="stage-header">
+                        <h4>4단계: 커뮤니티 검증</h4>
+                        <span class="stage-badge medium">Medium</span>
+                    </div>
+                    <div class="stage-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-text">0/5 완료</span>
+                    </div>
+                    <p class="stage-description">커뮤니티와 외부 전문가를 통한 집단 지성 활용</p>
+                </div>
+
+                <div class="stage-card" data-stage-id="5">
+                    <div class="stage-header">
+                        <h4>5단계: 실전 테스팅</h4>
+                        <span class="stage-badge critical">Critical</span>
+                    </div>
+                    <div class="stage-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-text">0/5 완료</span>
+                    </div>
+                    <p class="stage-description">실제 환경에서의 극한 상황 시뮬레이션과 공격 시나리오 테스트</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 네비게이션 탭 -->
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="checklist">체크리스트</button>
+            <button class="tab-btn" data-tab="tools">도구 및 리소스</button>
+            <button class="tab-btn" data-tab="progress">진행 상황</button>
+        </nav>
+
+        <!-- 체크리스트 섹션 -->
+        <section id="checklist" class="tab-content active">
+            <div class="section-header">
+                <h2>검증 체크리스트</h2>
+                <div class="filters">
+                    <select id="stageFilter" class="form-control">
+                        <option value="all">모든 단계</option>
+                        <option value="1">1단계: AI 한계 극복</option>
+                        <option value="2">2단계: 전문가 수동 검증</option>
+                        <option value="3">3단계: 도구 조합 검증</option>
+                        <option value="4">4단계: 커뮤니티 검증</option>
+                        <option value="5">5단계: 실전 테스팅</option>
+                    </select>
+                    <select id="priorityFilter" class="form-control">
+                        <option value="all">모든 우선순위</option>
+                        <option value="Critical">Critical</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                    </select>
+                    <select id="componentFilter" class="form-control">
+                        <option value="all">모든 컴포넌트</option>
+                        <option value="SmartIndexVault.sol">SmartIndexVault.sol</option>
+                        <option value="MultiDEXAggregator.sol">MultiDEXAggregator.sol</option>
+                        <option value="IndexToken.sol">IndexToken.sol</option>
+                        <option value="LayerZeroMessaging.sol">LayerZeroMessaging.sol</option>
+                        <option value="RedemptionManager.sol">RedemptionManager.sol</option>
+                        <option value="전체 시스템">전체 시스템</option>
+                        <option value="전체 프로젝트">전체 프로젝트</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="checklistItems" class="checklist-items">
+                <!-- 체크리스트 항목들이 여기에 동적으로 생성됩니다 -->
+            </div>
+        </section>
+
+        <!-- 도구 및 리소스 섹션 -->
+        <section id="tools" class="tab-content hidden">
+            <h2>도구 및 리소스</h2>
+            <div class="tools-grid">
+                <div class="tool-category">
+                    <h3>정적 분석 도구</h3>
+                    <div class="tool-list">
+                        <div class="tool-item">
+                            <h4>Slither</h4>
+                            <p>정적 분석으로 70가지 취약점 유형 검출</p>
+                            <code>slither contracts/</code>
+                        </div>
+                        <div class="tool-item">
+                            <h4>MythX</h4>
+                            <p>정적+동적+심볼릭 실행 결합 분석</p>
+                            <a href="https://mythx.io" target="_blank">https://mythx.io</a>
+                        </div>
+                        <div class="tool-item">
+                            <h4>Mythril</h4>
+                            <p>심볼릭 실행 기반 취약점 검출</p>
+                            <code>myth analyze</code>
+                        </div>
+                        <div class="tool-item">
+                            <h4>Securify</h4>
+                            <p>정적 분석과 형식적 검증</p>
+                            <a href="https://securify.ch" target="_blank">https://securify.ch</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tool-category">
+                    <h3>동적 분석 도구</h3>
+                    <div class="tool-list">
+                        <div class="tool-item">
+                            <h4>Echidna</h4>
+                            <p>프로퍼티 기반 퍼징 테스트</p>
+                            <code>echidna-test</code>
+                        </div>
+                        <div class="tool-item">
+                            <h4>Manticore</h4>
+                            <p>심볼릭 실행 프레임워크</p>
+                            <code>manticore</code>
+                        </div>
+                        <div class="tool-item">
+                            <h4>Foundry</h4>
+                            <p>빠른 Solidity 테스팅 프레임워크</p>
+                            <code>forge test</code>
+                        </div>
+                        <div class="tool-item">
+                            <h4>Hardhat</h4>
+                            <p>포괄적 개발 및 테스팅 환경</p>
+                            <code>npx hardhat test</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tool-category">
+                    <h3>전문 감사 기관</h3>
+                    <div class="tool-list">
+                        <div class="tool-item">
+                            <h4>OpenZeppelin</h4>
+                            <p>700+ 감사 경험</p>
+                            <span>연락처: security@openzeppelin.com</span>
+                        </div>
+                        <div class="tool-item">
+                            <h4>ConsenSys Diligence</h4>
+                            <p>이더리움 생태계 전문</p>
+                            <a href="https://consensys.net/diligence/" target="_blank">https://consensys.net/diligence/</a>
+                        </div>
+                        <div class="tool-item">
+                            <h4>Trail of Bits</h4>
+                            <p>고급 보안 연구</p>
+                            <a href="https://www.trailofbits.com" target="_blank">https://www.trailofbits.com</a>
+                        </div>
+                        <div class="tool-item">
+                            <h4>Certora</h4>
+                            <p>형식적 검증 전문</p>
+                            <a href="https://www.certora.com" target="_blank">https://www.certora.com</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 진행 상황 섹션 -->
+        <section id="progress" class="tab-content hidden">
+            <h2>진행 상황 추적</h2>
+            <div class="progress-charts">
+                <div class="chart-card">
+                    <h3>단계별 완료율</h3>
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="stageProgressChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>우선순위별 현황</h3>
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="priorityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="progress-summary">
+                <h3>상세 통계</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h4>Critical 항목</h4>
+                        <div class="stat-value">
+                            <span id="criticalCompleted">0</span> / <span id="criticalTotal">0</span>
+                        </div>
+                        <div class="stat-bar critical">
+                            <div class="stat-progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>High 항목</h4>
+                        <div class="stat-value">
+                            <span id="highCompleted">0</span> / <span id="highTotal">0</span>
+                        </div>
+                        <div class="stat-bar high">
+                            <div class="stat-progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Medium 항목</h4>
+                        <div class="stat-value">
+                            <span id="mediumCompleted">0</span> / <span id="mediumTotal">0</span>
+                        </div>
+                        <div class="stat-bar medium">
+                            <div class="stat-progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 상세 정보 모달 -->
+        <div id="itemModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modalTitle"></h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-info">
+                        <div class="info-item">
+                            <strong>컴포넌트:</strong>
+                            <span id="modalComponent"></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>우선순위:</strong>
+                            <span id="modalPriority" class="priority-badge"></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>검증 방법:</strong>
+                            <span id="modalMethod"></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>상태:</strong>
+                            <span id="modalStatus" class="status"></span>
+                        </div>
+                    </div>
+                    <div class="modal-description">
+                        <h4>상세 설명</h4>
+                        <p id="modalDescription"></p>
+                    </div>
+                    <div class="modal-notes">
+                        <h4>진행 상황 노트</h4>
+                        <textarea id="modalNotes" placeholder="이 항목의 진행 상황이나 특이사항을 기록하세요..." rows="4"></textarea>
+                        <button class="btn btn--secondary" id="saveNotes">노트 저장</button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn--secondary" id="modalClose">닫기</button>
+                    <button class="btn btn--primary" id="toggleStatus">상태 변경</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+--- should use supabase mcp and make a right schema document in here.

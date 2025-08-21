@@ -1,0 +1,75 @@
+{
+  "timestamp": "2025-08-13T16:56:08.548Z",
+  "contractAddresses": {
+    "factory": "0x73bF19534DA1c60772E40136A4e5E77921b7a632",
+    "router": "0xD70399962f491c4d38f4ACf7E6a9345B0B9a3A7A",
+    "settlement": "0x543C050a536457c47c569D26AABd52Fae17cbA4B",
+    "hyperindex": "0x6065Ab1ec8334ab6099aF27aF145411902EAef40",
+    "usdc": "0x53aE8e677f34BC709148085381Ce2D4b6ceA1Fc3",
+    "pair": "0x5706084ad9Cac84393eaA1Eb265Db9b22bA63cd1"
+  },
+  "tests": [
+    {
+      "name": "System Health Check",
+      "status": "failed",
+      "duration": 5157,
+      "error": "timeout of 5000ms exceeded",
+      "data": null
+    },
+    {
+      "name": "AMM Swap Quote",
+      "status": "passed",
+      "duration": 106,
+      "error": null,
+      "data": {
+        "input": "1000.0 USDC",
+        "output": "987.138418591557960807 HYPERINDEX",
+        "price": "1.013029 USDC per HYPERINDEX",
+        "priceImpact": "Calculated from reserves"
+      }
+    },
+    {
+      "name": "AMM Small Swap",
+      "status": "passed",
+      "duration": 106327,
+      "error": null,
+      "data": {
+        "expectedOutput": "99.598710099839632415",
+        "actualOutput": "99.598710099839632415",
+        "slippage": "0.000%",
+        "gasUsed": "130702",
+        "txHash": "0x9b25798057c9f7283c70967cdd7f191cb4e40116b9d676226a90ee4de7ec2f4b"
+      }
+    },
+    {
+      "name": "SmartRouterV2 API",
+      "status": "failed",
+      "duration": 4680,
+      "error": "Request failed with status code 500",
+      "data": null
+    },
+    {
+      "name": "Orderbook API",
+      "status": "failed",
+      "duration": 2414,
+      "error": "Request failed with status code 500",
+      "data": null
+    },
+    {
+      "name": "Limit Order Placement",
+      "status": "passed",
+      "duration": 3615,
+      "error": null,
+      "data": {
+        "success": false,
+        "validationError": true,
+        "message": "Validation failed"
+      }
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 3,
+    "total": 6
+  }
+}

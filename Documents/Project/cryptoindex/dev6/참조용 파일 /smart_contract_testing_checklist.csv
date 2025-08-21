@@ -1,0 +1,25 @@
+﻿시스템,테스트 분야,테스트 내용,우선순위,구현 권장사항
+Token Creation & Redemption,코드 리뷰,ERC20/ERC721 표준 준수 확인,높음,OpenZeppelin Contracts 라이브러리 사용 검증
+Token Creation & Redemption,단위 테스트,mint/burn/transfer 함수 테스트,높음,모든 토큰 상태 변화 시나리오 테스트
+Token Creation & Redemption,보안 분석,Integer overflow/underflow 검사,높음,SafeMath 라이브러리 사용 또는 Solidity 0.8+ 버전 사용
+Token Creation & Redemption,접근 제어,권한 관리 시스템 테스트,높음,"onlyOwner, role-based access control 테스트"
+Token Creation & Redemption,경계값 테스트,최대/최소 공급량 테스트,중간,totalSupply 한계값 및 zero amount 처리
+Token Creation & Redemption,이벤트 로깅,모든 중요 함수의 이벤트 발생 확인,중간,"Transfer, Approval 이벤트 정확성 검증"
+Token Creation & Redemption,가스 최적화,함수별 가스 사용량 분석,중간,비용 효율적인 구현 확인
+Token Creation & Redemption,상호운용성,다른 DeFi 프로토콜과의 호환성,중간,"DEX, lending protocol 통합 테스트"
+Aggregator,라우팅 로직,최적 경로 탐색 알고리즘 테스트,높음,1inch Pathfinder 알고리즘 참조하여 구현 검증
+Aggregator,슬리피지 보호,슬리피지 허용치 설정 및 검증,높음,예상 슬리피지와 실제 슬리피지 차이 모니터링
+Aggregator,DEX 통합,다중 DEX 연동 안정성 테스트,높음,"Uniswap, SushiSwap, Balancer 등 주요 DEX 연동"
+Aggregator,가격 오라클,가격 피드 조작 공격 방어,높음,TWAP 오라클 사용 및 가격 검증 로직
+Aggregator,프론트러닝 보호,MEV 공격 방어 메커니즘,높음,commit-reveal 스킴 또는 private mempool 활용
+Aggregator,유동성 분할,대량 거래의 분할 실행 테스트,중간,최적 분할 알고리즘 및 실행 순서 검증
+Aggregator,실패 처리,부분 실패 시 롤백 메커니즘,중간,atomic swap 보장 및 실패 시 자금 복구
+Aggregator,가스 최적화,라우팅 복잡도에 따른 가스비 분석,중간,다중 hop vs 단일 hop 효율성 비교
+SmartContractVault,ERC-4626 준수,Vault 표준 완전 구현 확인,높음,OpenZeppelin ERC4626 기준 모든 함수 구현
+SmartContractVault,예금/출금,deposit/withdraw 함수 정확성,높음,shares 계산 및 asset 교환 로직 검증
+SmartContractVault,수익률 계산,yield farming 수익 분배 로직,높음,compound interest 계산 및 fee 구조 검증
+SmartContractVault,담보 관리,담보 비율 유지 메커니즘,높음,liquidation threshold 및 자동 청산 로직
+SmartContractVault,전략 실행,yield strategy 실행 및 리밸런싱,중간,자동화된 전략 변경 및 리스크 관리
+SmartContractVault,비상 중단,emergency pause 메커니즘,중간,governance 및 시간 지연 메커니즘
+SmartContractVault,업그레이드,proxy pattern 구현 검증,중간,안전한 업그레이드 경로 및 데이터 마이그레이션
+SmartContractVault,감사 추적,모든 거래 로그 및 상태 변화,낮음,comprehensive event logging 구현
