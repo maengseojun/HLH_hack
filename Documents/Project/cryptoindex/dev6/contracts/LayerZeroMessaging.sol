@@ -4,6 +4,7 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
+import "./interfaces/IHyperIndexVault.sol";
 
 // LayerZero endpoint interface (simplified)
 interface ILayerZeroEndpoint {
@@ -48,6 +49,7 @@ contract LayerZeroMessaging is AccessControl, ReentrancyGuard, Pausable {
     // Message tracking
     mapping(bytes32 => MessageStatus) public messageStatus;
     mapping(address => uint256) public userNonces;
+    mapping(bytes32 => VaultOperation) public vaultOperations;
     
     enum MessageStatus {
         Pending,
@@ -65,6 +67,18 @@ contract LayerZeroMessaging is AccessControl, ReentrancyGuard, Pausable {
         uint256 timestamp;
         uint256 nonce;
         bytes32 messageHash;
+    }
+    
+    struct VaultOperation {
+        address user;
+        address vault;
+        uint256 indexTokenId;
+        uint256 assets;
+        uint256 shares;
+        uint256 timestamp;
+        uint256 nonce;
+        uint256 srcChainId;
+        bool executed;
     }
     
     // Events
@@ -95,6 +109,20 @@ contract LayerZeroMessaging is AccessControl, ReentrancyGuard, Pausable {
         uint256 chainId,
         uint16 lzChainId,
         bool added
+    );
+    
+    event VaultOperationExecuted(
+        bytes32 indexed operationId,
+        address indexed vault,
+        address indexed user,
+        uint256 assets
+    );
+    
+    event VaultOperationFailed(
+        bytes32 indexed operationId,
+        address indexed vault,
+        address indexed user,
+        string reason
     );
     
     constructor(address _lzEndpoint) {
@@ -288,19 +316,81 @@ contract LayerZeroMessaging is AccessControl, ReentrancyGuard, Pausable {
         uint256 nonce,
         uint256 srcChainId
     ) internal {
-        // Record deposit on HyperEVM
-        // This could be a call to a HyperIndex record contract
-        // For now, we'll just emit an event
+        // Execute vault operation based on message type
+        VaultOperation memory operation = VaultOperation({
+            user: user,
+            vault: vault,
+            indexTokenId: indexTokenId,
+            assets: assets,
+            shares: shares,
+            timestamp: timestamp,
+            nonce: nonce,
+            srcChainId: srcChainId,
+            executed: false
+        });
         
-        // In a real implementation, you might:
-        // 1. Update user's index token balance on HyperEVM
-        // 2. Record the transaction in a HyperIndex ledger
-        // 3. Trigger any necessary rebalancing calculations
+        // Store operation for processing
+        vaultOperations[_generateOperationId(operation)] = operation;
         
-        // Example implementation would call:
-        // IHyperIndexLedger(hyperIndexLedger).recordDeposit(
-        //     user, vault, indexTokenId, assets, shares, timestamp, srcChainId
-        // );
+        // Try to execute immediately
+        _executeVaultOperation(operation);
+    }
+    
+    /**
+     * @dev Execute vault operation
+     * @param operation Vault operation details
+     */
+    function _executeVaultOperation(VaultOperation memory operation) internal {
+        try this._safeVaultExecution(operation) {
+            // Mark as executed
+            bytes32 operationId = _generateOperationId(operation);
+            vaultOperations[operationId].executed = true;
+            
+            emit VaultOperationExecuted(
+                operationId,
+                operation.vault,
+                operation.user,
+                operation.assets
+            );
+        } catch Error(string memory reason) {
+            emit VaultOperationFailed(
+                _generateOperationId(operation),
+                operation.vault,
+                operation.user,
+                reason
+            );
+        }
+    }
+    
+    /**
+     * @dev Safe vault execution with try-catch
+     * @param operation Vault operation details
+     */
+    function _safeVaultExecution(VaultOperation memory operation) external {
+        require(msg.sender == address(this), "LayerZeroMessaging: internal only");
+        
+        // Execute deposit in target vault
+        IHyperIndexVault targetVault = IHyperIndexVault(operation.vault);
+        
+        // For deposits, call the vault's deposit function
+        targetVault.deposit(operation.assets, operation.user);
+    }
+    
+    /**
+     * @dev Generate unique operation ID
+     * @param operation Vault operation details
+     * @return operationId Unique identifier
+     */
+    function _generateOperationId(VaultOperation memory operation) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked(
+            operation.user,
+            operation.vault,
+            operation.indexTokenId,
+            operation.assets,
+            operation.timestamp,
+            operation.nonce,
+            operation.srcChainId
+        ));
     }
     
     /**

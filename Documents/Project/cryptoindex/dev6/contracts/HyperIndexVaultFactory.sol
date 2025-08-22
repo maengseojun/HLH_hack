@@ -2,32 +2,87 @@
 pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
+import "./SmartIndexVault.sol";
+import "./IndexTokenFactory.sol";
 import "./interfaces/IHyperIndexVault.sol";
+import "./interfaces/IPriceFeed.sol";
 
 /**
  * @title HyperIndexVaultFactory
- * @dev Factory contract for creating ERC4626-based index vaults using Clone pattern
- * @notice Manages creation and deployment of HyperIndexVault instances across chains
+ * @dev Enhanced factory that integrates IndexToken creation with ERC-4626 vault deployment
+ * @notice Creates unified index products combining token issuance with yield-bearing vault functionality
  */
-contract HyperIndexVaultFactory is AccessControl {
+contract HyperIndexVaultFactory is AccessControl, ReentrancyGuard, Pausable {
     using Clones for address;
-
+    
+    // Role definitions
     bytes32 public constant VAULT_CREATOR_ROLE = keccak256("VAULT_CREATOR_ROLE");
+    bytes32 public constant PLATFORM_ADMIN_ROLE = keccak256("PLATFORM_ADMIN_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
-
-    // Implementation contract address for cloning
+    
+    // Contract references
+    IndexTokenFactory public immutable indexTokenFactory;
+    IPriceFeed public priceFeed;
+    
+    // Template contracts for cloning
     address public immutable implementation;
+    address public smartIndexVaultImplementation;
     
-    // Mapping: indexTokenId => chainId => vault address
-    mapping(uint256 => mapping(uint256 => address)) public vaults;
+    // State mappings - Enhanced for unified products
+    mapping(bytes32 => HyperIndexProduct) public hyperIndexProducts;
+    mapping(address => bytes32[]) public creatorProducts;
+    mapping(bytes32 => address) public productVaults; // fundId -> vault address
+    mapping(uint256 => mapping(uint256 => address)) public vaults; // Legacy mapping
+    mapping(address => VaultMetadata) public vaultMetadata; // Legacy mapping
+    address[] public allVaults; // Legacy array
     
-    // Mapping: vault address => vault metadata
-    mapping(address => VaultMetadata) public vaultMetadata;
-    
-    // Array of all created vault addresses
-    address[] public allVaults;
+    // Configuration
+    uint256 public constant MAX_COMPONENTS = 10;
+    uint256 public constant MIN_INITIAL_DEPOSIT = 1000e6; // 1000 USDC minimum
+    uint256 public managementFeeLimit = 500; // 5% max annual fee
+    uint256 public performanceFeeLimit = 3000; // 30% max performance fee
 
+    struct HyperIndexProduct {
+        bytes32 fundId;
+        address indexToken;
+        address vault;
+        address creator;
+        string name;
+        string symbol;
+        HyperIndexComponent[] components;
+        VaultConfig vaultConfig;
+        uint256 createdAt;
+        ProductStatus status;
+    }
+    
+    struct HyperIndexComponent {
+        address tokenAddress;
+        uint32 hyperliquidAssetIndex;
+        uint256 targetRatio; // basis points (10000 = 100%)
+        uint256 depositedAmount;
+    }
+    
+    struct VaultConfig {
+        uint256 managementFee; // basis points
+        uint256 performanceFee; // basis points
+        uint256 maxTotalAssets; // Maximum assets the vault can hold
+        bool publicAccess; // Whether public deposits are allowed
+        address[] authorizedUsers; // Users allowed to deposit (if not public)
+    }
+    
+    enum ProductStatus {
+        Created,      // Product created, awaiting initial deposit
+        Funded,       // Initial deposit made, tokens issued
+        Active,       // Vault active and accepting deposits
+        Paused,       // Temporarily paused
+        Closed        // Permanently closed
+    }
+
+    // Legacy struct for backward compatibility
     struct VaultMetadata {
         uint256 indexTokenId;
         uint256 chainId;
@@ -39,6 +94,36 @@ contract HyperIndexVaultFactory is AccessControl {
         bool isActive;
     }
 
+    // Enhanced events for unified products
+    event HyperIndexProductCreated(
+        bytes32 indexed fundId,
+        address indexed creator,
+        address indexed vault,
+        address indexToken,
+        string name,
+        string symbol
+    );
+    
+    event InitialDepositCompleted(
+        bytes32 indexed fundId,
+        address indexed vault,
+        uint256 totalDeposited,
+        uint256 indexTokensIssued
+    );
+    
+    event ProductStatusChanged(
+        bytes32 indexed fundId,
+        ProductStatus oldStatus,
+        ProductStatus newStatus
+    );
+    
+    event VaultConfigUpdated(
+        bytes32 indexed fundId,
+        uint256 managementFee,
+        uint256 performanceFee
+    );
+
+    // Legacy events for backward compatibility
     event VaultCreated(
         uint256 indexed indexTokenId,
         uint256 indexed chainId,
@@ -60,17 +145,121 @@ contract HyperIndexVaultFactory is AccessControl {
         address indexed newImplementation
     );
 
-    constructor(address _implementation) {
-        require(_implementation != address(0), "HyperIndexVaultFactory: invalid implementation");
+    constructor(
+        address _implementation,
+        address _indexTokenFactory,
+        address _priceFeed
+    ) {
+        require(_implementation != address(0), "Invalid implementation");
+        require(_indexTokenFactory != address(0), "Invalid index token factory");
+        require(_priceFeed != address(0), "Invalid price feed");
         
         implementation = _implementation;
+        indexTokenFactory = IndexTokenFactory(_indexTokenFactory);
+        priceFeed = IPriceFeed(_priceFeed);
+        
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(PLATFORM_ADMIN_ROLE, msg.sender);
         _grantRole(VAULT_CREATOR_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
+        
+        // Deploy template contracts
+        smartIndexVaultImplementation = address(new SmartIndexVault(
+            IERC20(address(0)), // Will be set during initialization
+            "",
+            ""
+        ));
     }
 
     /**
-     * @dev Creates a new HyperIndexVault instance using Clone pattern
+     * @dev Create a new HyperIndex product with integrated token and vault
+     * @param name Product name (e.g., "HyperCrypto Top 5 Index")
+     * @param symbol Product symbol (e.g., "HYPER5")
+     * @param components Array of component tokens with target ratios
+     * @param vaultConfig Configuration for the vault
+     * @return fundId Unique identifier for the created product
+     */
+    function createHyperIndexProduct(
+        string memory name,
+        string memory symbol,
+        HyperIndexComponent[] memory components,
+        VaultConfig memory vaultConfig
+    ) external onlyRole(VAULT_CREATOR_ROLE) whenNotPaused returns (bytes32 fundId) {
+        require(bytes(name).length > 0, "Name required");
+        require(bytes(symbol).length > 0, "Symbol required");
+        require(components.length > 0 && components.length <= MAX_COMPONENTS, "Invalid component count");
+        require(vaultConfig.managementFee <= managementFeeLimit, "Management fee too high");
+        require(vaultConfig.performanceFee <= performanceFeeLimit, "Performance fee too high");
+        
+        // Validate components and ratios
+        _validateComponents(components);
+        
+        // Create index fund in the factory
+        IIndexTokenFactory.ComponentToken[] memory factoryComponents = 
+            new IIndexTokenFactory.ComponentToken[](components.length);
+            
+        for (uint i = 0; i < components.length; i++) {
+            factoryComponents[i] = IIndexTokenFactory.ComponentToken({
+                tokenAddress: components[i].tokenAddress,
+                hyperliquidAssetIndex: components[i].hyperliquidAssetIndex,
+                targetRatio: components[i].targetRatio,
+                depositedAmount: 0
+            });
+        }
+        
+        fundId = indexTokenFactory.createIndexFund(
+            name,
+            symbol,
+            factoryComponents
+        );
+        
+        // Get the created index token address
+        (,,,address indexTokenAddress,,,,) = indexTokenFactory.getFundInfo(fundId);
+        require(indexTokenAddress != address(0), "Index token creation failed");
+        
+        // Clone and initialize vault
+        address vaultClone = Clones.clone(smartIndexVaultImplementation);
+        SmartIndexVault(vaultClone).initialize(
+            IERC20(indexTokenAddress),
+            string.concat("Vault ", name),
+            string.concat("v", symbol),
+            vaultConfig.managementFee,
+            vaultConfig.performanceFee
+        );
+        
+        // Store product information
+        HyperIndexProduct storage product = hyperIndexProducts[fundId];
+        product.fundId = fundId;
+        product.indexToken = indexTokenAddress;
+        product.vault = vaultClone;
+        product.creator = msg.sender;
+        product.name = name;
+        product.symbol = symbol;
+        product.vaultConfig = vaultConfig;
+        product.createdAt = block.timestamp;
+        product.status = ProductStatus.Created;
+        
+        // Store components
+        for (uint i = 0; i < components.length; i++) {
+            product.components.push(components[i]);
+        }
+        
+        // Update mappings
+        creatorProducts[msg.sender].push(fundId);
+        productVaults[fundId] = vaultClone;
+        
+        emit HyperIndexProductCreated(
+            fundId,
+            msg.sender,
+            vaultClone,
+            indexTokenAddress,
+            name,
+            symbol
+        );
+    }
+
+    /**
+     * @dev Creates a new HyperIndexVault instance using Clone pattern (Legacy function)
      * @param asset The underlying ERC20 token address
      * @param indexTokenId Unique identifier for the index token
      * @param chainId Target chain ID for the vault
@@ -149,6 +338,61 @@ contract HyperIndexVaultFactory is AccessControl {
         );
 
         return vault;
+    }
+
+    /**
+     * @dev Complete initial funding of the product
+     * @param fundId Product identifier
+     * @param tokenAddresses Array of token addresses to deposit
+     * @param amounts Array of amounts to deposit
+     * @param indexTokenSupply Amount of index tokens to issue initially
+     */
+    function completeInitialFunding(
+        bytes32 fundId,
+        address[] memory tokenAddresses,
+        uint256[] memory amounts,
+        uint256 indexTokenSupply
+    ) external nonReentrant whenNotPaused {
+        HyperIndexProduct storage product = hyperIndexProducts[fundId];
+        require(product.creator == msg.sender, "Only creator can fund");
+        require(product.status == ProductStatus.Created, "Invalid status for funding");
+        require(tokenAddresses.length == amounts.length, "Array length mismatch");
+        
+        // Validate total value meets minimum
+        uint256 totalValueUSD = _calculateTotalValueUSD(tokenAddresses, amounts);
+        require(totalValueUSD >= MIN_INITIAL_DEPOSIT, "Below minimum deposit");
+        
+        // Deposit tokens to index factory
+        indexTokenFactory.depositComponentTokens(fundId, tokenAddresses, amounts);
+        
+        // Issue index tokens
+        indexTokenFactory.issueIndexToken(fundId, indexTokenSupply);
+        
+        // Update product status
+        product.status = ProductStatus.Funded;
+        
+        emit InitialDepositCompleted(
+            fundId,
+            product.vault,
+            totalValueUSD,
+            indexTokenSupply
+        );
+    }
+    
+    /**
+     * @dev Activate product for public deposits
+     * @param fundId Product identifier
+     */
+    function activateProduct(
+        bytes32 fundId
+    ) external onlyRole(PLATFORM_ADMIN_ROLE) {
+        HyperIndexProduct storage product = hyperIndexProducts[fundId];
+        require(product.status == ProductStatus.Funded, "Product must be funded first");
+        
+        ProductStatus oldStatus = product.status;
+        product.status = ProductStatus.Active;
+        
+        emit ProductStatusChanged(fundId, oldStatus, ProductStatus.Active);
     }
 
     /**
@@ -299,5 +543,108 @@ contract HyperIndexVaultFactory is AccessControl {
                 }
             }
         }
+    }
+
+    // Enhanced product management functions
+    
+    /**
+     * @dev Get product information
+     * @param fundId Product identifier
+     * @return product Complete product information
+     */
+    function getHyperIndexProduct(
+        bytes32 fundId
+    ) external view returns (HyperIndexProduct memory product) {
+        return hyperIndexProducts[fundId];
+    }
+    
+    /**
+     * @dev Get products created by a user
+     * @param creator Creator address
+     * @return productIds Array of product identifiers
+     */
+    function getCreatorProducts(
+        address creator
+    ) external view returns (bytes32[] memory productIds) {
+        return creatorProducts[creator];
+    }
+    
+    /**
+     * @dev Get vault address for a product
+     * @param fundId Product identifier
+     * @return vaultAddress Vault contract address
+     */
+    function getProductVault(bytes32 fundId) external view returns (address vaultAddress) {
+        return productVaults[fundId];
+    }
+    
+    /**
+     * @dev Internal function to validate components
+     * @param components Array of components to validate
+     */
+    function _validateComponents(HyperIndexComponent[] memory components) internal view {
+        uint256 totalRatio = 0;
+        
+        for (uint i = 0; i < components.length; i++) {
+            require(components[i].tokenAddress != address(0), "Invalid token address");
+            require(components[i].targetRatio > 0, "Ratio must be positive");
+            
+            // Check if token is authorized in the index factory
+            require(
+                indexTokenFactory.authorizedTokens(components[i].tokenAddress),
+                "Token not authorized"
+            );
+            
+            totalRatio += components[i].targetRatio;
+        }
+        
+        require(totalRatio == 10000, "Total ratio must be 100%");
+    }
+    
+    /**
+     * @dev Calculate total value in USD for given tokens and amounts
+     * @param tokenAddresses Array of token addresses
+     * @param amounts Array of token amounts
+     * @return totalValueUSD Total value in USD
+     */
+    function _calculateTotalValueUSD(
+        address[] memory tokenAddresses,
+        uint256[] memory amounts
+    ) internal view returns (uint256 totalValueUSD) {
+        // For now, assume 1:1 with USDC for simplicity
+        // In production, this would use proper price feeds
+        for (uint i = 0; i < amounts.length; i++) {
+            totalValueUSD += amounts[i];
+        }
+    }
+    
+    /**
+     * @dev Admin function to update fee limits
+     * @param newManagementFeeLimit New management fee limit in basis points
+     * @param newPerformanceFeeLimit New performance fee limit in basis points
+     */
+    function updateFeeLimits(
+        uint256 newManagementFeeLimit,
+        uint256 newPerformanceFeeLimit
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(newManagementFeeLimit <= 1000, "Management fee limit too high"); // 10% absolute max
+        require(newPerformanceFeeLimit <= 5000, "Performance fee limit too high"); // 50% absolute max
+        
+        managementFeeLimit = newManagementFeeLimit;
+        performanceFeeLimit = newPerformanceFeeLimit;
+    }
+    
+    /**
+     * @dev Emergency pause function
+     */
+    function emergencyPause() external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _pause();
+    }
+    
+    /**
+     * @dev Emergency unpause function
+     */
+    function emergencyUnpause() external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _unpause();
     }
 }

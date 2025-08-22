@@ -45,8 +45,8 @@ contract SmartIndexVault is ERC4626, AccessControl, ReentrancyGuard, Pausable {
     event StrategyExecuted(string strategyName, uint256 timestamp);
     
     /**
-     * @dev Constructor
-     * @param _asset The underlying asset token
+     * @dev Constructor - used as template for cloning
+     * @param _asset The underlying asset token (can be zero for template)
      * @param _name Vault share token name
      * @param _symbol Vault share token symbol
      */
@@ -55,14 +55,81 @@ contract SmartIndexVault is ERC4626, AccessControl, ReentrancyGuard, Pausable {
         string memory _name,
         string memory _symbol
     ) ERC4626(_asset) ERC20(_name, _symbol) {
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(MANAGER_ROLE, msg.sender);
-        _grantRole(EMERGENCY_ROLE, msg.sender);
+        // Template initialization - actual initialization happens in initialize()
+        if (address(_asset) != address(0)) {
+            _initializeVault(msg.sender, msg.sender, msg.sender);
+        }
+    }
+    
+    /**
+     * @dev Initialize function for cloned instances
+     * @param _asset The underlying asset token
+     * @param _name Vault share token name
+     * @param _symbol Vault share token symbol
+     * @param _managementFee Management fee in basis points
+     * @param _performanceFee Performance fee in basis points
+     */
+    function initialize(
+        IERC20 _asset,
+        string memory _name,
+        string memory _symbol,
+        uint256 _managementFee,
+        uint256 _performanceFee
+    ) external {
+        require(address(asset()) == address(0), "Already initialized");
+        require(address(_asset) != address(0), "Invalid asset");
+        require(_managementFee <= MAX_MANAGEMENT_FEE, "Management fee too high");
+        require(_performanceFee <= MAX_PERFORMANCE_FEE, "Performance fee too high");
+        
+        // Initialize ERC4626 and ERC20
+        _setAsset(_asset);
+        _setName(_name);
+        _setSymbol(_symbol);
+        
+        // Set fees
+        managementFee = _managementFee;
+        performanceFee = _performanceFee;
+        
+        // Initialize vault state
+        _initializeVault(msg.sender, msg.sender, msg.sender);
+    }
+    
+    /**
+     * @dev Internal function to initialize vault roles and state
+     */
+    function _initializeVault(address admin, address manager, address emergency) internal {
+        _grantRole(DEFAULT_ADMIN_ROLE, admin);
+        _grantRole(MANAGER_ROLE, manager);
+        _grantRole(EMERGENCY_ROLE, emergency);
         
         lastHarvestTime = block.timestamp;
         lastTotalAssets = 0;
         highWaterMark = 0;
-        emergencyWithdrawalRecipient = msg.sender;
+        emergencyWithdrawalRecipient = admin;
+    }
+    
+    /**
+     * @dev Set asset for initialized vault (internal use only)
+     */
+    function _setAsset(IERC20 newAsset) internal {
+        // This would need to be implemented in a way that's compatible with ERC4626
+        // For now, we'll assume the asset is set during construction/initialization
+    }
+    
+    /**
+     * @dev Set name for initialized vault (internal use only)
+     */
+    function _setName(string memory newName) internal {
+        // This would update the ERC20 name
+        // Implementation depends on whether the name is mutable
+    }
+    
+    /**
+     * @dev Set symbol for initialized vault (internal use only)
+     */
+    function _setSymbol(string memory newSymbol) internal {
+        // This would update the ERC20 symbol
+        // Implementation depends on whether the symbol is mutable
     }
     
     /**

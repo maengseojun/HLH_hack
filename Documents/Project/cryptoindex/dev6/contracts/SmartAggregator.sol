@@ -383,15 +383,15 @@ contract SmartAggregator is AccessControl, ReentrancyGuard, Pausable {
      * @dev Update MEV protection settings
      */
     function updateMEVProtection(
-        uint256 maxSlippage,
+        uint256 _maxSlippage,
         uint256 maxPriceImpact,
         bool useFlashbotsRPC,
         uint256 priorityFee
     ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(maxSlippage <= 1000, "Slippage too high"); // Max 10%
+        require(_maxSlippage <= 1000, "Slippage too high"); // Max 10%
         require(maxPriceImpact <= 1000, "Price impact too high"); // Max 10%
         
-        mevSettings.maxSlippage = maxSlippage;
+        mevSettings.maxSlippage = _maxSlippage;
         mevSettings.maxPriceImpact = maxPriceImpact;
         mevSettings.useFlashbotsRPC = useFlashbotsRPC;
         mevSettings.priorityFee = priorityFee;
