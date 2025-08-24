@@ -5,7 +5,7 @@ async function main() {
     
     const [deployer] = await ethers.getSigners();
     console.log("Deploying contracts with account:", deployer.address);
-    console.log("Account balance:", ethers.utils.formatEther(await deployer.getBalance()), "ETH\n");
+    console.log("Account balance:", ethers.formatEther(await ethers.provider.getBalance(deployer.address)), "ETH\n");
     
     // Deploy IndexTokenFactory
     console.log("📦 Deploying IndexTokenFactory...");
@@ -15,8 +15,9 @@ async function main() {
     const feeRecipient = process.env.FEE_RECIPIENT_ADDRESS || deployer.address;
     const factory = await IndexTokenFactory.deploy(feeRecipient);
     
-    await factory.deployed();
-    console.log("✅ IndexTokenFactory deployed to:", factory.address);
+    await factory.waitForDeployment();
+    const factoryAddress = await factory.getAddress();
+    console.log("✅ IndexTokenFactory deployed to:", factoryAddress);
     console.log("   Fee recipient:", feeRecipient);
     
     // Setup initial configuration
@@ -48,7 +49,7 @@ async function main() {
     
     console.log("\n📋 Deployment Summary:");
     console.log("==========================================");
-    console.log("IndexTokenFactory:", factory.address);
+    console.log("IndexTokenFactory:", factoryAddress);
     console.log("Deployer:", deployer.address);
     console.log("Fee Recipient:", feeRecipient);
     console.log("Network:", network.name);
@@ -59,7 +60,7 @@ async function main() {
         network: network.name,
         chainId: network.config.chainId,
         contracts: {
-            IndexTokenFactory: factory.address
+            IndexTokenFactory: factoryAddress
         },
         deployer: deployer.address,
         feeRecipient: feeRecipient,
@@ -78,7 +79,7 @@ async function main() {
     console.log("4. Authorize tokens that can be used in index funds");
     console.log("5. Test with small fund creation and token issuance");
     
-    return factory.address;
+    return factoryAddress;
 }
 
 main()

@@ -40,6 +40,12 @@ export default function Home() {
               거래 시작하기
             </a>
             <a
+              href="/governance-test"
+              className="bg-green-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-green-700 transition-colors"
+            >
+              🗳️ 거버넌스 테스트
+            </a>
+            <a
               href="/api/health"
               className="border border-gray-300 text-gray-700 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-50 transition-colors"
             >

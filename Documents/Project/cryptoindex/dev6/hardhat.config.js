@@ -10,7 +10,7 @@ require("dotenv").config();
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: {
-    version: "0.8.20",
+    version: "0.8.22",
     settings: {
       optimizer: {
         enabled: true,
@@ -32,7 +32,7 @@ module.exports = {
       url: process.env.HYPERVM_TESTNET_RPC || "https://rpc.hyperliquid-testnet.xyz/evm",
       chainId: 998,
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-      gasPrice: 1,  // 1 wei - HyperEVM optimal
+      gasPrice: "auto",  // Auto gas price
       gas: 3000000,  // 3M gas limit
       blockGasLimit: 30000000,  // 30M block gas limit  
       timeout: 60000,  // 60초 timeout
