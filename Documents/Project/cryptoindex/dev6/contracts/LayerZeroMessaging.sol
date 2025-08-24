@@ -274,17 +274,22 @@ contract LayerZeroMessaging is AccessControl, ReentrancyGuard, Pausable {
         // Update message status
         messageStatus[messageHash] = MessageStatus.Received;
         
-        // Process the received message
-        _processReceivedMessage(
-            user,
-            vault,
-            indexTokenId,
-            assets,
-            shares,
-            timestamp,
-            userNonce,
-            srcChainId
-        );
+        // Inlined _processReceivedMessage logic
+        VaultOperation memory operation = VaultOperation({
+            user: user,
+            vault: vault,
+            indexTokenId: indexTokenId,
+            assets: assets,
+            shares: shares,
+            timestamp: timestamp,
+            nonce: userNonce,
+            srcChainId: srcChainId,
+            executed: false
+        });
+        
+        vaultOperations[_generateOperationId(operation)] = operation;
+        
+        _executeVaultOperation(operation);
         
         emit CrossChainMessageReceived(
             user,
@@ -293,47 +298,6 @@ contract LayerZeroMessaging is AccessControl, ReentrancyGuard, Pausable {
             _srcChainId,
             messageHash
         );
-    }
-    
-    /**
-     * @dev Process received cross-chain message
-     * @param user User address
-     * @param vault Vault address
-     * @param indexTokenId Index token identifier
-     * @param assets Assets amount
-     * @param shares Shares amount
-     * @param timestamp Transaction timestamp
-     * @param nonce User nonce
-     * @param srcChainId Source chain ID
-     */
-    function _processReceivedMessage(
-        address user,
-        address vault,
-        uint256 indexTokenId,
-        uint256 assets,
-        uint256 shares,
-        uint256 timestamp,
-        uint256 nonce,
-        uint256 srcChainId
-    ) internal {
-        // Execute vault operation based on message type
-        VaultOperation memory operation = VaultOperation({
-            user: user,
-            vault: vault,
-            indexTokenId: indexTokenId,
-            assets: assets,
-            shares: shares,
-            timestamp: timestamp,
-            nonce: nonce,
-            srcChainId: srcChainId,
-            executed: false
-        });
-        
-        // Store operation for processing
-        vaultOperations[_generateOperationId(operation)] = operation;
-        
-        // Try to execute immediately
-        _executeVaultOperation(operation);
     }
     
     /**

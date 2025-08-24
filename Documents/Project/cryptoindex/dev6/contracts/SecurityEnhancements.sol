@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "./interfaces/IPriceFeed.sol";
+import "./EnhancedOracleManager.sol";
 
 /**
  * @title SecurityEnhancements
@@ -111,9 +112,13 @@ contract SecurityEnhancements is AccessControl, ReentrancyGuard, Pausable {
     {
         OracleConfig storage config = oracleConfigs[asset];
         require(config.isActive, "Oracle not configured for asset");
+
+        EnhancedOracleManager manager = EnhancedOracleManager(address(config.primaryOracle));
+        uint32 assetIndex = manager.assetToIndex(asset);
+        require(assetIndex != 0, "Asset not registered in oracle manager");
         
         // Get primary price (Hyperliquid)
-        uint256 primaryPrice = config.primaryOracle.getPrice(asset);
+        uint256 primaryPrice = config.primaryOracle.getPrice(assetIndex);
         require(primaryPrice > 0, "Invalid primary price");
         
         if (config.backupOracles.length == 0) {
@@ -125,7 +130,7 @@ contract SecurityEnhancements is AccessControl, ReentrancyGuard, Pausable {
         uint256 priceSum = primaryPrice;
         
         for (uint i = 0; i < config.backupOracles.length; i++) {
-            try config.backupOracles[i].getPrice(asset) returns (uint256 backupPrice) {
+            try config.backupOracles[i].getPrice(assetIndex) returns (uint256 backupPrice) {
                 if (backupPrice > 0) {
                     uint256 deviation = _calculateDeviation(primaryPrice, backupPrice);
                     

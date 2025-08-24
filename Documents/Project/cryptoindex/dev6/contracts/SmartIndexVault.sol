@@ -201,7 +201,7 @@ contract SmartIndexVault is ERC4626, AccessControl, ReentrancyGuard, Pausable {
      * @notice Accounts for management fees
      */
     function previewDeposit(uint256 assets) public view override returns (uint256) {
-        return _convertToShares(assets, Math.Rounding.Down);
+        return _convertToShares(assets, Math.Rounding.Floor);
     }
     
     /**
@@ -209,7 +209,7 @@ contract SmartIndexVault is ERC4626, AccessControl, ReentrancyGuard, Pausable {
      * @notice Accounts for management fees
      */
     function previewMint(uint256 shares) public view override returns (uint256) {
-        return _convertToAssets(shares, Math.Rounding.Up);
+        return _convertToAssets(shares, Math.Rounding.Ceil);
     }
     
     /**
@@ -217,7 +217,7 @@ contract SmartIndexVault is ERC4626, AccessControl, ReentrancyGuard, Pausable {
      * @notice Accounts for management fees
      */
     function previewWithdraw(uint256 assets) public view override returns (uint256) {
-        return _convertToShares(assets, Math.Rounding.Up);
+        return _convertToShares(assets, Math.Rounding.Ceil);
     }
     
     /**
@@ -225,7 +225,7 @@ contract SmartIndexVault is ERC4626, AccessControl, ReentrancyGuard, Pausable {
      * @notice Accounts for management fees
      */
     function previewRedeem(uint256 shares) public view override returns (uint256) {
-        return _convertToAssets(shares, Math.Rounding.Down);
+        return _convertToAssets(shares, Math.Rounding.Floor);
     }
     
     /**
@@ -353,16 +353,7 @@ contract SmartIndexVault is ERC4626, AccessControl, ReentrancyGuard, Pausable {
         emergencyWithdrawalRecipient = recipient;
     }
     
-    /**
-     * @dev Hook that is called before any transfer of tokens
-     */
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal override whenNotPaused {
-        super._beforeTokenTransfer(from, to, amount);
-    }
+    
     
     /**
      * @dev Returns the maximum amount of assets that can be deposited

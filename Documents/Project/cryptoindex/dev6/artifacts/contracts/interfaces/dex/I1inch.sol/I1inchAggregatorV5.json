@@ -1,0 +1,243 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "I1inchAggregatorV5",
+  "sourceName": "contracts/interfaces/dex/I1inch.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "clipperExchange",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "srcToken",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "dstToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "inputAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "outputAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "goodUntil",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "r",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "vs",
+          "type": "bytes32"
+        }
+      ],
+      "name": "clipperSwap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "returnAmount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "executor",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "srcToken",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "dstToken",
+              "type": "address"
+            },
+            {
+              "internalType": "address payable",
+              "name": "srcReceiver",
+              "type": "address"
+            },
+            {
+              "internalType": "address payable",
+              "name": "dstReceiver",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "minReturnAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "flags",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct I1inchAggregatorV5.SwapDescription",
+          "name": "desc",
+          "type": "tuple"
+        },
+        {
+          "internalType": "bytes",
+          "name": "permit",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "swap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "returnAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "spentAmount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minReturn",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "pools",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "uniswapV3Swap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "returnAmount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "srcToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minReturn",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "pools",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "unoswap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "returnAmount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "srcToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minReturn",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "pools",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "unoswapTo",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "returnAmount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

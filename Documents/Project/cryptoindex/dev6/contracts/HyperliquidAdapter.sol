@@ -216,8 +216,8 @@ contract HyperliquidAdapter is AccessControl, ReentrancyGuard, Pausable {
         IERC20(tokenB).safeTransferFrom(msg.sender, address(this), amountB);
         
         // Approve DEX
-        IERC20(tokenA).safeApprove(config.dexAddress, amountA);
-        IERC20(tokenB).safeApprove(config.dexAddress, amountB);
+        IERC20(tokenA).approve(config.dexAddress, amountA);
+        IERC20(tokenB).approve(config.dexAddress, amountB);
         
         // Add liquidity on Hyperliquid
         IHyperliquidDEX dex = IHyperliquidDEX(config.dexAddress);

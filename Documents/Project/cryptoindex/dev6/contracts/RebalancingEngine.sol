@@ -219,14 +219,14 @@ contract RebalancingEngine is AccessControl, ReentrancyGuard, Pausable {
             uint256 targetRatio = data.targetAllocations[i];
             
             // Check if deviation exceeds tolerance
-            if (currentRatio > targetRatio + REBALANCE_TOLERANCE_BPS) {
+            if (currentRatio > targetRatio + rebalanceTolerance) {
                 // Find best target token (most underweight)
                 uint256 bestTargetIndex = _findBestRebalanceTarget(data, i);
                 
                 if (bestTargetIndex != i) {
                     uint256 excessAmount = ((currentRatio - targetRatio) * data.totalValue) / 10000;
                     
-                    if (excessAmount >= MIN_REBALANCE_AMOUNT) {
+                    if (excessAmount >= minRebalanceAmount) {
                         // Get quote from aggregator
                         (uint256 amountOut, bytes memory calldata_) = _getSwapQuote(
                             data.tokens[i],
@@ -234,7 +234,7 @@ contract RebalancingEngine is AccessControl, ReentrancyGuard, Pausable {
                             excessAmount
                         );
                         
-                        uint256 minAmountOut = (amountOut * (10000 - MAX_SLIPPAGE_BPS)) / 10000;
+                        uint256 minAmountOut = (amountOut * (10000 - maxSlippage)) / 10000;
                         
                         rebalanceParams = RebalanceParams({
                             vault: vault,
@@ -265,7 +265,7 @@ contract RebalancingEngine is AccessControl, ReentrancyGuard, Pausable {
     {
         require(vault != address(0), "RebalancingEngine: invalid vault");
         require(
-            block.timestamp >= lastRebalanceTime[vault] + REBALANCE_COOLDOWN,
+            block.timestamp >= lastRebalanceTime[vault] + rebalanceCooldown,
             "RebalancingEngine: cooldown not met"
         );
         

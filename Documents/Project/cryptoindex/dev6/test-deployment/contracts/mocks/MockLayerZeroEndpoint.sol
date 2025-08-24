@@ -3,212 +3,141 @@ pragma solidity ^0.8.19;
 
 /**
  * @title MockLayerZeroEndpoint
- * @dev Mock implementation of LayerZero endpoint for testing purposes
- * @notice This simulates LayerZero V2 endpoint functionality for HyperEVM testnet
+ * @dev Enhanced mock for cross-chain messaging
+ * Based on: LayerZero V2 Protocol Standards
  */
 contract MockLayerZeroEndpoint {
-    
-    uint32 public eid; // Endpoint ID
-    address public owner;
-    
-    // Message tracking
-    uint64 private nextNonce = 1;
-    mapping(address => mapping(uint32 => uint64)) public outboundNonce;
-    mapping(address => mapping(uint32 => uint64)) public inboundNonce;
-    
-    // Message queue for simulation
-    struct PendingMessage {
-        uint32 srcEid;
-        bytes32 sender;
-        address receiver;
-        bytes message;
+    struct Message {
+        uint16 srcChainId;
+        bytes srcAddress;
+        bytes payload;
         uint256 timestamp;
-        bool executed;
+        uint256 blockNumber;
     }
     
-    PendingMessage[] public pendingMessages;
-    mapping(bytes32 => bool) public messageExecuted;
+    // ✅ FIX: Message queue for tracking
+    Message[] private messageQueue;
+    mapping(uint16 => bool) public supportedChains;
+    mapping(address => uint256) public nonces;
     
-    // Events
-    event PacketSent(
-        uint32 indexed dstEid,
-        address indexed sender,
-        address indexed receiver,
-        bytes message,
-        uint64 nonce
+    event MessageSent(
+        uint16 indexed dstChainId,
+        bytes indexed destination,
+        bytes payload,
+        uint256 nonce
     );
     
-    event PacketReceived(
-        uint32 indexed srcEid,
-        bytes32 indexed sender,
-        address indexed receiver,
-        bytes message,
-        uint64 nonce
+    event MessageReceived(
+        uint16 indexed srcChainId,
+        bytes indexed srcAddress,
+        bytes payload
     );
     
-    event MessageExecuted(
-        bytes32 indexed messageHash,
-        bool success
-    );
-    
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Not owner");
-        _;
+    constructor() {
+        // Initialize supported chains
+        supportedChains[1] = true;     // Ethereum
+        supportedChains[42161] = true; // Arbitrum  
+        supportedChains[137] = true;   // Polygon
+        supportedChains[998] = true;   // HyperEVM
     }
     
-    constructor(uint32 _eid) {
-        eid = _eid;
-        owner = msg.sender;
+    // ✅ FIX: Missing getMessageQueueLength function
+    function getMessageQueueLength() external view returns (uint256) {
+        return messageQueue.length;
     }
     
-    /**
-     * @dev Send a message to another chain (simulated)
-     * @param _dstEid Destination endpoint ID
-     * @param _receiver Receiver address on destination chain
-     * @param _message Message payload
-     * @param _options Execution options (ignored in mock)
-     * @param _fee Fee for sending (ignored in mock)
-     */
+    // ✅ FIX: Enhanced send function
     function send(
-        uint32 _dstEid,
-        address _receiver,
-        bytes calldata _message,
-        bytes calldata _options,
-        uint256 _fee
-    ) external payable returns (uint64 nonce) {
-        nonce = nextNonce++;
-        outboundNonce[msg.sender][_dstEid] = nonce;
+        uint16 _dstChainId,
+        bytes calldata _destination,
+        bytes calldata _payload,
+        address payable _refundAddress,
+        address _zroPaymentAddress,
+        bytes calldata _adapterParams
+    ) external payable {
+        require(supportedChains[_dstChainId], "Unsupported destination chain");
+        require(_payload.length > 0, "Empty payload");
         
-        emit PacketSent(_dstEid, msg.sender, _receiver, _message, nonce);
-        
-        // In a real implementation, this would be handled by LayerZero network
-        // For testing, we simulate immediate delivery
-        _simulateMessageDelivery(_dstEid, msg.sender, _receiver, _message, nonce);
-        
-        return nonce;
-    }
-    
-    /**
-     * @dev Simulate message delivery (for testing only)
-     */
-    function _simulateMessageDelivery(
-        uint32 _srcEid,
-        address _sender,
-        address _receiver,
-        bytes memory _message,
-        uint64 _nonce
-    ) internal {
-        // Create message hash
-        bytes32 messageHash = keccak256(abi.encodePacked(_srcEid, _sender, _receiver, _message, _nonce));
-        
-        // Add to pending messages
-        pendingMessages.push(PendingMessage({
-            srcEid: _srcEid,
-            sender: bytes32(uint256(uint160(_sender))),
-            receiver: _receiver,
-            message: _message,
+        // Add to message queue
+        messageQueue.push(Message({
+            srcChainId: _dstChainId,
+            srcAddress: _destination,
+            payload: _payload,
             timestamp: block.timestamp,
-            executed: false
+            blockNumber: block.number
         }));
         
-        emit PacketReceived(_srcEid, bytes32(uint256(uint160(_sender))), _receiver, _message, _nonce);
+        // Update nonce
+        nonces[msg.sender]++;
+        
+        emit MessageSent(_dstChainId, _destination, _payload, nonces[msg.sender]);
+        
+        // Simulate successful delivery
+        if (_refundAddress != address(0) && msg.value > 0) {
+            _refundAddress.transfer(msg.value / 2); // Return half as "change"
+        }
     }
     
-    /**
-     * @dev Execute a pending message (simulating LayerZero execution)
-     * @param _messageIndex Index of message in pending messages array
-     */
-    function executeMessage(uint256 _messageIndex) external {
-        require(_messageIndex < pendingMessages.length, "Invalid message index");
+    // ✅ FIX: Message retrieval functions
+    function getMessage(uint256 index) external view returns (Message memory) {
+        require(index < messageQueue.length, "Message index out of bounds");
+        return messageQueue[index];
+    }
+    
+    function getLatestMessages(uint256 count) external view returns (Message[] memory) {
+        uint256 length = messageQueue.length;
+        if (count > length) count = length;
         
-        PendingMessage storage message = pendingMessages[_messageIndex];
-        require(!message.executed, "Message already executed");
-        
-        bytes32 messageHash = keccak256(abi.encodePacked(
-            message.srcEid,
-            message.sender,
-            message.receiver,
-            message.message,
-            _messageIndex
-        ));
-        
-        require(!messageExecuted[messageHash], "Message hash already executed");
-        
-        message.executed = true;
-        messageExecuted[messageHash] = true;
-        inboundNonce[message.receiver][message.srcEid]++;
-        
-        // Try to execute the message on the receiver contract
-        bool success = false;
-        if (message.receiver.code.length > 0) {
-            try ILayerZeroReceiver(message.receiver).lzReceive(
-                message.srcEid,
-                message.sender,
-                inboundNonce[message.receiver][message.srcEid],
-                message.message
-            ) {
-                success = true;
-            } catch {
-                success = false;
-            }
+        Message[] memory latest = new Message[](count);
+        for (uint256 i = 0; i < count; i++) {
+            latest[i] = messageQueue[length - 1 - i];
         }
         
-        emit MessageExecuted(messageHash, success);
+        return latest;
     }
     
-    /**
-     * @dev Get quote for sending a message (always returns 0 for mock)
-     */
-    function quote(
-        uint32 _dstEid,
-        address _sender,
-        bytes calldata _message,
-        bytes calldata _options
-    ) external pure returns (uint256 fee) {
-        // Mock implementation - no fees
-        return 0;
+    // ✅ FIX: Simulate message processing
+    function processMessage(uint256 messageIndex) external {
+        require(messageIndex < messageQueue.length, "Invalid message index");
+        
+        Message memory message = messageQueue[messageIndex];
+        
+        emit MessageReceived(
+            message.srcChainId,
+            message.srcAddress,
+            message.payload
+        );
     }
     
-    /**
-     * @dev Get pending messages count
-     */
-    function getPendingMessagesCount() external view returns (uint256) {
-        return pendingMessages.length;
+    // ✅ FIX: Chain management
+    function addSupportedChain(uint16 chainId) external {
+        supportedChains[chainId] = true;
     }
     
-    /**
-     * @dev Get pending message details
-     */
-    function getPendingMessage(uint256 _index) external view returns (
-        uint32 srcEid,
-        bytes32 sender,
-        address receiver,
-        bytes memory msgData,
-        uint256 timestamp,
-        bool executed
-    ) {
-        require(_index < pendingMessages.length, "Invalid index");
-        PendingMessage memory pendingMsg = pendingMessages[_index];
-        return (pendingMsg.srcEid, pendingMsg.sender, pendingMsg.receiver, pendingMsg.message, pendingMsg.timestamp, pendingMsg.executed);
+    function removeSupportedChain(uint16 chainId) external {
+        supportedChains[chainId] = false;
     }
     
-    /**
-     * @dev Set endpoint ID (only for testing)
-     */
-    function setEid(uint32 _newEid) external onlyOwner {
-        eid = _newEid;
+    // ✅ FIX: Fee estimation (mock)
+    function estimateFees(
+        uint16 _dstChainId,
+        address _userApplication,
+        bytes calldata _payload,
+        bool _payInZRO,
+        bytes calldata _adapterParam
+    ) external view returns (uint256 nativeFee, uint256 zroFee) {
+        // Mock fee calculation
+        nativeFee = 0.001 ether; // Base fee
+        nativeFee += (_payload.length * 100); // Per byte fee
+        zroFee = _payInZRO ? nativeFee / 2 : 0;
     }
-}
-
-/**
- * @title ILayerZeroReceiver
- * @dev Interface for contracts that can receive LayerZero messages
- */
-interface ILayerZeroReceiver {
-    function lzReceive(
-        uint32 _srcEid,
-        bytes32 _sender,
-        uint64 _nonce,
-        bytes calldata _message
-    ) external;
+    
+    // ✅ FIX: Utility functions
+    function clearMessageQueue() external {
+        delete messageQueue;
+    }
+    
+    function isChainSupported(uint16 chainId) external view returns (bool) {
+        return supportedChains[chainId];
+    }
 }

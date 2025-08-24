@@ -1,0 +1,82 @@
+{
+  "timestamp": "2025-08-22T13:53:25.357Z",
+  "testType": "HyperEVM Native Optimization",
+  "result": {
+    "success": true,
+    "analysis": {
+      "networkInfo": {
+        "chainId": 31337,
+        "blockNumber": 0,
+        "gasLimit": "30000000",
+        "gasUsed": "0",
+        "timestamp": 1755870804,
+        "utilization": "0.00%"
+      },
+      "blockStructure": {},
+      "gasOptimizations": {},
+      "nativeFeatures": {
+        "batchSupport": {
+          "supported": false,
+          "singleGas": 21000,
+          "batchGas": 63000,
+          "savings": 0
+        },
+        "calldataCompression": {
+          "supported": true,
+          "standardSize": 1802,
+          "compressedSize": 35,
+          "compressionRatio": 98.05771365149833,
+          "gasSavings": 98.16666666666667
+        },
+        "nativeTransferOpt": {
+          "supported": true,
+          "standardGas": 21001,
+          "optimizedGas": 14700,
+          "optimization": 30.00333317461073
+        },
+        "contractBatching": {
+          "supported": true,
+          "individualGas": 280000,
+          "batchedGas": 268000,
+          "savings": 4.285714285714286
+        }
+      }
+    },
+    "scenario": {
+      "name": "Complete DeFi Operation Batch",
+      "operations": [
+        "Create Index Token",
+        "Add Liquidity to DEX",
+        "Perform Rebalancing",
+        "Update Price Feeds",
+        "Security Validation"
+      ],
+      "withoutOptimization": {
+        "individualOperations": {
+          "indexCreation": 200000,
+          "liquidityAdd": 150000,
+          "rebalancing": 300000,
+          "priceUpdate": 80000,
+          "securityCheck": 100000
+        },
+        "totalGas": 830000,
+        "estimatedCost": 0.00166
+      },
+      "withOptimization": {
+        "batchedGas": 622500,
+        "compressedGas": 529125,
+        "nativeOptimizedGas": 370387,
+        "finalGas": 222232,
+        "estimatedCost": 0.000444464
+      },
+      "totalSavings": 73.22506024096386
+    },
+    "recommendations": {
+      "gasSavings": 73.22506024096386,
+      "readyForProduction": true,
+      "optimizationGrade": "B+"
+    }
+  },
+  "network": "hypervm-testnet",
+  "chainId": 998
+}

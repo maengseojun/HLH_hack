@@ -9,6 +9,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/IPriceFeed.sol";
 import "./interfaces/dex/IUniswapV3.sol";
 import "./interfaces/dex/I1inch.sol";
+import "./EnhancedOracleManager.sol";
 
 /**
  * @title MultiDEXAggregator
@@ -171,7 +172,7 @@ contract MultiDEXAggregator is AccessControl, ReentrancyGuard, Pausable {
         address tokenIn,
         address tokenOut,
         uint256 amountIn
-    ) public view returns (DEXType bestDEX, uint256 expectedOut) {
+    ) public returns (DEXType bestDEX, uint256 expectedOut) {
         require(tokenIn != address(0) && tokenOut != address(0), "Invalid tokens");
         require(amountIn > 0, "Invalid amount");
         
@@ -285,7 +286,7 @@ contract MultiDEXAggregator is AccessControl, ReentrancyGuard, Pausable {
         address tokenIn,
         address tokenOut,
         uint256 amountIn
-    ) private view returns (uint256) {
+    ) private returns (uint256) {
         DEXConfig memory config = dexConfigs[dexType];
         
         if (!config.isActive || config.router == address(0)) {
@@ -310,7 +311,7 @@ contract MultiDEXAggregator is AccessControl, ReentrancyGuard, Pausable {
         address tokenIn,
         address tokenOut,
         uint256 amountIn
-    ) private view returns (uint256) {
+    ) private returns (uint256) {
         if (config.quoter == address(0)) return 0;
         
         try IQuoterV2(config.quoter).quoteExactInputSingle(
@@ -348,8 +349,14 @@ contract MultiDEXAggregator is AccessControl, ReentrancyGuard, Pausable {
         address tokenOut,
         uint256 amountIn
     ) private view returns (uint256) {
-        uint256 priceIn = priceFeed.getPrice(tokenIn);
-        uint256 priceOut = priceFeed.getPrice(tokenOut);
+        EnhancedOracleManager manager = EnhancedOracleManager(address(priceFeed));
+        uint32 indexIn = manager.assetToIndex(tokenIn);
+        uint32 indexOut = manager.assetToIndex(tokenOut);
+
+        if (indexIn == 0 || indexOut == 0) return 0; // Asset not registered
+
+        uint256 priceIn = priceFeed.getPrice(indexIn);
+        uint256 priceOut = priceFeed.getPrice(indexOut);
         
         if (priceIn == 0 || priceOut == 0) return 0;
         
@@ -370,7 +377,7 @@ contract MultiDEXAggregator is AccessControl, ReentrancyGuard, Pausable {
         DEXConfig memory config = dexConfigs[dexType];
         
         // Approve router
-        IERC20(tokenIn).safeApprove(config.router, amountIn);
+        IERC20(tokenIn).approve(config.router, amountIn);
         
         if (dexType == DEXType.UniswapV3) {
             return _executeUniswapV3Swap(

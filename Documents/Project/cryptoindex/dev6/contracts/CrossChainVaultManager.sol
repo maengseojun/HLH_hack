@@ -133,7 +133,7 @@ contract CrossChainVaultManager is AccessControl, ReentrancyGuard, Pausable {
     constructor(address _lzMessaging) {
         require(_lzMessaging != address(0), "Invalid LayerZero messaging contract");
         
-        lzMessaging = LayerZeroMessaging(_lzMessaging);
+        lzMessaging = LayerZeroMessaging(payable(_lzMessaging));
         
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(VAULT_MANAGER_ROLE, msg.sender);

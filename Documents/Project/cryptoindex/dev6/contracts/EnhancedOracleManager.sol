@@ -66,7 +66,12 @@ contract EnhancedOracleManager is AccessControl, ReentrancyGuard {
     mapping(address => TWAPData) public twapData;
     mapping(address => AggregatedPrice) public latestPrices;
     mapping(address => bool) public isAssetSupported;
-    
+
+    // Asset Registry
+    mapping(address => uint32) public assetToIndex;
+    mapping(uint32 => address) public indexToAsset;
+    uint32 public nextAssetIndex = 1; // Start from 1, 0 is reserved for invalid
+
     // Configuration
     mapping(address => uint256) public maxPriceAge;
     mapping(address => uint256) public minConfidenceLevel;
@@ -83,6 +88,7 @@ contract EnhancedOracleManager is AccessControl, ReentrancyGuard {
     uint256 public totalOracleFailures;
     
     // Events
+    event AssetRegistered(address indexed asset, uint32 indexed assetIndex);
     event OracleSourceAdded(address indexed asset, address indexed oracle, string name, uint256 weight);
     event OracleSourceRemoved(address indexed asset, address indexed oracle);
     event PriceUpdated(address indexed asset, uint256 price, uint256 confidence, uint256 sourceCount);
@@ -118,7 +124,15 @@ contract EnhancedOracleManager is AccessControl, ReentrancyGuard {
         require(weight > 0 && weight <= 10000, "Invalid weight");
         require(oracleSources[asset].length < MAX_ORACLE_SOURCES, "Too many oracle sources");
         
-        // Check if oracle already exists for this asset
+        if (assetToIndex[asset] == 0) {
+            require(nextAssetIndex < 2**32, "Max assets reached");
+            uint32 newIndex = nextAssetIndex;
+            assetToIndex[asset] = newIndex;
+            indexToAsset[newIndex] = asset;
+            nextAssetIndex++;
+            emit AssetRegistered(asset, newIndex);
+        }
+
         for (uint i = 0; i < oracleSources[asset].length; i++) {
             require(
                 address(oracleSources[asset][i].oracle) != address(oracle),
@@ -160,7 +174,6 @@ contract EnhancedOracleManager is AccessControl, ReentrancyGuard {
         
         address oracleAddr = address(oracleSources[asset][oracleIndex].oracle);
         
-        // Move last element to the index being removed and pop
         oracleSources[asset][oracleIndex] = oracleSources[asset][oracleSources[asset].length - 1];
         oracleSources[asset].pop();
         
@@ -179,26 +192,27 @@ contract EnhancedOracleManager is AccessControl, ReentrancyGuard {
         require(isAssetSupported[asset], "Asset not supported");
         require(oracleSources[asset].length >= MIN_ORACLE_SOURCES, "Insufficient oracle sources");
         
+        uint32 assetIndex = assetToIndex[asset];
+        require(assetIndex != 0, "Asset not registered in oracle");
+
         uint256 totalWeight = 0;
         uint256 weightedPriceSum = 0;
         uint256 validSources = 0;
         uint256[] memory prices = new uint256[](oracleSources[asset].length);
         bool[] memory sourceValid = new bool[](oracleSources[asset].length);
         
-        // Collect prices from all sources
         for (uint i = 0; i < oracleSources[asset].length; i++) {
             OracleSource storage source = oracleSources[asset][i];
             
             if (!source.isActive) continue;
             
-            try source.oracle.getPrice(asset) returns (uint256 price) {
+            try source.oracle.getPrice(assetIndex) returns (uint256 price) {
                 if (price > 0 && _validatePrice(asset, price)) {
                     prices[i] = price;
                     sourceValid[i] = true;
                     validSources++;
                     source.lastUpdate = block.timestamp;
                     
-                    // Reset failure count on successful update
                     if (source.failureCount > 0) {
                         source.failureCount = 0;
                     }
@@ -214,12 +228,10 @@ contract EnhancedOracleManager is AccessControl, ReentrancyGuard {
         
         require(validSources >= MIN_ORACLE_SOURCES, "Insufficient valid oracle sources");
         
-        // Check for price manipulation
         if (_detectPriceManipulation(asset, prices, sourceValid)) {
-            return; // Skip update if manipulation detected
+            return; 
         }
         
-        // Calculate weighted average
         for (uint i = 0; i < oracleSources[asset].length; i++) {
             if (sourceValid[i]) {
                 weightedPriceSum += prices[i] * oracleSources[asset][i].weight;
@@ -232,10 +244,8 @@ contract EnhancedOracleManager is AccessControl, ReentrancyGuard {
         uint256 aggregatedPrice = weightedPriceSum / totalWeight;
         uint256 confidence = _calculateConfidence(validSources, oracleSources[asset].length);
         
-        // Update TWAP
         _updateTWAP(asset, aggregatedPrice);
         
-        // Store price
         latestPrices[asset] = AggregatedPrice({
             price: aggregatedPrice,
             confidence: confidence,
@@ -244,7 +254,6 @@ contract EnhancedOracleManager is AccessControl, ReentrancyGuard {
             isValid: true
         });
         
-        // Store in history
         _addPriceToHistory(asset, aggregatedPrice);
         
         totalPriceUpdates++;
@@ -326,10 +335,8 @@ contract EnhancedOracleManager is AccessControl, ReentrancyGuard {
         view 
         returns (bool) 
     {
-        // Basic validation
         if (price == 0) return false;
         
-        // Check against historical prices if available
         AggregatedPrice memory lastPrice = latestPrices[asset];
         if (lastPrice.isValid && lastPrice.timestamp > 0) {
             uint256 deviation = _calculateDeviation(lastPrice.price, price);
@@ -349,12 +356,11 @@ contract EnhancedOracleManager is AccessControl, ReentrancyGuard {
         internal 
         returns (bool manipulationDetected) 
     {
-        if (prices.length < 3) return false; // Need at least 3 sources for detection
+        if (prices.length < 3) return false;
         
         uint256 validCount = 0;
         uint256 priceSum = 0;
         
-        // Calculate median and average
         for (uint i = 0; i < prices.length; i++) {
             if (sourceValid[i]) {
                 validCount++;
@@ -367,17 +373,15 @@ contract EnhancedOracleManager is AccessControl, ReentrancyGuard {
         uint256 averagePrice = priceSum / validCount;
         uint256 outlierCount = 0;
         
-        // Count outliers (prices deviating more than threshold from average)
         for (uint i = 0; i < prices.length; i++) {
             if (sourceValid[i]) {
                 uint256 deviation = _calculateDeviation(averagePrice, prices[i]);
-                if (deviation > MAX_PRICE_DEVIATION * 2) { // 2x normal threshold
+                if (deviation > MAX_PRICE_DEVIATION * 2) { 
                     outlierCount++;
                 }
             }
         }
         
-        // If more than 30% of sources are outliers, potential manipulation
         if (outlierCount * 100 / validCount > 30) {
             lastManipulationDetection[asset] = block.timestamp;
             manipulationCount[asset]++;
@@ -414,7 +418,6 @@ contract EnhancedOracleManager is AccessControl, ReentrancyGuard {
             twap.lastPrice = price;
             twap.isInitialized = true;
         } else {
-            // Reset TWAP if window exceeded
             if (block.timestamp > twap.startTime + TWAP_WINDOW) {
                 twap.cumulativePrice = price;
                 twap.startTime = block.timestamp;
@@ -437,9 +440,7 @@ contract EnhancedOracleManager is AccessControl, ReentrancyGuard {
             isValid: true
         }));
         
-        // Keep only last 100 price points
         if (priceHistory[asset].length > 100) {
-            // Move last 99 elements to beginning
             for (uint i = 0; i < 99; i++) {
                 priceHistory[asset][i] = priceHistory[asset][i + 1];
             }

@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/IPriceFeed.sol";
+import "./EnhancedOracleManager.sol";
 
 /**
  * @title SmartAggregator
@@ -119,7 +120,7 @@ contract SmartAggregator is AccessControl, ReentrancyGuard, Pausable {
         address tokenIn,
         address tokenOut,
         uint256 amountIn
-    ) public view returns (SwapRoute memory route) {
+    ) public returns (SwapRoute memory route) {
         require(tokenIn != address(0) && tokenOut != address(0), "Invalid tokens");
         require(amountIn > 0, "Invalid amount");
         
@@ -303,8 +304,14 @@ contract SmartAggregator is AccessControl, ReentrancyGuard, Pausable {
     ) private view returns (uint256) {
         // Simplified - would call actual DEX router
         // This is a placeholder that uses price feed
-        uint256 priceIn = priceFeed.getPrice(tokenIn);
-        uint256 priceOut = priceFeed.getPrice(tokenOut);
+        EnhancedOracleManager manager = EnhancedOracleManager(address(priceFeed));
+        uint32 indexIn = manager.assetToIndex(tokenIn);
+        uint32 indexOut = manager.assetToIndex(tokenOut);
+
+        if (indexIn == 0 || indexOut == 0) return 0; // Asset not registered
+
+        uint256 priceIn = priceFeed.getPrice(indexIn);
+        uint256 priceOut = priceFeed.getPrice(indexOut);
         
         if (priceIn == 0 || priceOut == 0) return 0;
         
@@ -326,7 +333,7 @@ contract SmartAggregator is AccessControl, ReentrancyGuard, Pausable {
         // This is a placeholder implementation
         
         // Approve router to spend tokens
-        IERC20(tokenIn).safeApprove(router, amountIn);
+        IERC20(tokenIn).approve(router, amountIn);
         
         // Get simulated output (in production, would call router.swap())
         uint256 outputAmount = _getQuoteFromDEX(router, tokenIn, tokenOut, amountIn);

@@ -1,0 +1,48 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "Errors",
+  "sourceName": "@openzeppelin/contracts/utils/Errors.sol",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "FailedCall",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "FailedDeployment",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "balance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "needed",
+          "type": "uint256"
+        }
+      ],
+      "name": "InsufficientBalance",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "MissingPrecompile",
+      "type": "error"
+    }
+  ],
+  "bytecode": "0x608060405234601a57604051603f6020823930815050603f90f35b600080fdfe6080604052600080fdfea26469706673582212204b140737bdfe0b1595769f2930e224a4322358d214cd683a28b0654022caae9e64736f6c63430008160033",
+  "deployedBytecode": "0x6080604052600080fdfea26469706673582212204b140737bdfe0b1595769f2930e224a4322358d214cd683a28b0654022caae9e64736f6c63430008160033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}
