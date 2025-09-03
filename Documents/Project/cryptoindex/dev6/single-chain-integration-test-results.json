@@ -1,0 +1,72 @@
+{
+  "timestamp": "2025-09-02T03:07:45.145Z",
+  "testConfig": {
+    "hyperRpcUrl": "https://rpc.hyperliquid-testnet.xyz/evm",
+    "testPrivateKey": "70f7b34aecb3abf3e28d39df77a61fecb5add1fb2f1b58810440d86b36fa12f8",
+    "testUserId": "test_user_1756782459675",
+    "testWalletAddress": "0xAea84E8e49E1fF987a310e516A2add680b4A1957",
+    "testInvestmentAmount": 100,
+    "indexId": "HYPER_MEME_INDEX"
+  },
+  "results": {
+    "hyperVMConnection": {
+      "success": true,
+      "chainId": "998",
+      "blockNumber": 31251854,
+      "latency": 249
+    },
+    "layerZeroMessaging": {
+      "success": true,
+      "endpointsFound": 3,
+      "supportedChains": [
+        "ethereum",
+        "bsc",
+        "polygon"
+      ]
+    },
+    "dexIntegrations": {
+      "jupiter": {
+        "success": false,
+        "error": "Request failed with status code 401"
+      },
+      "pancakeswap": {
+        "success": true,
+        "blockNumber": 59711983,
+        "quoterContract": "0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997",
+        "hasContract": true
+      },
+      "uniswap": {
+        "success": true,
+        "blockNumber": 23272430,
+        "quoterContract": "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6",
+        "hasContract": true
+      }
+    },
+    "scvPositionCreation": {
+      "success": true,
+      "positionId": "hyper_test_user_1756782459675_HYPER_MEME_INDEX_1756782463635",
+      "stepsCompleted": 5,
+      "processingTime": 2500
+    },
+    "crossChainMessaging": null,
+    "positionManagement": {
+      "success": true,
+      "mockPosition": {
+        "totalValueUSDC": 100,
+        "hypercoreValue": 50,
+        "externalValue": 50,
+        "tokenCount": 6,
+        "chainCount": 3
+      },
+      "rebalanceActionsSimulated": 5
+    },
+    "overall": {
+      "success": true,
+      "successRate": 85.71428571428571,
+      "successCount": 6,
+      "totalTests": 7,
+      "totalTime": 5445,
+      "readyForMVP": true
+    }
+  }
+}
