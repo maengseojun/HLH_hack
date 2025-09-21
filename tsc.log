@@ -1,0 +1,440 @@
+app/api-test/page.tsx(190,58): error TS2532: Object is possibly 'undefined'.
+app/api-test/page.tsx(191,61): error TS2532: Object is possibly 'undefined'.
+app/api-test/page.tsx(192,30): error TS2532: Object is possibly 'undefined'.
+app/api-test/page.tsx(193,67): error TS2532: Object is possibly 'undefined'.
+app/api-test/page.tsx(195,30): error TS2532: Object is possibly 'undefined'.
+app/api-test/page.tsx(199,51): error TS2532: Object is possibly 'undefined'.
+app/api/auth/logout/route.ts(18,15): error TS2345: Argument of type '{ is_revoked: boolean; revoked_at: string; revoked_reason: string; }' is not assignable to parameter of type 'never'.
+app/api/auth/sync-user/route.ts(68,17): error TS2345: Argument of type '{ email: any; email_verified: boolean; wallet_address: string | null; wallet_type: string | null; last_login: string; is_active: boolean; }' is not assignable to parameter of type 'never'.
+app/api/auth/sync-user/route.ts(76,32): error TS2339: Property 'id' does not exist on type 'never'.
+app/api/auth/sync-user/route.ts(93,10): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "exact" | "planned" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "users", never, "POST">', gave the following error.
+    Argument of type '{ auth_type: "email" | "wallet"; email: any; email_verified: boolean; wallet_address: string | null; wallet_type: string | null; privy_user_id: any; created_at: string; last_login: string; is_active: boolean; }' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "exact" | "planned" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "users", never, "POST">', gave the following error.
+    Object literal may only specify known properties, and 'auth_type' does not exist in type 'never[]'.
+app/api/auth/sync-user/route.ts(127,31): error TS2339: Property 'id' does not exist on type 'never'.
+app/api/auth/sync-user/route.ts(132,25): error TS7022: 'newWallet' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
+app/api/auth/sync-user/route.ts(134,14): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "exact" | "planned" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "user_wallets", never, "POST">', gave the following error.
+    Argument of type '{ user_id: any; wallet_address: any; wallet_provider: any; is_primary: boolean; created_at: string; }' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "exact" | "planned" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "user_wallets", never, "POST">', gave the following error.
+    Object literal may only specify known properties, and 'user_id' does not exist in type 'never[]'.
+app/api/auth/sync-user/route.ts(135,29): error TS2339: Property 'id' does not exist on type 'never'.
+app/api/user/profile/route.ts(35,18): error TS2339: Property 'id' does not exist on type 'never'.
+app/api/user/profile/route.ts(36,24): error TS2339: Property 'auth_type' does not exist on type 'never'.
+app/api/user/profile/route.ts(37,21): error TS2339: Property 'email' does not exist on type 'never'.
+app/api/user/profile/route.ts(38,29): error TS2339: Property 'email_verified' does not exist on type 'never'.
+app/api/user/profile/route.ts(39,29): error TS2339: Property 'wallet_address' does not exist on type 'never'.
+app/api/user/profile/route.ts(40,26): error TS2339: Property 'wallet_type' does not exist on type 'never'.
+app/api/user/profile/route.ts(41,27): error TS2339: Property 'privy_user_id' does not exist on type 'never'.
+app/api/user/profile/route.ts(42,25): error TS2339: Property 'created_at' does not exist on type 'never'.
+app/api/user/profile/route.ts(43,25): error TS2339: Property 'last_login' does not exist on type 'never'.
+app/api/user/profile/route.ts(44,24): error TS2339: Property 'is_active' does not exist on type 'never'.
+app/api/user/profile/route.ts(45,23): error TS2339: Property 'user_wallets' does not exist on type 'never'.
+app/api/user/profile/route.ts(85,15): error TS2345: Argument of type '{ [key: string]: any; }' is not assignable to parameter of type 'never'.
+app/dashboard/page.tsx(133,65): error TS2339: Property 'verified' does not exist on type 'Email'.
+backend/src/__tests__/e2e-positions.test.ts(4,1): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/e2e-positions.test.ts(14,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/e2e-positions.test.ts(15,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/e2e-positions.test.ts(22,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(23,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(32,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(33,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(41,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(43,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(44,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(59,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(67,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(71,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/e2e-positions.test.ts(72,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/e2e-positions.test.ts(87,9): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(95,9): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(96,9): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(97,9): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(101,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(104,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/e2e-positions.test.ts(127,9): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(128,9): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(134,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(138,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/e2e-positions.test.ts(139,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/e2e-positions.test.ts(151,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(152,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(153,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(156,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/e2e-positions.test.ts(171,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(172,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(173,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(176,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/e2e-positions.test.ts(184,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(186,9): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(191,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/e2e-positions.test.ts(192,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/e2e-positions.test.ts(200,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(203,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/e2e-positions.test.ts(217,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(218,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/e2e-positions.test.ts(221,9): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(13,1): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(14,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(15,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(16,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(16,33): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(17,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(17,33): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(18,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(21,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(22,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(22,34): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(25,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(26,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(26,46): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(30,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(31,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(32,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(32,34): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(33,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(34,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(37,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(38,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(38,35): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(41,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(42,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(42,48): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(46,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(47,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(49,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(51,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(54,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(56,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(58,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(61,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(63,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(64,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(67,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(69,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(70,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(74,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(75,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(77,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(80,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(83,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(86,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(89,53): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(90,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(94,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(98,19): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(99,16): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(102,14): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(105,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(108,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(109,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(113,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(116,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(119,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(122,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(129,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(132,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(139,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(142,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(151,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(152,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(153,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(156,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(164,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(167,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(168,72): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(169,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(172,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(173,57): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(174,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(177,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(178,68): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(179,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(183,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(184,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(185,43): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(187,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(190,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(191,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(194,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(195,43): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(197,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(198,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(201,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(202,44): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(203,44): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(205,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(208,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(209,42): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(210,42): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(212,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(215,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(216,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(216,41): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(217,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(217,53): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(220,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(221,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(221,40): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(224,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(225,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(229,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(230,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(234,21): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(235,18): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(238,16): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(241,47): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(244,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(247,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(248,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(252,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(253,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-actions.test.ts(258,21): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(259,18): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(262,16): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-actions.test.ts(269,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-actions.test.ts(274,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-meta.test.ts(29,1): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-meta.test.ts(30,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-meta.test.ts(31,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-meta.test.ts(44,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-meta.test.ts(46,9): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-meta.test.ts(47,9): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-meta.test.ts(51,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-meta.test.ts(57,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-meta.test.ts(60,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-meta.test.ts(67,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-meta.test.ts(70,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-meta.test.ts(77,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-meta.test.ts(80,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-meta.test.ts(87,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-meta.test.ts(91,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-meta.test.ts(92,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-meta.test.ts(100,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-meta.test.ts(103,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-meta.test.ts(111,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-meta.test.ts(114,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-meta.test.ts(116,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-meta.test.ts(119,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-meta.test.ts(127,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-meta.test.ts(131,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-meta.test.ts(132,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-meta.test.ts(145,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-meta.test.ts(147,9): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-meta.test.ts(148,9): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-meta.test.ts(152,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-meta.test.ts(158,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-meta.test.ts(161,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-meta.test.ts(167,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-meta.test.ts(170,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-meta.test.ts(177,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(18,1): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(19,3): error TS2304: Cannot find name 'beforeEach'.
+backend/src/__tests__/unit-precompile.test.ts(23,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(24,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(34,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(35,13): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(36,15): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(39,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(40,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(41,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(42,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(45,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(53,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(53,39): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-precompile.test.ts(54,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(55,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(55,54): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-precompile.test.ts(58,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(61,13): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(69,9): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(70,9): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(74,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(78,13): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(85,9): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(90,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(91,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(97,90): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-precompile.test.ts(99,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(100,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(101,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(102,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(103,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(104,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(107,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(112,90): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-precompile.test.ts(114,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(114,33): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-precompile.test.ts(115,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(115,32): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-precompile.test.ts(116,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(116,36): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-precompile.test.ts(119,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(122,13): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(123,71): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-precompile.test.ts(127,77): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-precompile.test.ts(129,9): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(130,9): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(135,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(136,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(144,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(145,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(145,38): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-precompile.test.ts(148,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(155,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(155,27): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-precompile.test.ts(158,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(161,13): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(166,9): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(167,9): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(171,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(174,13): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(178,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(179,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(186,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(187,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(187,45): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-precompile.test.ts(190,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(193,13): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(198,9): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(199,9): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(204,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(207,44): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-precompile.test.ts(213,7): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(218,11): error TS2304: Cannot find name 'fail'.
+backend/src/__tests__/unit-precompile.test.ts(220,11): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(221,11): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(222,11): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(223,11): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(224,11): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(229,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(235,9): error TS2304: Cannot find name 'fail'.
+backend/src/__tests__/unit-precompile.test.ts(237,9): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(242,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(243,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(248,13): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(252,13): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(257,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(262,13): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(267,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-precompile.test.ts(272,13): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-precompile.test.ts(273,13): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(9,1): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(10,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(13,18): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(14,18): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(15,19): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(16,21): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(17,21): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(18,24): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(19,23): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(22,5): error TS2582: Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(25,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(28,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(29,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(29,39): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(30,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(30,40): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(33,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(34,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(34,59): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(35,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(35,60): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(39,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(42,8): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(43,8): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(44,8): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(45,8): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(46,8): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(47,8): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(50,5): error TS2582: Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(53,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(56,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(57,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(57,27): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(58,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(58,27): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(62,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(65,16): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(66,16): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(67,18): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(68,18): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(69,22): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(70,34): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(73,5): error TS2582: Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(76,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(79,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(80,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(80,39): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(81,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(81,40): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(85,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(88,8): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(89,8): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(90,8): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(91,8): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(92,8): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(95,5): error TS2582: Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(98,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(101,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(102,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(102,27): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(103,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(103,27): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/__tests__/unit-scales.test.ts(107,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(118,5): error TS2582: Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(121,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(124,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(125,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(126,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(129,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(130,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(131,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(134,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(136,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(140,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(146,9): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(152,11): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(155,9): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(161,11): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(167,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(168,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(172,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(173,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(176,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+backend/src/__tests__/unit-scales.test.ts(178,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(179,7): error TS2304: Cannot find name 'expect'.
+backend/src/__tests__/unit-scales.test.ts(180,7): error TS2304: Cannot find name 'expect'.
+backend/src/corewriter/actions.ts(16,27): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/corewriter/actions.ts(16,33): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/corewriter/actions.ts(16,39): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/corewriter/actions.ts(17,28): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/corewriter/actions.ts(17,34): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/corewriter/actions.ts(17,41): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/corewriter/actions.ts(20,15): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/middlewares/metricsCollector.ts(138,5): error TS2322: Type 'number' is not assignable to type 'number[]'.
+backend/src/middlewares/requestContext.ts(35,47): error TS18048: 'req.url' is possibly 'undefined'.
+backend/src/services/balance.ts(42,17): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/services/hyperliquid.ts(111,5): error TS2353: Object literal may only specify known properties, and 'priceDecimals' does not exist in type 'Asset'.
+backend/src/services/position.ts(101,24): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/services/position.ts(106,51): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/services/position.ts(119,32): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+backend/src/test-setup.ts(2,13): error TS2540: Cannot assign to 'NODE_ENV' because it is a read-only property.
+backend/src/test-setup.ts(5,1): error TS2304: Cannot find name 'jest'.
+backend/src/test-setup.ts(9,1): error TS2304: Cannot find name 'jest'.
+backend/src/test-setup.ts(11,11): error TS2304: Cannot find name 'jest'.
+components/providers/PrivyProvider.tsx(13,6): error TS2741: Property 'appId' is missing in type '{ children: ReactNode; appearance?: { theme?: "light" | "dark" | `#${string}` | undefined; accentColor?: `#${string}` | undefined; logo?: string | ReactElement<any, string | JSXElementConstructor<any>> | undefined; ... 4 more ...; walletChainType?: "ethereum-only" | ... 2 more ... | undefined; } | undefined; ... 16 ...' but required in type 'PrivyProviderProps'.
+lib/middleware/privy-auth.ts(77,15): error TS2339: Property 'is_active' does not exist on type 'never'.
+lib/middleware/privy-auth.ts(90,18): error TS2339: Property 'id' does not exist on type 'never'.
+lib/middleware/privy-auth.ts(91,27): error TS2339: Property 'privy_user_id' does not exist on type 'never'.
+lib/middleware/privy-auth.ts(92,21): error TS2339: Property 'email' does not exist on type 'never'.
+lib/middleware/privy-auth.ts(93,29): error TS2339: Property 'wallet_address' does not exist on type 'never'.
+lib/middleware/privy-auth.ts(94,24): error TS2339: Property 'auth_type' does not exist on type 'never'.
+lib/privy/config.ts(79,5): error TS2741: Property 'enabled' is missing in type '{}' but required in type '{ enabled: boolean; }'.
+lib/privy/config.ts(103,7): error TS2322: Type '"fiat"' is not assignable to type '"fiat-currency" | "native-token"'.
+lib/privy/config.ts(104,7): error TS2322: Type '"native"' is not assignable to type '"native-token"'.
+lib/privy/config.ts(111,5): error TS2353: Object literal may only specify known properties, and 'enableMfaForEmails' does not exist in type '{ noPromptOnMfaRequired?: boolean | undefined; }'.
+lib/privy/config.ts(141,19): error TS2345: Argument of type 'SupabaseClient<any, "public", "public", any, any>' is not assignable to parameter of type 'SetStateAction<SupabaseClient<unknown, { PostgrestVersion: string; }, never, never, { PostgrestVersion: string; }> | null>'.
+  Type 'SupabaseClient<any, "public", "public", any, any>' is not assignable to type 'SupabaseClient<unknown, { PostgrestVersion: string; }, never, never, { PostgrestVersion: string; }>'.
+    Type '"public"' is not assignable to type 'never'.

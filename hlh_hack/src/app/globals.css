@@ -1,0 +1,224 @@
+@import "tailwindcss";
+
+:root {
+  /* CoreIndex theme */
+  --font-size: 16px;
+  --ui-scale: 0.8; /* Global UI scale (0.8 = 80%) */
+  --background: #072723;
+  --foreground: #ffffff;
+  --card: #072723;
+  --card-foreground: #ffffff;
+  --popover: #072723;
+  --popover-foreground: #ffffff;
+  --primary: #98FCE4;
+  --primary-foreground: #072723;
+  --secondary: #D7EAE8;
+  --secondary-foreground: #072723;
+  --muted: #0f3a36;
+  --muted-foreground: #A0B5B2;
+  --accent: #98FCE4;
+  --accent-foreground: #072723;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: rgba(151, 181, 178, 0.2);
+  --input: transparent;
+  --input-background: #0f3a36;
+  --switch-background: #0f3a36;
+  --ring: #98FCE4;
+  --chart-1: #98FCE4;
+  --chart-2: #D7EAE8;
+  --chart-3: #A0B5B2;
+  --chart-4: #98FCE4;
+  --chart-5: #D7EAE8;
+  --radius: 12px;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+}
+
+/* Global UI scale helper */
+.ui-scale {
+  transform: scale(var(--ui-scale));
+  transform-origin: top center;
+}
+
+/* Number input spinner styling (hide native arrows) */
+input[type="number"].no-spinner::-webkit-outer-spin-button,
+input[type="number"].no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"].no-spinner {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Enhanced Glassmorphism styles - Improved for better visibility */
+.glass-nav {
+  background: var(--color-input-background);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  position: relative;
+}
+
+.glass-card {
+  background: var(--color-input-background);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 16px 40px rgba(0, 0, 0, 0.5),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  background: var(--color-input-background);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 
+    0 24px 60px rgba(0, 0, 0, 0.6),
+    0 8px 20px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+.glass-input {
+  background: var(--color-input-background);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease-out;
+}
+
+.glass-input:focus-within {
+  background: var(--color-input-background);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 
+    0 6px 24px rgba(0, 0, 0, 0.4),
+    0 0 0 2px rgba(152, 252, 228, 0.3);
+}
+
+.glass-dropdown {
+  background: var(--color-input-background);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 
+    0 12px 32px rgba(0, 0, 0, 0.8),
+    0 4px 8px rgba(0, 0, 0, 0.6);
+  animation: fadeIn 0.2s ease-out, slideInFromTop 0.2s ease-out;
+}
+
+/* No pseudo-element overlays - clean solid backgrounds */
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInFromTop {
+  from { transform: translateY(-8px); }
+  to { transform: translateY(0); }
+}
+
+/* Custom range slider styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  height: 20px;
+}
+
+/* Track */
+input[type="range"]::-webkit-slider-track {
+  background: rgba(255, 255, 255, 0.1);
+  height: 4px;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+input[type="range"]::-moz-range-track {
+  background: rgba(255, 255, 255, 0.1);
+  height: 4px;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Thumb */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+input[type="range"]::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Thumb hover and focus */
+input[type="range"]::-webkit-slider-thumb:hover {
+  background: rgba(152, 252, 228, 0.9);
+  box-shadow: 0 4px 12px rgba(152, 252, 228, 0.4);
+  transform: scale(1.1);
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+  background: rgba(152, 252, 228, 0.9);
+  box-shadow: 0 4px 12px rgba(152, 252, 228, 0.4);
+  transform: scale(1.1);
+}
+
+input[type="range"]:focus::-webkit-slider-thumb {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(152, 252, 228, 0.3);
+}
+
+input[type="range"]:focus::-moz-range-thumb {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(152, 252, 228, 0.3);
+}

@@ -1,6 +1,6 @@
-# HLH - Authentication & Database Setup
+# HyperIndex (HLH) - Hyperliquid Trading Platform
 
-This is a Next.js project with Privy authentication and Supabase database integration, based on the dev6 implementation.
+This is a Next.js project with Privy authentication and Supabase database integration for Hyperliquid trading and index management.
 
 ## Setup
 
@@ -120,3 +120,11 @@ CREATE TABLE user_wallets (
 2. Update `.env.local` with the keys
 3. Create the database tables in Supabase
 4. Test the authentication flow
+
+## Features
+
+- Hyperliquid integration for trading
+- Privy authentication (email & wallet)
+- Supabase database for user management
+- Index management and trading interface
+- Real-time portfolio tracking

@@ -1,0 +1,181 @@
+Sheet	계층1	계층2	계층3	계층4	계층5	계층6	계층7	계층8	설명	Level	Section	Item	Key	Description	Priority	Source	Category	Element	Value / Spec	Field
+Header	Header																			
+Header		가운데 노치							우리 들어갈 사이트가 두개밖에 없으니까 아이폰 노치처럼, 천장 다 막는 답답한 헤더 말고 노치 형태의 탭 두개가 부드럽게 전환되는 ux 구현. 첨엔 런치에 있다가 Index 누르면 탭 강조하는 네모가 오른쪽 인덱스로 가는거											
+Header			Launch						launch 페이지로 이동											
+Header			Index						Index 페이지로 이동											
+Launch	Launch								사용자가 지갑을 연결 → 인덱스(종목 바스켓) 구성 → 레버리지와 비율 조정 → 미리보기 확인 → 결제 및 스왑 → Launch 실행											
+Launch		Hero																		
+Launch			1행 오른쪽																	
+Launch				Connect Wallet					헤더가 노치로 있으니까 이버튼은 메인에 있어야함											
+Launch			1행 왼쪽																	
+Launch				히어로 제목 부제목					Index Creation Made Simple / Create, preview, and launch in one go											
+Launch		Basics																		
+Launch			2행 왼쪽																	
+Launch				Index Name					사용자가 생성할 인덱스 이름 입력											
+Launch				Ticker					심볼/티커 입력											
+Launch				Cover Image					이미지 업로드											
+Launch				Description					설명 텍스트											
+Launch				Social Link					선택 입력											
+Launch		Components																		
+Launch			2행 가운데																	
+Launch				Asset Search					하이퍼코어에서 자산 검색											
+Launch				Asset Cards					선택된 종목 리스트											
+Launch					Asset Name															
+Launch					Ticker															
+Launch					Price															
+Launch																				
+Launch																				
+Launch																				
+Launch					Long/Short				롱숏 선택											
+Launch				구매량 입력					hype단위로 입력, USDC로 변환해서 보여주기											
+Launch				Asset Textbox					비율 숫자로 입력 (종목별로 입력창 뜨게 구현 종목이 세개면 세개 떠야함)											
+Launch				Asset Slider					비율 조정											
+Launch				Leverage Textbox					레버리지 숫자로 입력											
+Launch				Leverage Slider					레버리지 조정											
+Launch				결정 버튼					누르면 프리뷰에 뜸											
+Launch		Preview	2행 오른쪽																	
+Launch				Chart					성과 차트 (1d, 7d)											
+Launch				Performance Metrics					Return %, MDD											
+Launch		Checkout																		
+Launch			3행																	
+Launch				Summary Card					필요 금액/수수료/HYPE 보유량											
+Launch				Inline Swap					HYPE 부족 시 교환 기능											
+Launch				Launch Button					최종 실행 - 모달 띄우기											
+Launch					Modal															
+Launch						Confirm			체크박스 포함 요약 확인 빨간색											
+Launch						Success			완료 메시지 및 공유 버튼											
+Index										1.0	Header	Notch tabs: Launch | Index		Centered notch; keep minimal height						
+Index										2.0	Header	Connect Wallet (right)		Island-style button on the top-right		Privy				
+Index										1.0	Toolbar	Search	search	Search by name, symbol, and description	Required	Directory				
+Index										1.0	Toolbar	Sort	sort	Sort by Date Created, 24h Change %, 1W Change %, A→Z, Lowest MDD	Required	Derived				
+Index										1.0	Toolbar	Filter	filter	Toggle Active / Redeemed	Required	Directory/Engine				
+Index										1.0	Cards Grid	Card		Each card summarizes an index and key market stats						
+Index										2.0	Cards Grid	Identity		Identity block on top-left of the card						
+Index										3.0	Cards Grid	Name	name	Index display name	Required	Directory				
+Index										3.0	Cards Grid	Symbol	symbol	Ticker/short symbol	Required	Directory				
+Index										2.0	Cards Grid	Market Metrics		Live market stats						
+Index										3.0	Cards Grid	Current Price	markPx	Latest mark price for the index token	Required	Market API				
+Index										3.0	Cards Grid	24h Volume	dayNtlVlm	Notional traded in last 24h	Required	Market API				
+Index										3.0	Cards Grid	Open Interest	openInterest	Total open interest (notional)	Required	Market API				
+Index										3.0	Cards Grid	Max Leverage	maxLeverage	Maximum leverage allowed	Required	Market/Config API				
+Index										3.0	Cards Grid	24h Change %	change24hPct	Percentage change over last 24 hours	Required	Derived (price history)				
+Index										3.0	Cards Grid	1W Change %	change1wPct	Percentage change over last 7 days	Required	Derived (price history)				
+Index										3.0	Cards Grid	Funding Rate	funding	Current funding rate (hourly/8h basis depending on market)	Recommended	Market API				
+Index										3.0	Cards Grid	Premium	premium	Premium/discount vs. underlying basket NAV	Recommended	Derived				
+Index										3.0	Cards Grid	Impact Price	impactPxs	Estimated execution price for a standard order size (e.g., $10k)	Recommended	Orderbook/Quote API				
+Index										3.0	Cards Grid	Funding History	fundingHistory	Recent funding rate snapshots (e.g., 8h x last 7 days)	Recommended	Market API				
+Index										3.0	Cards Grid	Liquidation Threshold	liqThreshold	Approx. liquidation threshold (if applicable to leveraged index token)	Recommended	Risk/Config API				
+Index										2.0	Cards Grid	Actions		Primary actions on the card bottom-right						
+Index										3.0	Cards Grid	Details	action:details	Open details modal	Required					
+Index										3.0	Cards Grid	Redeem	action:redeem	Burn & refund to USDC (partial/full)	Required	Engine/Corewriter				
+Index										3.0	Cards Grid	Share	action:share	Copy public link	Optional					
+Index										1.0	Details Modal	Overview		High-level index info						
+Index										2.0	Details Modal	Header		Name, Symbol, Status badge (Active/Redeemed)	Required	Directory/Engine				
+Index										2.0	Details Modal	Chart	chart	Performance chart with 7D / 1M toggles; show Return % and MDD	Required	Derived (history)				
+Index										2.0	Details Modal	Composition	composition	Constituents with weight and leverage; simple change log	Required	Engine/Directory				
+Index										2.0	Details Modal	Market & Risk		Deeper market data and risk metrics						
+Index										3.0	Details Modal	Current Price	markPx	Latest mark price	Required	Market API				
+Index										3.0	Details Modal	Funding Rate	funding	Current funding rate with next funding countdown if available	Recommended	Market API				
+Index										3.0	Details Modal	Funding History	fundingHistory	Time series of funding rates	Recommended	Market API				
+Index										3.0	Details Modal	Premium	premium	Premium/discount vs. NAV	Recommended	Derived				
+Index										3.0	Details Modal	Impact Price	impactPxs	Execution price estimate for standard order sizes	Recommended	Orderbook/Quote API				
+Index										3.0	Details Modal	Liquidation Threshold	liqThreshold	Approx. liquidation threshold or risk bands	Recommended	Risk/Config API				
+Index										2.0	Details Modal	KPIs		Optional KPIs if we have data						
+Index										3.0	Details Modal	Since Inception Return %	returnSinceInceptionPct	Cumulative return since launch	Optional	Derived				
+Index										3.0	Details Modal	Market Cap	marketCap	Market capitalization of the index token	Optional	Derived				
+Index										3.0	Details Modal	NAV	nav	Net Asset Value of the index	Optional	Derived				
+Index										1.0	Redeem Modal	Controls		Redeem/burn the index and refund USDC						
+Index										2.0	Redeem Modal	Amount	amount	Partial or full redemption	Required	Engine				
+Index										2.0	Redeem Modal	Slippage Tolerance	slippage	Optional slippage limit	Optional	Derived/Quote				
+Index										2.0	Redeem Modal	Summary	summary	Est. refund, fees, steps	Required	Quote/Engine				
+Index										2.0	Redeem Modal	Risk Acknowledgment	riskAck	Checkbox to confirm risks	Required					
+Index										2.0	Redeem Modal	CTA	action:confirmRedeem	Confirm Redeem button	Required	Engine/Corewriter				
+Index										2.0	Redeem Modal	Stepper	steps	Close Position → Burn → Transfer	Optional	Engine				
+Index										1.0	Empty State	Message + CTA		No indexes yet → Create New	Required					
+Index										1.0	Footer	Disclaimer		Risk Disclaimer / Terms (light mint-gray)	Optional					
+Admin Page	Admin Page																			
+Admin Page		Launch test							비슷하게 하되 디자인 신경안쓰고 욱여넣기 레이아웃만 같게											
+Admin Page		Index Test							비슷하게 하되 디자인 신경안쓰고 욱여넣기 레이아웃만 같게											
+Style Guide																	Color	Background	#072723 (Dark Teal)	
+Style Guide																	Color	Primary Accent	#98FCE4 (Soft Mint)	
+Style Guide																	Color	Secondary Accent	#D7EAE8 (Light Mint-Gray)	
+Style Guide																	Color	Primary Text	#FFFFFF (White)	
+Style Guide																	Color	Secondary Text	#A0B5B2 (Muted Gray)	
+Style Guide																	Font	Primary Font	Inter (Bold for titles/buttons, Medium for headers, Regular for body)	
+Style Guide																	Button	Primary	Background #98FCE4, Text #072723, Radius 12px	
+Style Guide																	Button	Secondary	Transparent background, Mint-gray border/text, Radius 12px	
+Style Guide																	Icon	Style	Simple line icons (Lucide/Feather), no emojis	
+Style Guide																	Chart	Line	Mint line (#98FCE4)	
+Style Guide																	Chart	Fill	Mint overlay with 20–30% opacity	
+Index Cards – Fields													name	Index display name	Required	Directory / Metadata				Name
+Index Cards – Fields													symbol	Ticker / short symbol	Required	Directory / Metadata				Symbol
+Index Cards – Fields													markPx	Latest mark price for the index token	Required	Market API				Current Price
+Index Cards – Fields													dayNtlVlm	Notional traded in last 24h	Required	Market API				24h Volume
+Index Cards – Fields													openInterest	Open interest (notional) on the index	Required	Market API				Open Interest
+Index Cards – Fields													maxLeverage	Maximum leverage allowed for the index	Required	Market/Config API				Max Leverage
+Index Cards – Fields													change24hPct	Percentage change over last 24 hours	Required	Derived (markPx history)				24h Change %
+Index Cards – Fields													change1wPct	Percentage change over last 7 days	Required	Derived (markPx history)				1W Change %
+Index Cards – Fields													funding	Current funding rate	Recommended	Market API				Funding Rate
+Index Cards – Fields													premium	Premium/discount vs underlying basket	Recommended	Derived				Premium
+Index Cards – Fields													impactPxs	Estimated execution price given order size	Recommended	Market/Orderbook API				Impact Price
+Index Cards – Fields													fundingHistory	Historical funding rates	Recommended	Market API				Funding History
+Index Cards – Fields													liqThreshold	Approx. liquidation threshold if applicable	Recommended	Risk/Config API				Liquidation Threshold
+Index Details – Fields													nav	Net Asset Value of the index	Optional	Derived				NAV
+Index Details – Fields													marketCap	Index token market capitalization	Optional	Derived				Market Cap
+Index Details – Fields													composition	Constituents with weight and leverage	Required	Directory / Engine				Composition
+Index Details – Fields													returnSinceInceptionPct	Cumulative return since launch	Recommended	Derived (history)				Return (Since Inception)
+Index Details – Fields													markPx	Latest mark price	Required	Market API				Current Price
+Index Details – Fields													funding	Current funding rate	Recommended	Market API				Funding Rate
+Index Details – Fields													fundingHistory	Historical funding rates	Recommended	Market API				Funding History
+Index Details – Fields													premium	Premium/discount vs underlying	Recommended	Derived				Premium
+Index Details – Fields													impactPxs	Execution price estimate	Recommended	Market/Orderbook API				Impact Price
+Index Details – Fields													liqThreshold	Approx. liquidation threshold if applicable	Recommended	Risk/Config API				Liquidation Threshold
+Index – Structured										1.0	Header	Notch tabs: Launch | Index		Centered notch; keep minimal height						
+Index – Structured										2.0	Header	Connect Wallet (right)		Island-style button on the top-right		Privy				
+Index – Structured										1.0	Toolbar	Search	search	Search by name, symbol, and description	Required	Directory				
+Index – Structured										1.0	Toolbar	Sort	sort	Sort by Date Created, 24h Change %, 1W Change %, A→Z, Lowest MDD	Required	Derived				
+Index – Structured										1.0	Toolbar	Filter	filter	Toggle Active / Redeemed	Required	Directory/Engine				
+Index – Structured										1.0	Cards Grid	Card		Each card summarizes an index and key market stats						
+Index – Structured										2.0	Cards Grid	Identity		Identity block on top-left of the card						
+Index – Structured										3.0	Cards Grid	Name	name	Index display name	Required	Directory				
+Index – Structured										3.0	Cards Grid	Symbol	symbol	Ticker/short symbol	Required	Directory				
+Index – Structured										2.0	Cards Grid	Market Metrics		Live market stats						
+Index – Structured										3.0	Cards Grid	Current Price	markPx	Latest mark price for the index token	Required	Market API				
+Index – Structured										3.0	Cards Grid	24h Volume	dayNtlVlm	Notional traded in last 24h	Required	Market API				
+Index – Structured										3.0	Cards Grid	Open Interest	openInterest	Total open interest (notional)	Required	Market API				
+Index – Structured										3.0	Cards Grid	Max Leverage	maxLeverage	Maximum leverage allowed	Required	Market/Config API				
+Index – Structured										3.0	Cards Grid	24h Change %	change24hPct	Percentage change over last 24 hours	Required	Derived (price history)				
+Index – Structured										3.0	Cards Grid	1W Change %	change1wPct	Percentage change over last 7 days	Required	Derived (price history)				
+Index – Structured										3.0	Cards Grid	Funding Rate	funding	Current funding rate (hourly/8h basis depending on market)	Recommended	Market API				
+Index – Structured										3.0	Cards Grid	Premium	premium	Premium/discount vs. underlying basket NAV	Recommended	Derived				
+Index – Structured										3.0	Cards Grid	Impact Price	impactPxs	Estimated execution price for a standard order size (e.g., $10k)	Recommended	Orderbook/Quote API				
+Index – Structured										3.0	Cards Grid	Funding History	fundingHistory	Recent funding rate snapshots (e.g., 8h x last 7 days)	Recommended	Market API				
+Index – Structured										3.0	Cards Grid	Liquidation Threshold	liqThreshold	Approx. liquidation threshold (if applicable to leveraged index token)	Recommended	Risk/Config API				
+Index – Structured										2.0	Cards Grid	Actions		Primary actions on the card bottom-right						
+Index – Structured										3.0	Cards Grid	Details	action:details	Open details modal	Required					
+Index – Structured										3.0	Cards Grid	Redeem	action:redeem	Burn & refund to USDC (partial/full)	Required	Engine/Corewriter				
+Index – Structured										3.0	Cards Grid	Share	action:share	Copy public link	Optional					
+Index – Structured										1.0	Details Modal	Overview		High-level index info						
+Index – Structured										2.0	Details Modal	Header		Name, Symbol, Status badge (Active/Redeemed)	Required	Directory/Engine				
+Index – Structured										2.0	Details Modal	Chart	chart	Performance chart with 7D / 1M toggles; show Return % and MDD	Required	Derived (history)				
+Index – Structured										2.0	Details Modal	Composition	composition	Constituents with weight and leverage; simple change log	Required	Engine/Directory				
+Index – Structured										2.0	Details Modal	Market & Risk		Deeper market data and risk metrics						
+Index – Structured										3.0	Details Modal	Current Price	markPx	Latest mark price	Required	Market API				
+Index – Structured										3.0	Details Modal	Funding Rate	funding	Current funding rate with next funding countdown if available	Recommended	Market API				
+Index – Structured										3.0	Details Modal	Funding History	fundingHistory	Time series of funding rates	Recommended	Market API				
+Index – Structured										3.0	Details Modal	Premium	premium	Premium/discount vs. NAV	Recommended	Derived				
+Index – Structured										3.0	Details Modal	Impact Price	impactPxs	Execution price estimate for standard order sizes	Recommended	Orderbook/Quote API				
+Index – Structured										3.0	Details Modal	Liquidation Threshold	liqThreshold	Approx. liquidation threshold or risk bands	Recommended	Risk/Config API				
+Index – Structured										2.0	Details Modal	KPIs		Optional KPIs if we have data						
+Index – Structured										3.0	Details Modal	Since Inception Return %	returnSinceInceptionPct	Cumulative return since launch	Optional	Derived				
+Index – Structured										3.0	Details Modal	Market Cap	marketCap	Market capitalization of the index token	Optional	Derived				
+Index – Structured										3.0	Details Modal	NAV	nav	Net Asset Value of the index	Optional	Derived				
+Index – Structured										1.0	Redeem Modal	Controls		Redeem/burn the index and refund USDC						
+Index – Structured										2.0	Redeem Modal	Amount	amount	Partial or full redemption	Required	Engine				
+Index – Structured										2.0	Redeem Modal	Slippage Tolerance	slippage	Optional slippage limit	Optional	Derived/Quote				
+Index – Structured										2.0	Redeem Modal	Summary	summary	Est. refund, fees, steps	Required	Quote/Engine				
+Index – Structured										2.0	Redeem Modal	Risk Acknowledgment	riskAck	Checkbox to confirm risks	Required					
+Index – Structured										2.0	Redeem Modal	CTA	action:confirmRedeem	Confirm Redeem button	Required	Engine/Corewriter				
+Index – Structured										2.0	Redeem Modal	Stepper	steps	Close Position → Burn → Transfer	Optional	Engine				
+Index – Structured										1.0	Empty State	Message + CTA		No indexes yet → Create New	Required					
+Index – Structured										1.0	Footer	Disclaimer		Risk Disclaimer / Terms (light mint-gray)	Optional					
