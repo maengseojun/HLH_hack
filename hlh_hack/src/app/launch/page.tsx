@@ -26,7 +26,7 @@ export default function LaunchPage() {
     <div className="w-full min-h-[70vh]">
       <div className="ui-scale">
       <section className="px-2 pb-6 border-b border-[color:var(--color-border)]">
-        <h3 className="text-white font-bold mb-2">Launch</h3>
+        <h4 className="text-white font-bold mb-2">Launch</h4>
         <p className="text-[color:var(--color-muted-foreground)]">Create, preview, and launch instantly</p>
       </section>
 
