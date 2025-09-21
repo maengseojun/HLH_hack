@@ -1,0 +1,18 @@
+{
+  "type": "pair_neutral_breakout",
+  "name": "BTC-ETH Pair Neutral Breakout",
+  "symbols": ["BTC", "ETH"],
+  "params": {
+    "lookback": 24,
+    "k_in": 2.5,
+    "k_out": 1.2,
+    "minHoldSteps": 4,
+    "neutralDriftThresholdBps": 300,
+    "maxSkewBps": 300,
+    "regimeStopBps": 50,
+    "regimeTPBps": 100,
+    "betaMin": 0.2,
+    "betaMax": 5.0,
+    "useBetaHedge": false
+  }
+}

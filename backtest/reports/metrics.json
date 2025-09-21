@@ -1,0 +1,15 @@
+{
+  "start_nav_usd": 999930.0,
+  "final_nav_usd": 981263.919015,
+  "total_return": -0.01866738770213916,
+  "cagr": -0.8990030617775384,
+  "sharpe": -13.960642360320106,
+  "max_drawdown": -0.02238788918382406,
+  "steps": 73,
+  "duration_days": 3.0,
+  "rebalances": 15,
+  "rebalances_with_trades": 15,
+  "total_turnover_usd": 1398441.136904,
+  "total_fee_paid_usd": 978.9087958328,
+  "total_funding_pnl_usd": 0.0
+}

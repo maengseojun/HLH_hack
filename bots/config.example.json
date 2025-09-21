@@ -1,0 +1,11 @@
+{
+  "turnoverCapBps": 1000,
+  "maxNetDeltaUSD": 50000,
+  "perSymbolMaxUSD": {
+    "default": 250000
+  },
+  "cooldownSeconds": 3600,
+  "maxRetries": 3,
+  "retryBackoffMs": 5000,
+  "dryRun": true
+}

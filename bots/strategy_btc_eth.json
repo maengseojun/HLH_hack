@@ -1,0 +1,11 @@
+{
+  "name": "BTC vs ETH Pair (Neutral Net)",
+  "longs": [
+    { "symbol": "BTC", "bps": 7000 },
+    { "symbol": "ETH", "bps": 3000 }
+  ],
+  "shorts": [
+    { "symbol": "BTC", "bps": 3000 },
+    { "symbol": "ETH", "bps": 7000 }
+  ]
+}

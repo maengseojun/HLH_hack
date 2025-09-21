@@ -1,0 +1,15 @@
+{
+  "turnoverCapBps": 1000,
+  "maxNetDeltaUSD": 50000,
+  "perSymbolMaxUSD": {
+    "default": 250000
+  },
+  "cooldownSeconds": 3600,
+  "feeBps": 2.0,
+  "slipBps": 5.0,
+  "maxRetries": 3,
+  "retryBackoffMs": 5000,
+  "dryRun": false,
+  "leverage": 1.0,
+  "rebalanceThresholdBps": 300.0
+}
