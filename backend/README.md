@@ -47,9 +47,14 @@ npm run dev
 
 ### Assets
 - `GET /assets` - 전체 자산 목록 조회
-- `GET /assets/:symbol` - 특정 자산 상세 정보 (온체인 데이터 포함)
+- `GET /assets/:symbol` - 특정 자산 상세 정보 (온체인 데이터 포함). `?include=fundingHistory,change7d`로 확장 필드를 지연 로딩.
 - `GET /assets/:symbol/onchain` - 온체인 데이터만 조회
-- `GET /assets/:symbol/candles?interval=1h|7d|1d` - 캔들 데이터 조회 (사전 정의된 3개 프리셋)
+- `GET /assets/:symbol/candles?interval=1h|7d|1d` - 캔들 데이터 조회 (사전 정의된 3개 프리셋, Hyperliquid **공식** public info API 기반)
+
+### Payments
+- `POST /payments/precheck` - 사용자 잔액/가스/서명 검증 및 가스 추정 (서명 필수)
+- `POST /payments/intents` - 멱등성 보장 결제 intent 생성 (`Idempotency-Key` 지원)
+- `POST /payments/:intentId/confirm` - 온체인 트랜잭션 확인 및 revert reason 전달
 
 ### Baskets
 - `POST /baskets/calculate` - 자산 바스켓 성과 계산 (interval 프리셋: `1h`, `7d`, `1d`)
@@ -99,7 +104,7 @@ npm run smoke
 
 - HyperLiquid 테스트넷 API를 통한 실시간 자산 데이터 조회
 - HyperCore 테스트넷 연동 및 온체인 데이터 조회
-- 캔들 차트 데이터 조회 (1h/24h, 1d/7d, 1d/30d 프리셋)
+- 캔들 차트 데이터 조회 (1h/24h, 1d/7d, 1d/30d 프리셋, Hyperliquid 공용 info API의 최신 5,000개 캔들 제한에 맞춰 설계)
 - 메모리 캐싱 + Stale-While-Revalidate(SWR) (TTL 만료 후에도 즉시 응답)
 - Rate limiting
 - 에러 핸들링 및 로깅

@@ -12,8 +12,8 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
 
   return res.status(503).json(
     errorBody({
-      code: status ? `UPSTREAM_${status}` : 'UPSTREAM_UNAVAILABLE',
-      message,
+      code: 'UPSTREAM_UNAVAILABLE',
+      message: `${message}. Note: Hyperliquid's candleSnapshot and fundingHistory endpoints are only available via the official public API and expose the most recent 5000 candles`,
       retryAfterSec: 30,
       details: status ? { status } : undefined,
     }),

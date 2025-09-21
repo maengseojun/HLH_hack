@@ -27,7 +27,6 @@ These decisions keep the hackathon build fast while leaving room to grow later. 
     "dayNtlVlm": 824178803.5078502,
     "openInterest": 34765.71264,
     "maxLeverage": 40,
-    "change24h": 0.09,
     "funding": 1.25e-05,
     "premium": 0.0001554767
   },
@@ -38,7 +37,6 @@ These decisions keep the hackathon build fast while leaving room to grow later. 
     "dayNtlVlm": 633513654.9676108,
     "openInterest": 799532.6301999999,
     "maxLeverage": 25,
-    "change24h": 0.13,
     "funding": 1.25e-05,
     "premium": 6.69359e-05
   }
@@ -47,29 +45,68 @@ These decisions keep the hackathon build fast while leaving room to grow later. 
 ```
 
 ### GET `/assets/:symbol` ✅
-**Real response sample (BTC):**
+**Real response sample (no include):**
 ```json
 {
-  "name": "BTC",
-  "symbol": "BTC",
-  "markPx": 115791,
-  "dayNtlVlm": 824191322.2445502,
-  "openInterest": 34765.92106,
-  "maxLeverage": 40,
-  "change24h": 0.09,
-  "funding": 1.25e-05,
-  "premium": 0.0001554767,
-  "change7d": null,
-  "impactPxs": [115791, 115792]
+  "meta": {
+    "source": "hyperliquid.info.metaAndAssetCtxs",
+    "include": [],
+    "cached": false,
+    "coinNormalization": "SYMBOL-PERP->SYMBOL"
+  },
+  "asset": {
+    "name": "BTC",
+    "symbol": "BTC",
+    "markPx": 115791,
+    "dayNtlVlm": 824191322.2445502,
+    "openInterest": 34765.92106,
+    "maxLeverage": 40,
+    "funding": 1.25e-05,
+    "premium": 0.0001554767,
+    "change7d": null,
+    "impactPxs": {
+      "bid": 115791,
+      "ask": 115792
+    }
+  }
 }
 ```
 
-**Error response (non-existent asset):**
+**With `include=fundingHistory,change7d`:**
 ```json
 {
-  "error": "Asset not found"
+  "meta": {
+    "source": "hyperliquid.info.metaAndAssetCtxs",
+    "include": ["fundingHistory", "change7d"],
+    "cached": true,
+    "coinNormalization": "SYMBOL-PERP->SYMBOL"
+  },
+  "asset": {
+    "name": "BTC",
+    "symbol": "BTC",
+    "markPx": 115791,
+    "dayNtlVlm": 824191322.2445502,
+    "openInterest": 34765.92106,
+    "maxLeverage": 40,
+    "funding": 1.25e-05,
+    "premium": 0.0001554767,
+    "change7d": 1.72,
+    "impactPxs": {
+      "bid": 115791,
+      "ask": 115792
+    },
+    "fundingHistory": [
+      { "timestamp": 1718086400000, "value": 0.0000123 },
+      { "timestamp": 1718090000000, "value": 0.0000118 }
+    ]
+  }
 }
 ```
+
+> ℹ️ **Hyperliquid upstream constraints**
+> - 모든 `metaAndAssetCtxs` 수치 값은 문자열로 전달되며, 백엔드에서 숫자로 파싱합니다.
+> - `candleSnapshot`·`fundingHistory` 는 **공식 Hyperliquid public info API** 에서만 지원됩니다. (커스텀/사설 노드에서는 503 발생 가능)
+> - 각 시장별로 **최신 5,000개의 캔들**만 조회 가능합니다. 프리셋(24h·1h, 7d·1d 등)은 이 제한 내에서 동작하도록 설계되어 있습니다.
 
 ### GET `/health` ✅
 **Real response sample:**
@@ -84,8 +121,8 @@ These decisions keep the hackathon build fast while leaving room to grow later. 
 ```
 
 ## 4. Stubbed Fields (Backend TODOs)
-- `change7d` and `fundingHistory` return `null`/empty arrays until a reliable data source is integrated.
-- Frontend should treat them as optional and feature-flag UI that depends on them.
+- `change7d` is computed on demand via `include=change7d` (1d candles / 7d window). If computation fails, it falls back to `null`.
+- `fundingHistory` hydrates when `include=fundingHistory`. Expect up to 168 hourly points; failures return `undefined` so the UI can hide the panel.
 
 ## 5. Caching and Rate Limiting ✅ TESTED
 - In-memory cache (`node-cache`) with 60s TTL and short stale window to survive transient Hyperliquid hiccups.
@@ -132,3 +169,8 @@ These decisions keep the hackathon build fast while leaving room to grow later. 
 - Handle error cases as shown
 
 **Ready for frontend integration!** 🚀
+
+### Payments (해커톤 MVP)
+- `POST /v1/payments/precheck` → 요청 서명 필수, 응답에 `estimatedGasUnits`, `feeData`, `needsApproval`, `balances` 포함. 부족 자산은 `INSUFFICIENT_FUNDS` + `details.items[]`로 명시.
+- `POST /v1/payments/intents` → 멱등 intent 생성. `Idempotency-Key` 헤더가 있으면 그대로 intentId 사용, 없으면 해시 기반(`buildIntentId`)으로 결정.
+- `POST /v1/payments/{intentId}/confirm` → on-chain receipt 확인. revert 시 `ONCHAIN_REVERT` + reason 응답, 성공 시 `status: SUCCESS`, `tx.hash`, `tx.blockNumber` 반환.

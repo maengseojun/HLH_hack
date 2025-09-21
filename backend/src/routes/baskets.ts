@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { getCandles } from '../services/hypercore.js';
-import { calcBasketFromCandles, Position } from '../services/basket.js';
+import { calcBasketFromCandles } from '../services/basket.js';
 import { AppError } from '../utils/httpError.js';
 import { resolvePresetRange } from '../utils/candlePresets.js';
+import type { Position } from '../types/domain.js';
 
 const assetSchema = z.object({
   symbol: z.string().min(1),
@@ -26,7 +27,7 @@ basketsRouter.post('/calculate', async (req, res, next) => {
     const parsed = bodySchema.safeParse(req.body);
     if (!parsed.success) {
       throw new AppError(400, {
-        code: 'INVALID_BODY',
+        code: 'BAD_REQUEST',
         message: 'Request body validation failed',
         details: parsed.error.flatten(),
       });

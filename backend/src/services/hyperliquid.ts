@@ -1,12 +1,14 @@
 import { InfoClient, HttpTransport } from '@nktkas/hyperliquid';
 import { config } from '../config.js';
-import { AssetMetadata, AssetDetail } from '../types/asset.js';
+import type { Asset, AssetDetail } from '../types/domain.js';
 
 interface RawAssetMeta {
   name?: string;
   symbol?: string;
   sz?: string;
   maxLeverage?: number | string;
+  assetId?: number | string;
+  szDecimals?: number | string;
   [key: string]: unknown;
 }
 
@@ -38,6 +40,7 @@ const transport = new HttpTransport({
 const client = new InfoClient({ transport });
 
 const numeric = (value: unknown): number | null => {
+  // Hyperliquid info endpoints return numeric values as strings per official schemas.
   if (typeof value === 'number') {
     return Number.isFinite(value) ? value : null;
   }
@@ -46,12 +49,6 @@ const numeric = (value: unknown): number | null => {
     return Number.isFinite(parsed) ? parsed : null;
   }
   return null;
-};
-
-const roundTo = (value: number | null, decimals = 2): number | null => {
-  if (value === null) return null;
-  const factor = 10 ** decimals;
-  return Math.round(value * factor) / factor;
 };
 
 const toCombinedAssets = (metaAndCtxs: unknown): CombinedAsset[] => {
@@ -93,51 +90,104 @@ const nameFromMeta = (meta: RawAssetMeta, symbol: string): string => {
   return symbol;
 };
 
-const toAssetMetadata = (asset: CombinedAsset, index: number): AssetMetadata => {
+const toAsset = (asset: CombinedAsset, index: number): Asset => {
   const symbol = symbolFromMeta(asset.meta, index);
   const name = nameFromMeta(asset.meta, symbol);
 
   const markPx = numeric(asset.ctx.markPx);
-  const prevDayPx = numeric(asset.ctx.prevDayPx);
   const dayNtlVlm = numeric(asset.ctx.dayNtlVlm);
   const openInterest = numeric(asset.ctx.openInterest);
   const maxLeverage = numeric(asset.meta.maxLeverage);
   const funding = numeric(asset.ctx.funding);
   const premium = numeric(asset.ctx.premium);
 
-  let change24h: number | null = null;
-  if (markPx !== null && prevDayPx !== null && prevDayPx !== 0) {
-    change24h = roundTo(((markPx - prevDayPx) / prevDayPx) * 100, 2);
-  }
+  const assetId = extractAssetId(asset.meta, index);
+  const szDecimals = extractSzDecimals(asset.meta);
+  const priceDecimals = extractPriceDecimals(asset.meta, szDecimals);
 
   return {
+    assetId,
+    szDecimals,
+    priceDecimals,
     name,
     symbol,
     markPx: markPx ?? 0,
     dayNtlVlm: dayNtlVlm ?? 0,
     openInterest: openInterest ?? 0,
     maxLeverage: maxLeverage ?? 0,
-    change24h,
-    funding,
-    premium
+    funding: funding ?? 0,
+    premium: premium ?? 0,
   };
 };
 
-const toImpactPrices = (ctx: RawAssetCtx): [number, number] | undefined => {
+const toImpactPrices = (ctx: RawAssetCtx): { bid?: number; ask?: number } | undefined => {
   const impact = ctx.impactPxs;
-  if (!Array.isArray(impact) || impact.length < 2) return undefined;
+  if (!Array.isArray(impact)) return undefined;
+
   const bid = numeric(impact[0]);
   const ask = numeric(impact[1]);
-  if (bid === null || ask === null) return undefined;
-  return [bid, ask];
+
+  if (bid === null && ask === null) return undefined;
+
+  const result: { bid?: number; ask?: number } = {};
+  if (bid !== null) result.bid = bid;
+  if (ask !== null) result.ask = ask;
+  return result;
 };
 
 const normaliseSymbol = (symbol: string): string => symbol.trim().toUpperCase();
 
-export const fetchAllAssetsData = async (): Promise<AssetMetadata[]> => {
+const extractAssetId = (meta: RawAssetMeta, fallback: number): number => {
+  const value = meta.assetId ?? (meta as any)?.index;
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+  }
+  return fallback;
+};
+
+const extractSzDecimals = (meta: RawAssetMeta): number => {
+  const value = meta.szDecimals ?? (meta.sz ? decimalsFromString(meta.sz) : undefined);
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+  }
+  return 0;
+};
+
+const decimalsFromString = (input: string): number => {
+  const parts = input.trim().split('.');
+  return parts[1]?.length ?? 0;
+};
+
+const extractPriceDecimals = (meta: RawAssetMeta, szDecimals: number): number => {
+  const value = (meta as any)?.priceDecimals;
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+  }
+  return Math.max(0, 6 - szDecimals);
+};
+
+export const fetchAllAssetsData = async (): Promise<Asset[]> => {
   const metaAndCtxs = await client.metaAndAssetCtxs();
   const combined = toCombinedAssets(metaAndCtxs);
-  return combined.map(toAssetMetadata);
+  return combined.map(toAsset);
 };
 
 export const fetchAssetDetail = async (symbol: string): Promise<AssetDetail | null> => {
@@ -155,12 +205,12 @@ export const fetchAssetDetail = async (symbol: string): Promise<AssetDetail | nu
   }
 
   const asset = combined[matchIndex];
-  const base = toAssetMetadata(asset, matchIndex);
+  const base = toAsset(asset, matchIndex);
 
   return {
     ...base,
     change7d: null,
     impactPxs: toImpactPrices(asset.ctx),
-    fundingHistory: undefined
+    fundingHistory: undefined,
   };
 };

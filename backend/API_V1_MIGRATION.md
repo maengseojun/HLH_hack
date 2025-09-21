@@ -38,12 +38,15 @@ Frontend updates
    ```
    Bubble this information into devtools or debugging overlays so symbol mismatches are easy to spot.
 4. **Basket payload validation**: enforce `sum(weights) = 1` client-side before posting to `/v1/baskets/calculate` to avoid unnecessary round trips.
+5. **Asset detail expansions**: opt into extras with `?include=fundingHistory,change7d`. Missing data should be treated as optional so the UI can hide that section.
+6. **Official info API only**: `candleSnapshot`/`fundingHistory` calls must target the Hyperliquid public info endpoint. 커스텀 노드에서는 503이 발생할 수 있으며, 각 시장은 최신 5,000개 캔들만 제공합니다.
 
 Documentation checklist
 -----------------------
 
 - Update API reference tables to point to `/v1/assets`, `/v1/assets/:symbol`, `/v1/assets/:symbol/candles`, `/v1/baskets/calculate`.
-- Document the common error envelope (code/message/details/retryAfterSec) and list the expected codes (`INVALID_QUERY`, `WEIGHT_SUM_INVALID`, `RANGE_TOO_LARGE`, `UPSTREAM_503`, …).
+- Document the new payment endpoints (`/v1/payments/precheck`, `/v1/payments/intents`, `/v1/payments/{intentId}/confirm`) including signature requirements and error codes (`INSUFFICIENT_FUNDS`, `ONCHAIN_REVERT`).
+- Document the common error envelope (code/message/details/retryAfterSec) and list the expected codes (`BAD_REQUEST`, `INVALID_RANGE`, `LOOKBACK_EXCEEDED`, `UNSUPPORTED_PRESET`, `UNSUPPORTED_SYMBOL`, `WEIGHT_SUM_INVALID`, `EMPTY_CANDLES`, `UPSTREAM_UNAVAILABLE`).
 - Note the default lookback windows per interval (`1h` → 24 h, `1d` → 30 d, `7d` → 7 d) and the hard limit of 365 d.
 
 Verification scripts

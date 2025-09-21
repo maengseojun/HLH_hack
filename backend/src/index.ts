@@ -4,12 +4,27 @@ import { config } from './config.js';
 import { assetsRouter } from './routes/assets.js';
 import { healthRouter } from './routes/health.js';
 import { basketsRouter } from './routes/baskets.js';
+import { paymentsRouter } from './routes/payments.js';
+import { positionsRouter } from './routes/positions.js';
+import { monitoringRouter } from './routes/monitoring.js';
 import { errorHandler } from './middlewares/errorHandler.js';
+import { idempotencyMiddleware } from './middlewares/idempotency.js';
+import { requestContext, attachReqLogger } from './middlewares/requestContext.js';
+import { metricsMiddleware } from './middlewares/metricsCollector.js';
+import { authBearer, optionalAuth, validateDemoToken } from './middlewares/auth.js';
+import { logger } from './infra/logger.js';
 
 const app = express();
 
-app.use(express.json());
+// Request parsing
+app.use(express.json({ limit: '1mb' }));
 
+// Logging and metrics (apply early)
+app.use(requestContext);
+app.use(attachReqLogger);
+app.use(metricsMiddleware);
+
+// Rate limiting
 const apiLimiter = rateLimit({
   windowMs: config.rateLimit.windowMs,
   limit: config.rateLimit.max,
@@ -20,16 +35,45 @@ const apiLimiter = rateLimit({
   }
 });
 
-app.use('/health', healthRouter);
-app.use('/v1/assets', apiLimiter, assetsRouter);
-app.use('/v1/baskets', apiLimiter, basketsRouter);
+// Stricter rate limit for position operations
+const positionLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  limit: 5, // 5 requests per minute per IP
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: {
+    error: 'Too many position requests, please try again later.'
+  }
+});
 
+// Public routes (no auth required)
+app.use('/health', healthRouter);
+app.use('/metrics', monitoringRouter);
+app.use('/dashboard', monitoringRouter);
+
+// Assets route (optional auth for enhanced features)
+app.use('/v1/assets', apiLimiter, optionalAuth, assetsRouter);
+
+// Protected routes (authentication required)
+app.use('/v1/baskets', apiLimiter, authBearer, basketsRouter);
+app.use('/v1/payments', apiLimiter, authBearer, paymentsRouter);
+app.use('/v1/indexes', positionLimiter, authBearer, idempotencyMiddleware, positionsRouter);
+
+// Auth utilities
+app.post('/auth/validate', validateDemoToken);
+
+// Error handling (apply last)
 app.use(errorHandler);
 
 const port = config.port;
 
 app.listen(port, () => {
-  console.log(`HyperIndex backend listening on port ${port}`);
+  logger.info({
+    port,
+    env: process.env.NODE_ENV || 'development',
+    version: process.env.npm_package_version || '0.1.0',
+    auth_mode: process.env.AUTH_MODE || 'bearer',
+  }, 'HyperIndex backend server started');
 });
 
 export { app };

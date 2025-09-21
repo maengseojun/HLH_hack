@@ -1,6 +1,4 @@
-import { Candle } from './hypercore.js';
-
-export type Position = 'long' | 'short';
+import type { Candle, Position } from '../types/domain.js';
 
 export interface ReturnPoint {
   timestamp: number;

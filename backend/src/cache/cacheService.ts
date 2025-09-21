@@ -31,12 +31,12 @@ const cache = new NodeCache({
 export class CacheService {
   constructor(private readonly defaultTtl = config.cache.ttlSeconds) {}
 
-  set<T>(key: string, value: T, ttlSeconds = this.defaultTtl): void {
+  set<T>(key: string, value: T, ttlSeconds = this.defaultTtl, options: { staleSeconds?: number } = {}): void {
     const ttl = Math.max(1, ttlSeconds);
     const now = Date.now();
     const ttlMs = ttl * 1000;
     const expiresAt = now + ttlMs;
-    const staleTtlSeconds = Math.max(config.cache.staleSeconds, 0);
+    const staleTtlSeconds = Math.max(options.staleSeconds ?? config.cache.staleSeconds, 0);
     const staleExpiresAt = expiresAt + staleTtlSeconds * 1000;
     const keepAliveSeconds = ttl + staleTtlSeconds;
 

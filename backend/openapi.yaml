@@ -1,0 +1,691 @@
+openapi: 3.0.3
+info:
+  title: HyperIndex API
+  version: 0.9.0-hackathon
+  description: |
+    HyperIndex Backend API for decentralized index trading on HyperLiquid
+
+    ## Authentication
+    Most endpoints require Bearer token authentication:
+    ```
+    Authorization: Bearer <token>
+    ```
+
+    ## Idempotency
+    Write operations support idempotency via the `Idempotency-Key` header:
+    ```
+    Idempotency-Key: <unique-key>
+    ```
+
+    ## Rate Limiting
+    - General API: 100 requests/hour
+    - Position operations: 5 requests/minute
+
+    ## Error Codes
+    - `UNAUTHORIZED`: Invalid or missing authentication
+    - `BAD_REQUEST`: Invalid request parameters
+    - `UNSUPPORTED_SYMBOL`: Unknown trading symbol
+    - `UPSTREAM_UNAVAILABLE`: External service error
+    - `PRECOMPILE_PARSE_ERROR`: Blockchain call failure
+    - `IDEMP_IN_PROGRESS`: Duplicate idempotent request
+  contact:
+    name: HyperIndex Team
+  license:
+    name: MIT
+servers:
+  - url: https://api.hyperindex.example.com
+    description: Production server (placeholder)
+  - url: http://localhost:3000
+    description: Local development server
+paths:
+  /v1/assets:
+    get:
+      summary: List tradable assets
+      operationId: listAssets
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Asset'
+        '503':
+          $ref: '#/components/responses/UpstreamUnavailable'
+  /v1/assets/{symbol}:
+    get:
+      summary: Get detailed information for a single asset
+      operationId: getAssetDetail
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: include
+          in: query
+          schema:
+            type: string
+            example: fundingHistory,change7d
+          description: "Optional expansions. Supported values: fundingHistory, change7d"
+      responses:
+        '200':
+          description: Asset detail response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetDetailResponse'
+        '400':
+          description: Unsupported symbol
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+              examples:
+                unsupported_symbol:
+                  value:
+                    error:
+                      code: UNSUPPORTED_SYMBOL
+                      message: Asset BTCXYZ is not supported
+        '503':
+          $ref: '#/components/responses/UpstreamUnavailable'
+  /v1/assets/{symbol}/candles:
+    get:
+      summary: Get candle history for a symbol
+      operationId: getCandles
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: interval
+          in: query
+          schema:
+            type: string
+            enum: [1h, 1d, 7d]
+            default: 1d
+        - name: start
+          in: query
+          schema:
+            type: integer
+            format: int64
+            description: Optional start timestamp (ms)
+        - name: end
+          in: query
+          schema:
+            type: integer
+            format: int64
+            description: Optional end timestamp (ms)
+      responses:
+        '200':
+          description: Candle response
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [symbol, interval, from, to, candles, meta]
+                properties:
+                  symbol:
+                    type: string
+                  interval:
+                    type: string
+                  from:
+                    type: integer
+                    format: int64
+                  to:
+                    type: integer
+                    format: int64
+                  candles:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Candle'
+                  meta:
+                    type: object
+                    properties:
+                      coinNormalization:
+                        type: string
+                        example: SYMBOL-PERP->SYMBOL
+                      source:
+                        type: string
+                        example: hyperliquid.info.candleSnapshot
+                        description: "Hyperliquid public info endpoint. Note: candleSnapshot is only available on the official public API."
+                      rangeMs:
+                        type: integer
+                        format: int64
+                        description: "Milliseconds between from/to. Must remain within the upstream 5000-candle window."
+                      presetDurationMs:
+                        type: integer
+                        format: int64
+                      staleWhileRevalidate:
+                        type: boolean
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '503':
+          $ref: '#/components/responses/UpstreamUnavailable'
+  /v1/baskets/calculate:
+    post:
+      summary: Calculate basket performance
+      operationId: calculateBasket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BasketRequest'
+      responses:
+        '200':
+          description: Basket calculation response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasketResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '503':
+          $ref: '#/components/responses/UpstreamUnavailable'
+  /v1/payments/precheck:
+    post:
+      summary: Run balance and gas checks before creating a payment intent
+      operationId: paymentPrecheck
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentPrecheckRequest'
+      responses:
+        '200':
+          description: Precheck succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentPrecheckResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '503':
+          $ref: '#/components/responses/UpstreamUnavailable'
+  /v1/payments/intents:
+    post:
+      summary: Create or fetch a payment intent (idempotent)
+      operationId: createPaymentIntent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentIntentRequest'
+      responses:
+        '200':
+          description: Intent created or retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentIntentResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /v1/payments/{intentId}/confirm:
+    post:
+      summary: Confirm settlement transaction on-chain
+      operationId: confirmPaymentIntent
+      parameters:
+        - name: intentId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentConfirmRequest'
+      responses:
+        '200':
+          description: Intent confirmed on-chain
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentConfirmResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '503':
+          $ref: '#/components/responses/UpstreamUnavailable'
+components:
+  schemas:
+    Candle:
+      type: object
+      required: [timestamp, open, high, low, close, volume]
+      properties:
+        timestamp:
+          type: integer
+          format: int64
+          example: 1718086400000
+          description: 'Unix epoch milliseconds. Hyperliquid only exposes the latest ~5000 candles per market via the public info API.'
+        open:
+          type: number
+          example: 69000
+        high:
+          type: number
+          example: 69500
+        low:
+          type: number
+          example: 68000
+        close:
+          type: number
+          example: 68850
+        volume:
+          type: number
+          example: 12345.67
+    Asset:
+      type: object
+      required: [name, symbol, szDecimals, priceDecimals]
+      properties:
+        name:
+          type: string
+          example: Bitcoin Perp
+        symbol:
+          type: string
+          example: BTC-PERP
+        szDecimals:
+          type: integer
+          example: 3
+        priceDecimals:
+          type: integer
+          example: 3
+        markPx:
+          type: number
+          example: 68850.11
+          description: 'Converted from the string-valued markPx field returned by metaAndAssetCtxs.'
+        openInterest:
+          type: number
+          example: 34765.71264
+          description: 'Converted from the string-valued openInterest field returned by metaAndAssetCtxs.'
+        dayNtlVlm:
+          type: number
+          example: 824178803.50785
+        maxLeverage:
+          type: number
+          example: 40
+        funding:
+          type: number
+          example: 0.000012
+          description: 'Converted from the string-valued funding field returned by metaAndAssetCtxs.'
+        premium:
+          type: number
+          example: 0.000155
+    AssetDetail:
+      allOf:
+        - $ref: '#/components/schemas/Asset'
+        - type: object
+          properties:
+            impactPxs:
+              type: object
+              properties:
+                bid:
+                  type: number
+                  nullable: true
+                ask:
+                  type: number
+                  nullable: true
+              description: 'Parsed from Hyperliquid metaAndAssetCtxs impactPxs (string numeric values converted to numbers).'
+            fundingHistory:
+              type: array
+              items:
+                type: object
+                required: [timestamp, value]
+                properties:
+                  timestamp:
+                    type: integer
+                    format: int64
+                  value:
+                    type: number
+              description: 'Hourly funding rates returned by the official info API via fundingHistory (latest entries first). Hyperliquid only exposes the most recent 5000 records.'
+            change7d:
+              type: number
+              nullable: true
+              description: 'Seven day percentage change derived from cached candleSnapshot data. Returns null if upstream data is unavailable or outside the 5000-candle window.'
+    AssetDetailResponse:
+      type: object
+      required: [meta, asset]
+      properties:
+        meta:
+          type: object
+          properties:
+            source:
+              type: string
+              example: hyperliquid.info.metaAndAssetCtxs
+              description: 'Hyperliquid info endpoint. Numeric fields such as funding, markPx, dayNtlVlm, openInterest arrive as strings and are converted to numbers server-side.'
+            include:
+              type: array
+              items:
+                type: string
+                enum: [fundingHistory, change7d]
+              example: [fundingHistory, change7d]
+            cached:
+              type: boolean
+              example: false
+            coinNormalization:
+              type: string
+              example: SYMBOL-PERP->SYMBOL
+              description: 'Upstream expects symbols without the -PERP suffix; the backend normalises accordingly.'
+        asset:
+          $ref: '#/components/schemas/AssetDetail'
+    BasketRequest:
+      type: object
+      required: [assets, interval]
+      properties:
+        assets:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [symbol, weight, position]
+            properties:
+              symbol:
+                type: string
+                example: BTC-PERP
+              weight:
+                type: number
+                format: float
+                example: 0.4
+              position:
+                type: string
+                enum: [long, short]
+              leverage:
+                type: number
+                minimum: 1
+                example: 3
+        interval:
+          type: string
+          enum: [1h, 1d, 7d]
+          example: 7d
+        from:
+          type: integer
+          format: int64
+          nullable: true
+        to:
+          type: integer
+          format: int64
+          nullable: true
+    BasketResponse:
+      type: object
+      properties:
+        meta:
+          type: object
+          properties:
+            interval:
+              type: string
+              example: 7d
+            request:
+              type: object
+              properties:
+                from:
+                  type: integer
+                  format: int64
+                to:
+                  type: integer
+                  format: int64
+            leverageApplied:
+              type: boolean
+              example: true
+            coinNormalization:
+              type: string
+              example: SYMBOL-PERP->SYMBOL
+            source:
+              type: string
+              example: hyperliquid.info.candleSnapshot
+            rangeMs:
+              type: integer
+              format: int64
+            presetDurationMs:
+              type: integer
+              format: int64
+            staleWhileRevalidate:
+              type: boolean
+              example: true
+        basketPriceHistory:
+          type: array
+          items:
+            type: object
+            required: [timestamp, price]
+            properties:
+              timestamp:
+                type: integer
+                format: int64
+              price:
+                type: number
+        performance:
+          type: object
+          properties:
+            returnPct:
+              type: number
+            maxDrawdown:
+              type: number
+        assets:
+          type: array
+          items:
+            type: object
+            required: [symbol, weight, position, leverage, individualReturnPct]
+            properties:
+              symbol:
+                type: string
+              weight:
+                type: number
+              position:
+                type: string
+                enum: [long, short]
+              leverage:
+                type: number
+              individualReturnPct:
+                type: number
+    PaymentPrecheckRequest:
+      type: object
+      required: [user, amount, currency, recipient, nonceSec, signature]
+      properties:
+        user:
+          type: string
+          minLength: 42
+          description: 'Wallet address initiating the payment.'
+        amount:
+          type: string
+          pattern: '^\\d+$'
+          description: 'USDC amount in base units (integer string).'
+        currency:
+          type: string
+          enum: [USDC]
+        recipient:
+          type: string
+          minLength: 42
+          description: 'Merchant address receiving the funds.'
+        nonceSec:
+          type: integer
+          description: 'Client-provided nonce in seconds for signature freshness.'
+        signature:
+          type: string
+          description: 'EIP-191 personal signature over the server-defined precheck message.'
+    PaymentPrecheckResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        needsApproval:
+          type: boolean
+        estimatedGasUnits:
+          type: string
+        feeData:
+          type: object
+          properties:
+            gasPrice:
+              type: string
+              nullable: true
+            maxFeePerGas:
+              type: string
+              nullable: true
+            maxPriorityFeePerGas:
+              type: string
+              nullable: true
+        feeBps:
+          type: integer
+        decimals:
+          type: integer
+        balances:
+          type: object
+          properties:
+            hype:
+              type: string
+            usdc:
+              type: string
+        allowance:
+          type: string
+    PaymentIntentRequest:
+      type: object
+      required: [user, amount, currency, recipient, nonceSec, signature]
+      properties:
+        user:
+          type: string
+          minLength: 42
+        amount:
+          type: string
+          pattern: '^\\d+$'
+        currency:
+          type: string
+          enum: [USDC]
+        recipient:
+          type: string
+          minLength: 42
+        nonceSec:
+          type: integer
+        signature:
+          type: string
+    PaymentIntentResponse:
+      type: object
+      properties:
+        intentId:
+          type: string
+        router:
+          type: string
+        token:
+          type: string
+        platformFeeBps:
+          type: integer
+        decimals:
+          type: integer
+        createdAt:
+          type: integer
+          description: 'Unix timestamp (seconds) when the intent was recorded.'
+        status:
+          type: string
+          enum: [CREATED, SUCCESS]
+        txHash:
+          type: string
+          nullable: true
+    PaymentConfirmRequest:
+      type: object
+      required: [txHash]
+      properties:
+        txHash:
+          type: string
+          pattern: '^0x[a-fA-F0-9]{64}$'
+    PaymentConfirmResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [SUCCESS]
+        intentId:
+          type: string
+        tx:
+          type: object
+          properties:
+            hash:
+              type: string
+            blockNumber:
+              type: integer
+        amount:
+          type: string
+        recipient:
+          type: string
+        feeBps:
+          type: integer
+    ErrorBody:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum:
+                - BAD_REQUEST
+                - INVALID_RANGE
+                - LOOKBACK_EXCEEDED
+                - UNSUPPORTED_PRESET
+                - UNSUPPORTED_SYMBOL
+                - WEIGHT_SUM_INVALID
+                - EMPTY_CANDLES
+                - UPSTREAM_UNAVAILABLE
+            message:
+              type: string
+            details:
+              nullable: true
+            retryAfterSec:
+              type: integer
+              nullable: true
+  responses:
+    BadRequest:
+      description: Bad request (validation or range failure)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorBody'
+          examples:
+            generic:
+              value:
+                error:
+                  code: BAD_REQUEST
+                  message: Invalid request
+            invalid_range:
+              value:
+                error:
+                  code: INVALID_RANGE
+                  message: '`to` must be > `from`'
+            lookback_exceeded:
+              value:
+                error:
+                  code: LOOKBACK_EXCEEDED
+                  message: Max lookback exceeded
+            insufficient_funds:
+              value:
+                error:
+                  code: INSUFFICIENT_FUNDS
+                  message: Insufficient funds
+                  details:
+                    items:
+                      - asset: USDC
+                        need: '1000000'
+                        have: '250000'
+                      - asset: HYPE
+                        need: '250000000000'
+                        have: '100000000000'
+            onchain_revert:
+              value:
+                error:
+                  code: ONCHAIN_REVERT
+                  message: ERC20: transfer amount exceeds allowance
+    UpstreamUnavailable:
+      description: Upstream failure (retryable)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorBody'
+          examples:
+            upstream:
+              value:
+                error:
+                  code: UPSTREAM_UNAVAILABLE
+                  message: Upstream service unavailable
+                  retryAfterSec: 30

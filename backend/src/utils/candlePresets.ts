@@ -46,7 +46,7 @@ export function resolvePresetRange({ interval, from, to, now = Date.now() }: Ran
   const preset = CANDLE_PRESETS[interval];
   if (!preset) {
     throw new AppError(400, {
-      code: 'UNSUPPORTED_INTERVAL',
+      code: 'UNSUPPORTED_PRESET',
       message: `Interval '${interval}' is not supported. Allowed: ${Object.keys(CANDLE_PRESETS).join(', ')}`,
     });
   }
@@ -66,8 +66,21 @@ export function resolvePresetRange({ interval, from, to, now = Date.now() }: Ran
   const withinAllowed = preset.allowedDurationsMs.some((allowed) => Math.abs(duration - allowed) <= RANGE_TOLERANCE_MS);
 
   if (!withinAllowed) {
+    const maxAllowed = Math.max(...preset.allowedDurationsMs);
+    if (duration > maxAllowed + RANGE_TOLERANCE_MS) {
+      throw new AppError(400, {
+        code: 'LOOKBACK_EXCEEDED',
+        message: 'Max lookback exceeded for requested interval (Hyperliquid exposes only the latest 5000 candles)',
+        details: {
+          requestedDurationMs: duration,
+          maxDurationMs: maxAllowed,
+          upstreamLimitCandles: 5000,
+        },
+      });
+    }
+
     throw new AppError(400, {
-      code: 'UNSUPPORTED_RANGE',
+      code: 'INVALID_RANGE',
       message: `Range ${duration}ms is not supported for interval '${interval}'.`,
       details: {
         requestedDurationMs: duration,
