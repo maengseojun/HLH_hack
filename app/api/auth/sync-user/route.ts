@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/client';
 import { verifyPrivyToken } from '@/lib/auth/privy-jwt';
+import type { User, UserWallet, UserUpdate, UserWalletInsert } from '@/lib/supabase/types';
 
 export async function POST(request: NextRequest) {
   try {
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
       .from('users')
       .select('*')
       .eq('privy_user_id', privyUserId)
-      .single();
+      .single() as { data: User | null; error: any };
 
     if (fetchError && fetchError.code !== 'PGRST116') {
       console.error('Error fetching user:', fetchError);
@@ -63,17 +64,19 @@ export async function POST(request: NextRequest) {
 
     if (existingUser) {
       // Update existing user
-      const { data: updatedUser, error: updateError } = await supabaseAdmin
+      const updateData: UserUpdate = {
+        email,
+        email_verified: !!email,
+        wallet_address: walletAddress,
+        wallet_type: walletType,
+        last_login: now,
+        is_active: true
+      };
+
+      const { data: updatedUser, error: updateError } = await (supabaseAdmin as any)
         .from('users')
-        .update({
-          email,
-          email_verified: !!email,
-          wallet_address: walletAddress,
-          wallet_type: walletType,
-          last_login: now,
-          is_active: true
-        })
-        .eq('id', existingUser.id)
+        .update(updateData)
+        .eq('id', existingUser!.id)
         .select()
         .single();
 
@@ -100,9 +103,9 @@ export async function POST(request: NextRequest) {
           created_at: now,
           last_login: now,
           is_active: true
-        })
+        } as any)
         .select()
-        .single();
+        .single() as { data: User | null; error: any };
 
       if (insertError) {
         console.error('Error creating user:', insertError);
@@ -124,20 +127,22 @@ export async function POST(request: NextRequest) {
         const { data: existingWallet } = await supabaseAdmin
           .from('user_wallets')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('user_id', user!.id)
           .eq('wallet_address', account.address)
           .single();
 
         if (!existingWallet) {
-          const { data: newWallet, error: walletError } = await supabaseAdmin
+          const walletData: UserWalletInsert = {
+            user_id: user!.id,
+            wallet_address: account.address,
+            wallet_provider: account.walletClientType || 'unknown',
+            is_primary: syncedWallets.length === 0, // First wallet is primary
+            created_at: now
+          };
+
+          const { data: newWallet, error: walletError } = await (supabaseAdmin as any)
             .from('user_wallets')
-            .insert({
-              user_id: user.id,
-              wallet_address: account.address,
-              wallet_provider: account.walletClientType || 'unknown',
-              is_primary: syncedWallets.length === 0, // First wallet is primary
-              created_at: now
-            })
+            .insert(walletData)
             .select()
             .single();
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/client';
 import { verifyPrivyAuth } from '@/lib/middleware/privy-auth';
+import type { UserSessionUpdate } from '@/lib/supabase/types';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,13 +14,15 @@ export async function POST(request: NextRequest) {
     const userId = authResult.user!.id;
 
     // Revoke all active sessions for the user
-    const { error } = await supabaseAdmin
+    const updateData: UserSessionUpdate = {
+      is_revoked: true,
+      revoked_at: new Date().toISOString(),
+      revoked_reason: 'user_logout'
+    };
+
+    const { error } = await (supabaseAdmin as any)
       .from('user_sessions')
-      .update({
-        is_revoked: true,
-        revoked_at: new Date().toISOString(),
-        revoked_reason: 'user_logout'
-      })
+      .update(updateData)
       .eq('user_id', userId)
       .eq('is_revoked', false);
 

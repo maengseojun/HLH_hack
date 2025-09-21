@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyPrivyToken, extractPrivyUserId } from '@/lib/auth/privy-jwt';
 import { supabaseAdmin } from '@/lib/supabase/client';
+import type { User } from '@/lib/supabase/types';
 
 export interface AuthResult {
   isAuthenticated: boolean;
@@ -62,7 +63,7 @@ export async function verifyPrivyAuth(request: NextRequest): Promise<AuthResult>
       .from('users')
       .select('*')
       .eq('privy_user_id', privyUserId)
-      .single();
+      .single() as { data: User | null; error: any };
 
     if (error || !user) {
       return {

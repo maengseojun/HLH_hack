@@ -187,16 +187,16 @@ export default function ApiTestPage() {
                         <div className="font-semibold text-red-800 mb-2">❌ Error</div>
                         {results[test.name.toLowerCase().replace(/\s+/g, '-')].error && (
                           <div className="space-y-1">
-                            <div><strong>Code:</strong> {results[test.name.toLowerCase().replace(/\s+/g, '-')].error.code}</div>
-                            <div><strong>Message:</strong> {results[test.name.toLowerCase().replace(/\s+/g, '-')].error.message}</div>
-                            {results[test.name.toLowerCase().replace(/\s+/g, '-')].error.retryAfterSec && (
-                              <div><strong>Retry After:</strong> {results[test.name.toLowerCase().replace(/\s+/g, '-')].error.retryAfterSec}s</div>
+                            <div><strong>Code:</strong> {results[test.name.toLowerCase().replace(/\s+/g, '-')].error?.code}</div>
+                            <div><strong>Message:</strong> {results[test.name.toLowerCase().replace(/\s+/g, '-')].error?.message}</div>
+                            {results[test.name.toLowerCase().replace(/\s+/g, '-')].error?.retryAfterSec && (
+                              <div><strong>Retry After:</strong> {results[test.name.toLowerCase().replace(/\s+/g, '-')].error?.retryAfterSec}s</div>
                             )}
-                            {results[test.name.toLowerCase().replace(/\s+/g, '-')].error.details && (
+                            {results[test.name.toLowerCase().replace(/\s+/g, '-')].error?.details && (
                               <details className="mt-2">
                                 <summary className="cursor-pointer font-medium">Details</summary>
                                 <pre className="text-xs mt-1 overflow-x-auto bg-white p-2 rounded border">
-                                  {JSON.stringify(results[test.name.toLowerCase().replace(/\s+/g, '-')].error.details, null, 2)}
+                                  {JSON.stringify(results[test.name.toLowerCase().replace(/\s+/g, '-')].error?.details, null, 2)}
                                 </pre>
                               </details>
                             )}

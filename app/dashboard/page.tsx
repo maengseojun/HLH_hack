@@ -130,7 +130,7 @@ export default function DashboardPage() {
             <div className="space-y-2">
               <p><strong>Privy ID:</strong> {user?.id}</p>
               <p><strong>Email:</strong> {user?.email?.address || 'Not set'}</p>
-              <p><strong>Email Verified:</strong> {user?.email?.verified ? 'Yes' : 'No'}</p>
+              <p><strong>Email Verified:</strong> {(user?.email as any)?.verified ? 'Yes' : 'No'}</p>
               <p><strong>Linked Accounts:</strong> {user?.linkedAccounts?.length || 0}</p>
             </div>
           </div>

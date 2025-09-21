@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/client';
 import { verifyPrivyAuth } from '@/lib/middleware/privy-auth';
+import type { User, UserUpdate } from '@/lib/supabase/types';
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
         user_wallets (*)
       `)
       .eq('id', userId)
-      .single();
+      .single() as { data: (User & { user_wallets: any[] }) | null; error: any };
 
     if (userError || !user) {
       return NextResponse.json(
@@ -80,9 +81,15 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const { data: updatedUser, error } = await supabaseAdmin
+    // Type-safe update
+    const updateData: UserUpdate = {};
+    if (allowedUpdates.email !== undefined) {
+      updateData.email = allowedUpdates.email;
+    }
+
+    const { data: updatedUser, error } = await (supabaseAdmin as any)
       .from('users')
-      .update(allowedUpdates)
+      .update(updateData)
       .eq('id', userId)
       .select()
       .single();

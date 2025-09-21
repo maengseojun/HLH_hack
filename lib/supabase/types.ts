@@ -1,4 +1,6 @@
 // lib/supabase/types.ts
+import { PostgrestResponse } from '@supabase/supabase-js';
+
 export type Database = {
   public: {
     Tables: {
@@ -169,3 +171,8 @@ export interface AuthResponse {
   message?: string
   error?: string
 }
+
+// Supabase response types
+export type UserResponse = PostgrestResponse<User>;
+export type UserSessionResponse = PostgrestResponse<UserSession>;
+export type UserWalletResponse = PostgrestResponse<UserWallet>;

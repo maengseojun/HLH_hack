@@ -40,8 +40,8 @@ const hyperliquidTestnet = {
 } as const;
 
 // Privy configuration
-export const privyConfig: PrivyClientConfig = {
-  // Your actual Privy App ID
+export const privyConfig = {
+  // Your actual Privy App ID - fallback for development
   appId: process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'cmft7is1h00b0la0cjse4m84t',
 
   // Configure supported login methods - ONLY EMAIL AND EVM WALLETS
@@ -73,15 +73,9 @@ export const privyConfig: PrivyClientConfig = {
       // Only allow EVM networks
       connectionOptions: 'eoaOnly'
     },
-    metamask: {
-      // MetaMask is EVM-only by default
-    },
     walletConnect: {
-      // Restrict to EVM chains only
-    },
-    // EXPLICITLY DISABLE NON-EVM WALLETS
-    phantom: false,
-    solflare: false,
+      enabled: true
+    }
   },
 
   // Configure appearance
@@ -100,16 +94,14 @@ export const privyConfig: PrivyClientConfig = {
     showWalletUIs: false, // Disable wallet UI that might show non-EVM options
     // Force EVM format for embedded wallets
     priceDisplay: {
-      primary: 'fiat', // Show USD values
-      secondary: 'native', // Show ETH values
+      primary: 'fiat-currency',
+      secondary: 'native-token'
     },
   },
 
   // Configure MFA (Enhanced security for trading platform)
   mfa: {
-    noPromptOnMfaRequired: false,
-    enableMfaForEmails: true, // Enable MFA for email users
-    enableMfaForWallets: true, // Enable MFA for wallet users
+    noPromptOnMfaRequired: false
   },
 };
 
@@ -138,7 +130,7 @@ export function useSupabaseWithPrivy() {
           },
         }
       );
-      setSupabase(supabaseClient);
+      setSupabase(supabaseClient as any);
     }
   }, [ready, authenticated, user]);
 

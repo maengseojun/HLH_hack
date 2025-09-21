@@ -10,7 +10,7 @@ interface PrivyProviderProps {
 
 export function PrivyProvider({ children }: PrivyProviderProps) {
   return (
-    <PrivyProviderBase {...privyConfig}>
+    <PrivyProviderBase {...(privyConfig as any)}>
       {children}
     </PrivyProviderBase>
   );
