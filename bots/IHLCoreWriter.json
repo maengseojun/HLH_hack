@@ -1,0 +1,14 @@
+[
+  {
+    "inputs": [
+      { "internalType": "string",  "name": "symbol",                   "type": "string" },
+      { "internalType": "int256",  "name": "targetNotionalSignedUSD", "type": "int256" },
+      { "internalType": "uint256", "name": "slippageBps",             "type": "uint256" },
+      { "internalType": "uint64",  "name": "ttlSeconds",              "type": "uint64" }
+    ],
+    "name": "reduceTo",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
