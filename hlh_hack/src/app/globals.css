@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+:root {
+  /* CoreIndex theme */
+  --font-size: 16px;
+  --ui-scale: 0.8; /* Global UI scale (0.8 = 80%) */
+  --background: #072723;
+  --foreground: #ffffff;
+  --card: #072723;
+  --card-foreground: #ffffff;
+  --popover: #072723;
+  --popover-foreground: #ffffff;
+  --primary: #98FCE4;
+  --primary-foreground: #072723;
+  --secondary: #D7EAE8;
+  --secondary-foreground: #072723;
+  --muted: #0f3a36;
+  --muted-foreground: #A0B5B2;
+  --accent: #98FCE4;
+  --accent-foreground: #072723;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: rgba(151, 181, 178, 0.2);
+  --input: transparent;
+  --input-background: #0f3a36;
+  --switch-background: #0f3a36;
+  --ring: #98FCE4;
+  --chart-1: #98FCE4;
+  --chart-2: #D7EAE8;
+  --chart-3: #A0B5B2;
+  --chart-4: #98FCE4;
+  --chart-5: #D7EAE8;
+  --radius: 12px;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Global UI scale helper */
+.ui-scale {
+  transform: scale(var(--ui-scale));
+  transform-origin: top center;
+}
+
+/* Number input spinner styling (hide native arrows) */
+input[type="number"].no-spinner::-webkit-outer-spin-button,
+input[type="number"].no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"].no-spinner {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
