@@ -37,10 +37,10 @@ export default function HeaderNav() {
           key={it.href}
           href={it.href}
           className={
-            "relative z-10 w-28 text-center px-4 py-2 text-sm font-semibold rounded-full " +
+            "relative z-10 w-28 text-center px-4 py-2 text-sm font-semibold rounded-full transition-all duration-200 " +
             (i === activeIndex
               ? "text-[color:var(--color-primary-foreground)]"
-              : "text-[color:var(--color-muted-foreground)] hover:text-white")
+              : "text-[color:var(--color-muted-foreground)] hover:text-white hover:bg-white/10 hover:-translate-y-0.5")
           }
         >
           {it.label}
