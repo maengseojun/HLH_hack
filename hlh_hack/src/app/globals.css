@@ -86,3 +86,40 @@ input[type="number"].no-spinner {
   -moz-appearance: textfield;
   appearance: textfield;
 }
+
+/* Enhanced Glassmorphism styles */
+.glass-nav {
+  @apply border border-white/30 bg-gradient-to-br from-white/15 to-white/5 backdrop-blur-xl backdrop-saturate-150 
+         shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.3)] 
+         relative before:absolute before:inset-0 before:rounded-full before:border before:border-white/20 before:backdrop-blur-sm;
+}
+
+.glass-card {
+  @apply border border-white/25 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-xl backdrop-saturate-150
+         shadow-[0_16px_40px_rgba(0,0,0,0.4),0_4px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.25)]
+         transition-all duration-300 hover:shadow-[0_20px_48px_rgba(0,0,0,0.5),0_6px_16px_rgba(0,0,0,0.3)]
+         hover:bg-gradient-to-br hover:from-white/25 hover:to-white/8 hover:border-white/35;
+}
+
+.glass-input {
+  @apply border border-white/25 bg-gradient-to-br from-white/15 to-white/8 backdrop-blur-lg backdrop-saturate-125
+         shadow-[0_4px_20px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.2)]
+         transition-all duration-200 focus-within:border-white/40 focus-within:shadow-[0_6px_24px_rgba(0,0,0,0.3)]
+         focus-within:bg-gradient-to-br focus-within:from-white/20 focus-within:to-white/10;
+}
+
+.glass-dropdown {
+  @apply border border-white/30 bg-gradient-to-br from-white/25 to-white/10 backdrop-blur-xl backdrop-saturate-150
+         shadow-[0_12px_32px_rgba(0,0,0,0.4),0_4px_8px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.3)]
+         animate-in fade-in-0 slide-in-from-top-2 duration-200;
+}
+
+/* Additional texture effects */
+.glass-nav::before,
+.glass-card::before,
+.glass-input::before {
+  content: '';
+  @apply absolute inset-0 rounded-[inherit] opacity-50
+         bg-gradient-to-br from-transparent via-white/5 to-transparent;
+  mask: linear-gradient(135deg, transparent 30%, white 50%, transparent 70%);
+}

@@ -1,9 +1,0 @@
-export { default as BlurIn } from "./blur-in";
-export { default as AnimatedGradientText } from "./animated-gradient-text";
-export { default as SlideIn } from "./slide-in";
-export { default as Ripple } from "./ripple";
-export { default as NumberTicker } from "./number-ticker";
-export { default as BorderBeam } from "./border-beam";
-export { default as OrbitingCircles } from "./orbiting-circles";
-export { default as AnimatedBeam } from "./animated-beam";
-export { default as Globe } from "./globe";

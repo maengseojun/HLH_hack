@@ -6,25 +6,27 @@ import { useMemo } from "react";
 
 export default function HeaderNav() {
   const pathname = usePathname();
+  const isDev = process.env.NODE_ENV === 'development';
+  
   const items = [
-    { label: "Launch", href: "/launch" },
-    { label: "Index", href: "/" },
-    { label: "Admin", href: "/admin" },
+    { label: "Launch", href: "/" },
+    { label: "Index", href: "/index" },
+    ...(isDev ? [{ label: "Test", href: "/test" }] : []),
   ];
 
   const activeIndex = useMemo(() => {
-    if (pathname?.startsWith("/launch")) return 0;
-    if (pathname === "/" || pathname?.startsWith("/index")) return 1;
-    if (pathname?.startsWith("/admin")) return 2;
-    return 1;
-  }, [pathname]);
+    if (pathname === "/" ) return 0;
+    if (pathname?.startsWith("/index")) return 1;
+    if (isDev && pathname?.startsWith("/test")) return 2;
+    return 0;
+  }, [pathname, isDev]);
 
-  const ITEM_PX = 100; // w-28 (7rem) assuming root 16px
+  const ITEM_PX = 80; // w-28 (7rem) assuming root 16px
 
   return (
     <div
-      className="relative inline-flex items-center rounded-full border border-[color:var(--color-border)] bg-[color:var(--color-card)]/40 backdrop-blur-md p-1"
-      style={{ width: ITEM_PX * items.length + 8 /* padding */ }}
+      className="glass-nav relative inline-flex items-center rounded-full p-1"
+      style={{ width: ITEM_PX * items.length + 10 }}
     >
       {/* Active thumb */}
       <span
@@ -49,4 +51,3 @@ export default function HeaderNav() {
     </div>
   );
 }
-
