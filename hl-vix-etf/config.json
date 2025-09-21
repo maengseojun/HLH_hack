@@ -1,0 +1,10 @@
+{
+  "weights": { "BTC": 0.60, "ETH": -0.40 },
+  "L_base": 2.0,
+  "L_max": 3.0,
+  "asset_cap": 1.5,
+  "slippage_cap_bps": 30,
+  "min_trade_frac": 0.005,
+  "ddl_limit_frac": -0.03,
+  "alpha_fast": 0.2
+} 
