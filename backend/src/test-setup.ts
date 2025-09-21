@@ -1,13 +1,8 @@
 // Global test setup
 process.env.NODE_ENV = 'test';
 
-// Mock external dependencies for testing
-jest.mock('./services/hyperliquid.js', () => ({
-  // Mock implementations will be added as needed
-}));
-
-jest.mock('./services/onchain.js', () => ({
-  provider: {
-    call: jest.fn(),
-  },
-}));
+// Set up environment variables for tests
+process.env.CHAIN_RPC_URL = 'http://localhost:8545';
+process.env.CHAIN_ID = '421614';
+process.env.DB_URL = 'postgresql://test:test@localhost:5432/hyperindex_test';
+process.env.DEMO_TOKEN = 'test_token_for_e2e';

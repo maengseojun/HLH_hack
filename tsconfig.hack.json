@@ -1,0 +1,30 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./hlh_hack/src/*"
+      ]
+    },
+    "strict": false,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true
+  },
+  "include": [
+    "hlh_hack/next-env.d.ts",
+    "hlh_hack/src/**/*.ts",
+    "hlh_hack/src/**/*.tsx",
+    "hlh_hack/.next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "hlh_hack/node_modules",
+    "backend",
+    ".next"
+  ]
+}

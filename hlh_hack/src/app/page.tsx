@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis } from "recharts";
 import UploadModal from "@/components/UploadModal";
 import ConfirmLaunchModal from "@/components/ConfirmLaunchModal";
-import { getAssets, getCandles, postBasketCalculate, type Asset, type BasketItemInput } from "@/lib/api";
+import { getAssets, getCandles, postBasketCalculate, type Asset, type BasketItemInput, type PositionSide, type Candle } from "@/lib/api";
 
 const data7d = [
   { date: "Day 1", value: 100 },
@@ -24,15 +24,41 @@ const data1d = Array.from({ length: 24 }).map((_, i) => ({
 const clamp01_50 = (v: number) => Math.max(1, Math.min(50, Math.round(v)));
 const clamp0_100 = (v: number) => Math.max(0, Math.min(100, Math.round(v)));
 
+type BasketCalculationPoint = {
+  date?: string;
+  value?: number;
+  nav?: number;
+};
+
+type BasketCalculationResponse = {
+  data?: BasketCalculationPoint[];
+};
+
 type SelectedAsset = {
   symbol: string;
   name: string;
-  side: "long" | "short";
+  side: PositionSide;
   hypeAmount: number;
   usdcAmount: number;
   allocationPct: number;
   leverage: number;
 };
+
+const POSITION_SIDES: PositionSide[] = ["long", "short"];
+
+function isBasketCalculationResponse(value: unknown): value is BasketCalculationResponse {
+  if (!value || typeof value !== "object") return false;
+  const maybe = value as { data?: unknown };
+  if (!Array.isArray(maybe.data)) return false;
+  return maybe.data.every((item) => {
+    if (!item || typeof item !== "object") return false;
+    const point = item as BasketCalculationPoint;
+    const dateOk = point.date === undefined || typeof point.date === "string";
+    const valueOk = point.value === undefined || typeof point.value === "number";
+    const navOk = point.nav === undefined || typeof point.nav === "number";
+    return dateOk && valueOk && navOk;
+  });
+}
 
 export default function LaunchPage() {
   const [period, setPeriod] = useState<"1D" | "7D">("7D");
@@ -63,7 +89,19 @@ export default function LaunchPage() {
   // Selected basket
   const [selected, setSelected] = useState<SelectedAsset[]>([]);
   const addAsset = (a: Asset) => {
-    setSelected((prev) => (prev.find((s) => s.symbol === a.symbol) ? prev : [...prev, { symbol: a.symbol, name: a.name, side: "long", hypeAmount: 100, usdcAmount: 100, allocationPct: 25, leverage: 1 }]));
+    setSelected((prev) => {
+      if (prev.find((s) => s.symbol === a.symbol)) return prev;
+      const next: SelectedAsset = {
+        symbol: a.symbol,
+        name: a.name,
+        side: POSITION_SIDES[0],
+        hypeAmount: 100,
+        usdcAmount: 100,
+        allocationPct: 25,
+        leverage: 1,
+      };
+      return [...prev, next];
+    });
     setSearch("");
   };
   const updateAsset = (symbol: string, patch: Partial<SelectedAsset>) => {
@@ -116,10 +154,10 @@ export default function LaunchPage() {
             const apiResult = await postBasketCalculate({ interval, assets: basketItems });
             
             // Transform API result to chart data format
-            if (apiResult && Array.isArray((apiResult as any).data)) {
-              const chartData = (apiResult as any).data.map((item: any, i: number) => ({
-                date: item.date || `Day ${i + 1}`,
-                value: item.value || item.nav || 100
+            if (isBasketCalculationResponse(apiResult) && apiResult.data) {
+              const chartData = apiResult.data.map((item, i) => ({
+                date: item.date ?? `Day ${i + 1}`,
+                value: item.value ?? item.nav ?? 100,
               }));
               if (!cancel) setPreviewData(chartData);
               return;
@@ -136,9 +174,15 @@ export default function LaunchPage() {
           top.map(async (s) => {
             try {
               const res = await getCandles(s.symbol, tf);
-              const candles = (res.candles || res.data || []) as any[];
+              const candles: Candle[] = res.candles ?? res.data ?? [];
               // Calculate NAV-based values instead of normalized
-              const closes = candles.map((c) => (c.c ?? c.close ?? c.v ?? 0));
+              const closes = candles.map((candle) => {
+                if (typeof candle.c === "number") return candle.c;
+                if (typeof (candle as { close?: number }).close === "number") {
+                  return (candle as { close?: number }).close ?? 0;
+                }
+                return typeof candle.v === "number" ? candle.v : 0;
+              });
               if (closes.length === 0) return null;
               const base = closes[0] || 1;
               const sign = s.side === "short" ? -1 : 1;
@@ -300,7 +344,7 @@ export default function LaunchPage() {
                     <div>
                       <div className="text-[color:var(--color-muted-foreground)] mb-1">Side</div>
                       <div className="inline-flex rounded-xl p-1 bg-[color:var(--color-card)] border border-[color:var(--color-border)]">
-                        {(["long","short"] as const).map((v)=>(
+                        {POSITION_SIDES.map((v) => (
                           <button key={v} onClick={()=>updateAsset(s.symbol,{ side: v })} className={`px-2.5 py-1 rounded-lg text-xs ${s.side===v?"bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)]":"text-[color:var(--color-muted-foreground)] hover:bg-[color:var(--color-muted)]"}`}>{v}</button>
                         ))}
                       </div>

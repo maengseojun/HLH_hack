@@ -1,0 +1,85 @@
+{
+  "demoToken": "test_token_for_e2e",
+  "positions": {
+    "precheck": {
+      "estimatedEntryPrice": "2500.00",
+      "estimatedSize": "0.4",
+      "estimatedFee": "5.00",
+      "leverage": 5,
+      "notionalUsd": 1000
+    },
+    "open": {
+      "positionId": "pos_test_123",
+      "txHash": "0xabcdef123456789",
+      "status": "SUBMITTED"
+    },
+    "list": [
+      {
+        "positionId": "pos_test_123",
+        "symbol": "BTC-PERP",
+        "side": "LONG",
+        "size": "0.4",
+        "entryPrice": "2500.00",
+        "leverage": 5,
+        "pnl": "25.00",
+        "pnlPercent": "2.5"
+      }
+    ],
+    "close": {
+      "txHash": "0x987654321abcdef",
+      "status": "SUBMITTED"
+    }
+  },
+  "basket": {
+    "precheck": {
+      "ok": true,
+      "tokenBal": "1000",
+      "hypeBal": "5000000000000000000"
+    },
+    "open": {
+      "status": "SUBMITTED",
+      "txHash": "0xbasket123456789"
+    },
+    "state": {
+      "assetId": "basket_001",
+      "balance": "100",
+      "underlyingPositions": [
+        {
+          "symbol": "BTC-PERP",
+          "size": "0.2",
+          "side": "LONG"
+        },
+        {
+          "symbol": "ETH-PERP",
+          "size": "2.5",
+          "side": "LONG"
+        }
+      ],
+      "totalValue": "15000.00",
+      "pnl": "250.00",
+      "pnlPercent": "1.67"
+    },
+    "close": {
+      "status": "SUBMITTED",
+      "txHash": "0xbasketclose123"
+    }
+  },
+  "errors": {
+    "insufficientBalance": {
+      "code": "INSUFFICIENT_BALANCE",
+      "message": "Insufficient balance for this position"
+    },
+    "insufficientTokens": {
+      "code": "INSUFFICIENT_TOKENS",
+      "message": "Not enough index tokens"
+    },
+    "insufficientGas": {
+      "code": "INSUFFICIENT_GAS",
+      "message": "Not enough HYPE for gas"
+    },
+    "upstreamUnavailable": {
+      "code": "UPSTREAM_UNAVAILABLE",
+      "message": "HyperCore is temporarily unavailable"
+    }
+  }
+}

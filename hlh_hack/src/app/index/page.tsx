@@ -17,7 +17,7 @@ export default function IndexHubPage() {
   const [searchQuery, setSearchQuery] = useState("");
   
   // TODO: Replace with actual API call
-  const [indexes, setIndexes] = useState<any[]>([]);
+  const [indexes, setIndexes] = useState<IndexDetails[]>([]);
   const [loading, setLoading] = useState(false);
 
   return (

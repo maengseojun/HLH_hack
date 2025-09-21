@@ -6,6 +6,8 @@ import { fetchAssetDetail } from './hyperliquid.js';
 import { once } from '../utils/inflight.js';
 import { withRetry } from '../utils/retry.js';
 import { AppError } from '../utils/httpError.js';
+import { CandleSnapshotSchema } from '../schemas/rpc.js';
+import { zodIssues } from '../schemas/common.js';
 import type { Candle } from '../types/domain.js';
 
 type FundingHistoryPoint = { timestamp: number; value: number };
@@ -69,7 +71,16 @@ function resolveCandlePlan(
 }
 
 function parseCandles(rawData: unknown): Candle[] {
-  const raw = Array.isArray((rawData as any)?.candles) ? (rawData as any).candles : [];
+  const parsed = CandleSnapshotSchema.safeParse(rawData);
+  if (!parsed.success) {
+    throw new AppError(503, {
+      code: 'UPSTREAM_UNAVAILABLE',
+      message: 'candleSnapshot response malformed',
+      details: zodIssues(parsed.error),
+    });
+  }
+
+  const raw = parsed.data.candles ?? [];
   const seen = new Set<number>();
   const candles: Candle[] = [];
 

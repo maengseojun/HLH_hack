@@ -137,17 +137,24 @@ export function validateWeightsSumOne(items: BasketItemInput[]): { ok: true } | 
   return Math.abs(sum - 1) <= 1e-6 ? { ok: true } : { ok: false, sum };
 }
 
+type WeightValidationResult = ReturnType<typeof validateWeightsSumOne>;
+
+function isInvalidWeightResult(result: WeightValidationResult): result is Extract<WeightValidationResult, { ok: false }> {
+  return result.ok === false;
+}
+
 export async function postBasketCalculate(input: BasketCalculateInput): Promise<unknown> {
   const check = validateWeightsSumOne(input.assets);
-  if (!check.ok) {
-    const err = new Error(`Weights must sum to 1.0 (got ${check.sum.toFixed(4)})`);
-    (err as any).code = "WEIGHT_SUM_INVALID" as ApiErrorCode;
-    throw err;
+  if (!isInvalidWeightResult(check)) {
+    return fetchJson<unknown>(`/baskets/calculate`, {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
   }
-  return fetchJson<unknown>(`/baskets/calculate`, {
-    method: "POST",
-    body: JSON.stringify(input),
-  });
+
+  const err = new Error(`Weights must sum to 1.0 (got ${check.sum.toFixed(4)})`);
+  (err as Error & { code?: ApiErrorCode }).code = "WEIGHT_SUM_INVALID" as ApiErrorCode;
+  throw err;
 }
 
 // Health endpoint (outside /v1 in some envs). Use best effort.
@@ -158,4 +165,3 @@ export async function getHealth(): Promise<unknown> {
   const res = await fetch(url, { cache: "no-store" });
   return res.json().catch(() => ({}));
 }
-

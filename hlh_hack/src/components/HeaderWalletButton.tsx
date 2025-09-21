@@ -1,11 +1,19 @@
 "use client";
 
 import { usePrivy } from "@privy-io/react-auth";
+import type { LinkedAccountWithMetadata } from "@privy-io/react-auth";
+
+type LinkedWallet = Extract<LinkedAccountWithMetadata, { type: "wallet" }>;
+
+function isLinkedWalletWithAddress(account: LinkedAccountWithMetadata): account is LinkedWallet & { address: string } {
+  return account.type === "wallet" && typeof (account as { address?: unknown }).address === "string";
+}
 
 export default function HeaderWalletButton() {
   const { ready, authenticated, user, login, logout } = usePrivy();
 
-  const addr = user?.wallet?.address || user?.linkedAccounts?.find((a: any) => a.type === "wallet")?.address;
+  const linkedWallet = user?.linkedAccounts?.find(isLinkedWalletWithAddress);
+  const addr = user?.wallet?.address ?? linkedWallet?.address ?? null;
   const short = addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : "";
 
   if (!ready) {
@@ -37,4 +45,3 @@ export default function HeaderWalletButton() {
     </button>
   );
 }
-

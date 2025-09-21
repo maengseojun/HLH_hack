@@ -1,51 +1,43 @@
 import 'dotenv/config';
+import { loadEnv } from './schemas/env.js';
 
-const toNumber = (value: string | undefined, fallback: number): number => {
-  if (!value) return fallback;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-};
-
-const toAddress = (value: string | undefined, fallback: string): string => {
-  const trimmed = value?.trim();
-  return trimmed && trimmed.startsWith('0x') && trimmed.length === 42 ? trimmed : fallback;
-};
+const loaded = loadEnv();
 
 export const config = {
-  port: toNumber(process.env.PORT, 3000),
+  port: loaded.PORT,
   hyperliquid: {
-    apiUrl: process.env.HYPERLIQUID_API_URL ?? 'https://api.testnet.hyperliquid.xyz',
-    timeoutMs: toNumber(process.env.REQUEST_TIMEOUT_MS, 10000)
+    apiUrl: loaded.HYPERLIQUID_API_URL,
+    timeoutMs: loaded.REQUEST_TIMEOUT_MS,
   },
   hypercore: {
-    rpcUrl: process.env.HYPERCORE_RPC_URL ?? 'https://testnet.hypercore.hyperliquid.xyz',
-    walletPrivateKey: process.env.HYPERCORE_WALLET_KEY ?? '',
-    timeout: toNumber(process.env.HYPERCORE_TIMEOUT, 30000),
-    coreWriterAddress: toAddress(process.env.CORE_WRITER_ADDRESS, '0x3333333333333333333333333333333333333333'),
-    maxSlippageBps: toNumber(process.env.MAX_SLIPPAGE_BPS, 200),
-    maxLeverage: toNumber(process.env.MAX_LEVERAGE, 50),
-    minNotionalUsd: toNumber(process.env.MIN_NOTIONAL_USD, 1)
+    rpcUrl: loaded.HYPERCORE_RPC_URL,
+    walletPrivateKey: loaded.HYPERCORE_WALLET_KEY,
+    timeout: loaded.HYPERCORE_TIMEOUT,
+    coreWriterAddress: loaded.CORE_WRITER_ADDRESS,
+    maxSlippageBps: loaded.MAX_SLIPPAGE_BPS,
+    maxLeverage: loaded.MAX_LEVERAGE,
+    minNotionalUsd: loaded.MIN_NOTIONAL_USD,
   },
   info: {
-    apiUrl: process.env.INFO_API_URL ?? 'https://api.testnet.hyperliquid.xyz/info'
+    apiUrl: loaded.INFO_API_URL,
   },
   chain: {
-    rpcUrl: process.env.CHAIN_RPC_URL ?? 'https://arb-sepolia.arbitrum.io/rpc',
-    chainId: toNumber(process.env.CHAIN_ID, 421_614)
+    rpcUrl: loaded.CHAIN_RPC_URL,
+    chainId: loaded.CHAIN_ID,
   },
   tokens: {
-    usdc: toAddress(process.env.USDC_TOKEN_ADDRESS, '0x0000000000000000000000000000000000000000')
+    usdc: loaded.USDC_TOKEN_ADDRESS,
   },
   router: {
-    payment: toAddress(process.env.PAYMENT_ROUTER_ADDRESS, '0x0000000000000000000000000000000000000000'),
-    feeBps: toNumber(process.env.PLATFORM_FEE_BPS, 0)
+    payment: loaded.PAYMENT_ROUTER_ADDRESS,
+    feeBps: loaded.PLATFORM_FEE_BPS,
   },
   cache: {
-    ttlSeconds: toNumber(process.env.CACHE_TTL_SECONDS, 60),
-    staleSeconds: toNumber(process.env.CACHE_STALE_TTL, 180)
+    ttlSeconds: loaded.CACHE_TTL_SECONDS,
+    staleSeconds: loaded.CACHE_STALE_TTL,
   },
   rateLimit: {
-    windowMs: toNumber(process.env.RATE_LIMIT_WINDOW_MS, 60_000),
-    max: toNumber(process.env.RATE_LIMIT_MAX, 100)
-  }
+    windowMs: loaded.RATE_LIMIT_WINDOW_MS,
+    max: loaded.RATE_LIMIT_MAX,
+  },
 } as const;

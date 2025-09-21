@@ -1,39 +1,22 @@
 import { Router } from 'express';
-import { z } from 'zod';
 import { getCandles } from '../services/hypercore.js';
 import { calcBasketFromCandles } from '../services/basket.js';
-import { AppError } from '../utils/httpError.js';
 import { resolvePresetRange } from '../utils/candlePresets.js';
 import type { Position } from '../types/domain.js';
-
-const assetSchema = z.object({
-  symbol: z.string().min(1),
-  weight: z.number().min(0),
-  position: z.enum(['long', 'short']),
-  leverage: z.number().min(1).optional(),
-});
-
-const bodySchema = z.object({
-  assets: z.array(assetSchema).min(1),
-  interval: z.enum(['1h', '1d', '7d']).default('7d'),
-  from: z.number().optional(),
-  to: z.number().optional(),
-});
+import { AppError } from '../utils/httpError.js';
+import {
+  BasketCalculateRequestSchema,
+  BasketCalculateResponseSchema,
+  validateBody,
+  sendValidated,
+} from '../schemas/http.js';
+import type { BasketCalculateRequest } from '../schemas/http.js';
 
 const basketsRouter = Router();
 
-basketsRouter.post('/calculate', async (req, res, next) => {
+basketsRouter.post('/calculate', validateBody(BasketCalculateRequestSchema), async (req, res, next) => {
   try {
-    const parsed = bodySchema.safeParse(req.body);
-    if (!parsed.success) {
-      throw new AppError(400, {
-        code: 'BAD_REQUEST',
-        message: 'Request body validation failed',
-        details: parsed.error.flatten(),
-      });
-    }
-
-    const { assets, interval, from, to } = parsed.data;
+    const { assets, interval, from, to } = (req.validated?.body ?? {}) as BasketCalculateRequest;
     const weightSum = assets.reduce((acc, asset) => acc + asset.weight, 0);
     if (Math.abs(weightSum - 1) > 1e-6) {
       throw new AppError(400, {
@@ -57,7 +40,7 @@ basketsRouter.post('/calculate', async (req, res, next) => {
 
     const result = calcBasketFromCandles(inputs);
 
-    return res.json({
+    return sendValidated(res, BasketCalculateResponseSchema, {
       meta: {
         interval,
         request: { from: range.from, to: range.to },

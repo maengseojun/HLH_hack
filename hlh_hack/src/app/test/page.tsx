@@ -7,21 +7,54 @@ import ShareModal from "@/components/ShareModal";
 import RedeemModal from "@/components/RedeemModal";
 import UploadModal from "@/components/UploadModal";
 import ConfirmLaunchModal from "@/components/ConfirmLaunchModal";
+import type { PositionSide } from "@/lib/api";
 
 // Dummy data for testing
-const dummyAssets = [
-  { symbol: "BTC", name: "Bitcoin", markPx: 98000, dayNtlVlm: 1000000, openInterest: 50000, maxLeverage: 20, change24h: 2.5 },
-  { symbol: "ETH", name: "Ethereum", markPx: 3500, dayNtlVlm: 800000, openInterest: 40000, maxLeverage: 20, change24h: 1.8 },
-  { symbol: "SOL", name: "Solana", markPx: 245, dayNtlVlm: 300000, openInterest: 15000, maxLeverage: 10, change24h: -0.5 },
-  { symbol: "UNI", name: "Uniswap", markPx: 12.5, dayNtlVlm: 100000, openInterest: 8000, maxLeverage: 10, change24h: 3.2 },
-  { symbol: "AAVE", name: "Aave", markPx: 320, dayNtlVlm: 80000, openInterest: 6000, maxLeverage: 5, change24h: 1.1 },
+type AssetTemplate = {
+  symbol: string;
+  name: string;
+  markPx: number;
+  dayNtlVlm: number;
+  openInterest: number;
+  maxLeverage: number;
+  change24h: number;
+};
+
+const dummyAssets: AssetTemplate[] = [
+  { symbol: "BTC", name: "Bitcoin", markPx: 98000, dayNtlVlm: 1_000_000, openInterest: 50000, maxLeverage: 20, change24h: 2.5 },
+  { symbol: "ETH", name: "Ethereum", markPx: 3500, dayNtlVlm: 800_000, openInterest: 40000, maxLeverage: 20, change24h: 1.8 },
+  { symbol: "SOL", name: "Solana", markPx: 245, dayNtlVlm: 300_000, openInterest: 15000, maxLeverage: 10, change24h: -0.5 },
+  { symbol: "UNI", name: "Uniswap", markPx: 12.5, dayNtlVlm: 100_000, openInterest: 8000, maxLeverage: 10, change24h: 3.2 },
+  { symbol: "AAVE", name: "Aave", markPx: 320, dayNtlVlm: 80_000, openInterest: 6000, maxLeverage: 5, change24h: 1.1 },
 ];
 
-const dummyIndexes = Array.from({ length: 12 }).map((_, i) => ({
+type IndexStatus = "Active" | "Redeemed";
+
+type DummyIndex = {
+  id: number;
+  name: string;
+  symbol: string;
+  status: IndexStatus;
+  currentValue: string;
+  nav: string;
+  change7d: string;
+  composition: Array<{ asset: string; percentage: number; value: string }>;
+};
+
+type SelectedAsset = AssetTemplate & {
+  side: PositionSide;
+  leverage: number;
+  allocationPct: number;
+  hypeAmount: number;
+};
+
+const POSITION_SIDES: PositionSide[] = ["long", "short"];
+
+const dummyIndexes: DummyIndex[] = Array.from({ length: 12 }, (_, i) => ({
   id: i + 1,
   name: `Test Index ${i + 1}`,
   symbol: `TEST${i + 1}`,
-  status: i % 3 === 0 ? "Redeemed" : "Active",
+  status: (i % 3 === 0 ? "Redeemed" : "Active") as IndexStatus,
   currentValue: `$${(1000 + Math.random() * 2000).toFixed(2)}`,
   nav: `$${(1000 + Math.random() * 2000).toFixed(2)}`,
   change7d: ((Math.random() - 0.5) * 30).toFixed(1),
@@ -67,7 +100,7 @@ export default function TestPage() {
 
   const [activeTab, setActiveTab] = useState<"launch" | "index">("launch");
   const [search, setSearch] = useState("");
-  const [selectedAssets, setSelectedAssets] = useState<any[]>([]);
+  const [selectedAssets, setSelectedAssets] = useState<SelectedAsset[]>([]);
   const [filterActive, setFilterActive] = useState(true);
   const [filterRedeemed, setFilterRedeemed] = useState(true);
   const [sortBy, setSortBy] = useState("Date");
@@ -86,15 +119,16 @@ export default function TestPage() {
   const [showShare, setShowShare] = useState(false);
   const [showRedeem, setShowRedeem] = useState(false);
 
-  const addAsset = (asset: any) => {
+  const addAsset = (asset: AssetTemplate) => {
     if (!selectedAssets.find(s => s.symbol === asset.symbol)) {
-      setSelectedAssets(prev => [...prev, {
+      const newAsset: SelectedAsset = {
         ...asset,
-        side: "long",
+        side: POSITION_SIDES[0],
         leverage: 1,
         allocationPct: 25,
-        hypeAmount: 100
-      }]);
+        hypeAmount: 100,
+      };
+      setSelectedAssets(prev => [...prev, newAsset]);
     }
     setSearch("");
   };
@@ -103,17 +137,18 @@ export default function TestPage() {
     setSelectedAssets(prev => prev.filter(s => s.symbol !== symbol));
   };
 
-  const updateAsset = (symbol: string, update: any) => {
-    setSelectedAssets(prev => prev.map(s => 
-      s.symbol === symbol ? { ...s, ...update } : s
-    ));
+  const updateAsset = (symbol: string, update: Partial<SelectedAsset>) => {
+    setSelectedAssets(prev => prev.map(s => (s.symbol === symbol ? { ...s, ...update } : s)));
   };
 
-  const filteredAssets = search ? 
-    dummyAssets.filter(a => 
-      a.name.toLowerCase().includes(search.toLowerCase()) || 
-      a.symbol.toLowerCase().includes(search.toLowerCase())
-    ).slice(0, 5) : [];
+  const filteredAssets: AssetTemplate[] = search
+    ? dummyAssets
+        .filter(a =>
+          a.name.toLowerCase().includes(search.toLowerCase()) ||
+          a.symbol.toLowerCase().includes(search.toLowerCase()),
+        )
+        .slice(0, 5)
+    : [];
 
   const filteredIndexes = dummyIndexes.filter(idx => {
     if (!filterActive && idx.status === "Active") return false;
@@ -268,7 +303,7 @@ export default function TestPage() {
                         <div>
                           <label className="text-[color:var(--color-muted-foreground)] text-sm">Side</label>
                           <div className="flex gap-1 mt-1">
-                            {["long", "short"].map((side) => (
+                            {POSITION_SIDES.map((side) => (
                               <button
                                 key={side}
                                 onClick={() => updateAsset(asset.symbol, { side })}
@@ -518,7 +553,7 @@ export default function TestPage() {
           name: s.name,
           side: s.side,
           hypeAmount: s.hypeAmount,
-          usdcAmount: s.usdcAmount,
+          usdcAmount: s.hypeAmount,
           allocationPct: s.allocationPct,
           leverage: s.leverage
         }))}

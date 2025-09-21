@@ -257,11 +257,14 @@ export default function IndexDetailsModal({ open, onClose, index }: Props) {
   return modal;
 }
 
-function Metric({ label, value }: { label: string; value: any }) {
+type MetricValue = string | number | null | undefined;
+
+function Metric({ label, value }: { label: string; value: MetricValue }) {
+  const display = value ?? "—";
   return (
     <div>
       <div className="text-[color:var(--color-muted-foreground)]">{label}</div>
-      <div className="text-white">{value}</div>
+      <div className="text-white">{display}</div>
     </div>
   );
 }

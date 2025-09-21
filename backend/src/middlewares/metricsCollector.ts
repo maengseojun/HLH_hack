@@ -13,7 +13,7 @@ interface Metrics {
     p50: number;
     p95: number;
     p99: number;
-    samples: number[];
+    samples: number;
   };
   errors: {
     total: number;
@@ -44,7 +44,7 @@ class MetricsCollector {
       p50: 0,
       p95: 0,
       p99: 0,
-      samples: [],
+      samples: 0,
     },
     errors: {
       total: 0,
@@ -132,9 +132,9 @@ class MetricsCollector {
     const sorted = [...this.latencySamples].sort((a, b) => a - b);
     const len = sorted.length;
 
-    this.metrics.latency.p50 = sorted[Math.floor(len * 0.5)];
-    this.metrics.latency.p95 = sorted[Math.floor(len * 0.95)];
-    this.metrics.latency.p99 = sorted[Math.floor(len * 0.99)];
+    this.metrics.latency.p50 = sorted[Math.floor(Math.min(len - 1, len * 0.5))];
+    this.metrics.latency.p95 = sorted[Math.floor(Math.min(len - 1, len * 0.95))];
+    this.metrics.latency.p99 = sorted[Math.floor(Math.min(len - 1, len * 0.99))];
     this.metrics.latency.samples = len;
   }
 
@@ -181,7 +181,7 @@ class MetricsCollector {
   reset() {
     this.metrics = {
       requests: { total: 0, by_route: {}, by_status: {}, by_method: {} },
-      latency: { p50: 0, p95: 0, p99: 0, samples: [] },
+      latency: { p50: 0, p95: 0, p99: 0, samples: 0 },
       errors: { total: 0, by_code: {}, rate_5m: 0 },
       idempotency: { cache_hits: 0, cache_misses: 0, hit_rate: 0 },
       upstream: { calls: 0, failures: 0, avg_latency: 0 },

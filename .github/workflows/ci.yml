@@ -1,0 +1,111 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: base
+            project: tsconfig.json
+            allow_failure: false
+          - name: hack
+            project: tsconfig.hack.json
+            allow_failure: true
+    continue-on-error: ${{ matrix.allow_failure }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Typecheck (${{ matrix.name }})
+        run: pnpm tsc -p ${{ matrix.project }} --noEmit | tee tsc-${{ matrix.name }}.log
+      - name: Upload typecheck log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tsc-${{ matrix.name }}-log
+          path: tsc-${{ matrix.name }}.log
+
+  e2e-integration:
+    runs-on: ubuntu-latest
+    needs: typecheck
+    services:
+      anvil:
+        image: ghcr.io/foundry-rs/foundry:latest
+        ports:
+          - 8545:8545
+        options: >-
+          --entrypoint "sh -c 'anvil --block-time 1 --gas-limit 12000000 --balance 1000000000000000000000'"
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: app_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres" --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Prepare environment
+        run: |
+          if [ -f .env.test.ci ]; then cp .env.test.ci .env.test; fi
+      - name: Build backend
+        run: pnpm --filter hyperindex-backend build
+      - name: Start backend (background)
+        run: pnpm run start:backend &
+      - name: Wait for backend
+        run: npx wait-on http://localhost:3000/health
+      - name: Run backend tests
+        run: pnpm run test:backend -- --runInBand --testTimeout=60000
+      - name: Start frontend (background)
+        run: pnpm run dev &
+      - name: Wait for frontend
+        run: npx wait-on http://localhost:3000
+      - name: Run Cypress E2E tests
+        uses: cypress-io/github-action@v6
+        with:
+          install: false
+          start: ''
+          wait-on: 'http://localhost:3000'
+          wait-on-timeout: 120
+          browser: chrome
+          record: false
+        env:
+          CYPRESS_baseUrl: http://localhost:3000
+          CYPRESS_apiBaseUrl: http://localhost:3000
+          CYPRESS_demoToken: test_token_for_e2e
+      - name: Upload Cypress screenshots
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+      - name: Upload Cypress videos
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-videos
+          path: cypress/videos

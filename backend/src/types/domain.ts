@@ -1,6 +1,7 @@
 export interface Asset {
   assetId: number;
   szDecimals: number;
+  priceDecimals?: number;
   name: string;
   symbol: string;
   markPx: number;
