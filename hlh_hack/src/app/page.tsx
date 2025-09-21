@@ -8,16 +8,16 @@ import { getAssets, getCandles, postBasketCalculate, type Asset, type BasketItem
 
 const data7d = [
   { date: "Day 1", value: 100 },
-  { date: "Day 2", value: 105 },
-  { date: "Day 3", value: 98 },
-  { date: "Day 4", value: 112 },
-  { date: "Day 5", value: 108 },
-  { date: "Day 6", value: 115 },
-  { date: "Day 7", value: 122 },
+  { date: "2", value: 105 },
+  { date: "3", value: 98 },
+  { date: "4", value: 112 },
+  { date: "5", value: 108 },
+  { date: "6", value: 115 },
+  { date: "7", value: 122 },
 ];
 
 const data1d = Array.from({ length: 24 }).map((_, i) => ({
-  date: `H${i + 1}`,
+  date: i === 0 ? "H1" : `${i + 1}`,
   value: 100 + Math.round(Math.sin(i / 3) * 8 + i * 0.3),
 }));
 
@@ -280,7 +280,7 @@ export default function LaunchPage() {
               {search && filtered.length>0 && (
                 <div className="absolute z-[100] mt-2 w-full glass-dropdown rounded-[12px] p-2">
                   {filtered.map((a)=> (
-                    <button key={a.symbol} onClick={()=>addAsset(a)} className="w-full text-left px-3 py-2 rounded-[8px] text-white hover:bg-[color:var(--color-muted)]">
+                    <button key={a.symbol} onClick={()=>addAsset(a)} className="w-full text-left px-3 py-2 rounded-[8px] text-white hover:bg-white/20">
                       <div className="font-medium">{a.symbol}</div>
                       <div className="text-[color:var(--color-muted-foreground)] text-xs">{a.name}</div>
                     </button>
@@ -325,7 +325,7 @@ export default function LaunchPage() {
                             className="no-spinner w-full px-2 py-1 text-white bg-transparent border-none outline-none" 
                           />
                         </div>
-                        <input type="range" min={1} max={50} value={s.leverage} onChange={(e)=>updateAsset(s.symbol,{ leverage: clamp01_50(Number(e.target.value)) })} className="flex-1 accent-[color:var(--color-primary)]" />
+                        <input type="range" min={1} max={50} value={s.leverage} onChange={(e)=>updateAsset(s.symbol,{ leverage: clamp01_50(Number(e.target.value)) })} className="flex-1" />
                       </div>
                     </div>
                     <div>
@@ -357,19 +357,22 @@ export default function LaunchPage() {
                             type="number" 
                             min={0} 
                             max={100} 
-                            value={s.allocationPct} 
+                            value={s.allocationPct || ''} 
                             onChange={(e) => {
                               const val = e.target.value;
                               if (val === '') {
-                                updateAsset(s.symbol, { allocationPct: 0 });
+                                updateAsset(s.symbol, { allocationPct: 25 });
                               } else {
-                                updateAsset(s.symbol, { allocationPct: clamp0_100(parseFloat(val) || 0) });
+                                const num = parseFloat(val);
+                                if (!isNaN(num)) {
+                                  updateAsset(s.symbol, { allocationPct: clamp0_100(num) });
+                                }
                               }
                             }}
                             className="no-spinner w-full px-2 py-1 text-white bg-transparent border-none outline-none" 
                           />
                         </div>
-                        <input type="range" min={0} max={100} value={s.allocationPct} onChange={(e)=>updateAsset(s.symbol,{ allocationPct: clamp0_100(Number(e.target.value)) })} className="flex-1 accent-[color:var(--color-primary)]" />
+                        <input type="range" min={0} max={100} value={s.allocationPct} onChange={(e)=>updateAsset(s.symbol,{ allocationPct: clamp0_100(Number(e.target.value)) })} className="flex-1" />
                       </div>
                     </div>
                   </div>
@@ -398,11 +401,22 @@ export default function LaunchPage() {
                   </button>
                 ))}
               </div>
-              <div className="h-56">
+              <div className="h-56 pr-4">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={previewData ?? fallbackData}>
-                    <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: "#A0B5B2" }} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fill: "#A0B5B2" }} />
+                    <XAxis 
+                      dataKey="date" 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fill: "#A0B5B2", fontSize: 11 }} 
+                      interval={0}
+                    />
+                    <YAxis 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fill: "#A0B5B2", fontSize: 11 }} 
+                      width={40}
+                    />
                     <Area type="monotone" dataKey="value" stroke="#98FCE4" fill="#98FCE4" fillOpacity={0.2} strokeWidth={2} />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -416,7 +430,7 @@ export default function LaunchPage() {
       </div>
 
       {/* Sticky footer */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[color:var(--color-input-background)] border-t border-[color:var(--color-border)]">
+      <div className="fixed bottom-0 left-0 right-0 glass-card border-t border-[color:var(--color-border)]">
         <div className="mx-auto max-w-[1440px] px-6 py-3 flex items-center justify-between" style={{ fontSize: 12, lineHeight: 1.4 }}>
           <div className="flex gap-8 text-white">
             <div>

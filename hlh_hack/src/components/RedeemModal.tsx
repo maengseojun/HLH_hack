@@ -22,7 +22,7 @@ export default function RedeemModal({ open, onClose, index }: Props) {
   // Return before any hooks to keep hook order stable across renders
   if (!open || !index) return null;
 
-  const [full, setFull] = useState(false);
+  const [full, setFull] = useState(true);
   const [amountPct, setAmountPct] = useState(100);
   const [ack, setAck] = useState(false);
 
@@ -66,18 +66,24 @@ export default function RedeemModal({ open, onClose, index }: Props) {
               min={1}
               max={100}
               value={amountPct}
-              onChange={(e) => setAmountPct(Math.max(1, Math.min(100, Number(e.target.value) || 0)))}
-              className="no-spinner w-24 rounded-[12px] bg-[color:var(--color-input-background)] border border-[color:var(--color-border)] px-3 py-2 text-white disabled:opacity-60"
-              disabled={full}
+              onChange={(e) => {
+                const val = Math.max(1, Math.min(100, Number(e.target.value) || 0));
+                setAmountPct(val);
+                setFull(val === 100);
+              }}
+              className="no-spinner w-24 rounded-[12px] bg-[color:var(--color-input-background)] border border-[color:var(--color-border)] px-3 py-2 text-white"
             />
             <input
               type="range"
               min={1}
               max={100}
               value={amountPct}
-              onChange={(e) => setAmountPct(Number(e.target.value))}
-              className="flex-1 accent-[color:var(--color-primary)] disabled:opacity-60"
-              disabled={full}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                setAmountPct(val);
+                setFull(val === 100);
+              }}
+              className="flex-1 accent-[color:var(--color-primary)]"
             />
           </div>
         </div>

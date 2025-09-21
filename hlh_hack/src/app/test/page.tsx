@@ -36,12 +36,12 @@ const dummyIndexes = Array.from({ length: 12 }).map((_, i) => ({
 
 const dummyChartData = [
   { date: "Day 1", value: 1000 },
-  { date: "Day 2", value: 1050 },
-  { date: "Day 3", value: 980 },
-  { date: "Day 4", value: 1120 },
-  { date: "Day 5", value: 1080 },
-  { date: "Day 6", value: 1150 },
-  { date: "Day 7", value: 1220 },
+  { date: "2", value: 1050 },
+  { date: "3", value: 980 },
+  { date: "4", value: 1120 },
+  { date: "5", value: 1080 },
+  { date: "6", value: 1150 },
+  { date: "7", value: 1220 },
 ];
 
 export default function TestPage() {
@@ -122,8 +122,8 @@ export default function TestPage() {
   });
 
   return (
-    <div className="w-full min-h-screen bg-[color:var(--color-background)] flex flex-col">
-      <div className="ui-scale max-w-7xl mx-auto px-4 py-8 flex-1">
+    <div className="w-full min-h-[70vh] flex flex-col">
+      <div className="ui-scale flex-1">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-white text-3xl font-bold mb-4">Test Page - CoreIndex Components</h1>
@@ -237,7 +237,7 @@ export default function TestPage() {
                         <button
                           key={asset.symbol}
                           onClick={() => addAsset(asset)}
-                          className="w-full text-left px-3 py-2 rounded-[8px] text-white hover:bg-white/10"
+                          className="w-full text-left px-3 py-2 rounded-[8px] text-white hover:bg-white/20"
                         >
                           <div className="font-medium">{asset.symbol}</div>
                           <div className="text-[color:var(--color-muted-foreground)] text-xs">{asset.name}</div>
@@ -291,8 +291,18 @@ export default function TestPage() {
                               type="number"
                               min={0}
                               max={100}
-                              value={asset.allocationPct}
-                              onChange={(e) => updateAsset(asset.symbol, { allocationPct: Number(e.target.value) })}
+                              value={asset.allocationPct || ''}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                if (val === '') {
+                                  updateAsset(asset.symbol, { allocationPct: 25 });
+                                } else {
+                                  const num = parseFloat(val);
+                                  if (!isNaN(num)) {
+                                    updateAsset(asset.symbol, { allocationPct: Math.max(0, Math.min(100, Math.round(num))) });
+                                  }
+                                }
+                              }}
                               className="w-full px-2 py-1 text-white bg-transparent border-none outline-none"
                             />
                           </div>
@@ -307,11 +317,22 @@ export default function TestPage() {
               <div className="space-y-4">
                 <h3 className="text-white font-medium">Portfolio Preview</h3>
                 <div className="glass-card rounded-[12px] p-4">
-                  <div className="h-64">
+                  <div className="h-64 pr-4">
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={dummyChartData}>
-                        <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: "#A0B5B2" }} />
-                        <YAxis axisLine={false} tickLine={false} tick={{ fill: "#A0B5B2" }} />
+                        <XAxis 
+                          dataKey="date" 
+                          axisLine={false} 
+                          tickLine={false} 
+                          tick={{ fill: "#A0B5B2", fontSize: 11 }} 
+                          interval={0}
+                        />
+                        <YAxis 
+                          axisLine={false} 
+                          tickLine={false} 
+                          tick={{ fill: "#A0B5B2", fontSize: 11 }} 
+                          width={40}
+                        />
                         <Area type="monotone" dataKey="value" stroke="#98FCE4" fill="#98FCE4" fillOpacity={0.2} strokeWidth={2} />
                       </AreaChart>
                     </ResponsiveContainer>
@@ -440,42 +461,31 @@ export default function TestPage() {
       
       {/* Footer - only show on Launch tab */}
       {activeTab === "launch" && (
-        <div className="glass-card rounded-t-[12px] border-t border-[color:var(--color-border)] mt-auto">
-          <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex flex-wrap gap-6 text-white text-sm">
-              <div className="text-center">
+        <div className="fixed bottom-0 left-0 right-0 glass-card border-t border-[color:var(--color-border)]">
+          <div className="mx-auto max-w-[1440px] px-6 py-3 flex items-center justify-between" style={{ fontSize: 12, lineHeight: 1.4 }}>
+            <div className="flex gap-8 text-white">
+              <div>
                 <div className="text-[color:var(--color-muted-foreground)]">Total Cost</div>
-                <div className="font-medium">${selectedAssets.reduce((sum, s) => sum + (s.hypeAmount || 0), 0).toFixed(2)}</div>
+                <div>${selectedAssets.reduce((sum, s) => sum + (s.hypeAmount || 0), 0).toFixed(2)}</div>
               </div>
-              <div className="text-center">
-                <div className="text-[color:var(--color-muted-foreground)]">Fee (0.5%)</div>
-                <div className="font-medium">${(selectedAssets.reduce((sum, s) => sum + (s.hypeAmount || 0), 0) * 0.005).toFixed(2)}</div>
+              <div>
+                <div className="text-[color:var(--color-muted-foreground)]">Fee</div>
+                <div>${(selectedAssets.reduce((sum, s) => sum + (s.hypeAmount || 0), 0) * 0.005).toFixed(2)}</div>
               </div>
-              <div className="text-center">
+              <div>
                 <div className="text-[color:var(--color-muted-foreground)]">HYPE Balance</div>
-                <div className="font-medium">$0.00</div>
-              </div>
-              <div className="text-center">
-                <div className="text-[color:var(--color-muted-foreground)]">Total Allocation</div>
-                <div className={`font-medium ${
-                  Math.abs(selectedAssets.reduce((sum, s) => sum + (s.allocationPct || 0), 0) - 100) < 1 
-                    ? "text-green-400" 
-                    : "text-yellow-400"
-                }`}>
-                  {selectedAssets.reduce((sum, s) => sum + (s.allocationPct || 0), 0).toFixed(1)}%
-                </div>
+                <div>$0.00</div>
               </div>
             </div>
             <div className="flex gap-3">
-              <button className="rounded-[12px] border border-[color:var(--color-secondary)] px-4 py-2 text-[color:var(--color-secondary)] hover:bg-[color:var(--color-secondary)] hover:text-[color:var(--color-background)] transition-colors">
-                Inline Swap
-              </button>
+              <button className="rounded-[12px] border border-[color:var(--color-secondary)] px-3 py-1.5 text-[color:var(--color-secondary)] hover:bg-[color:var(--color-secondary)] hover:text-[color:var(--color-background)]" style={{ fontSize: 12 }}>Inline Swap</button>
               <button 
                 onClick={() => setShowLaunchModal(true)}
                 disabled={selectedAssets.length === 0}
-                className="rounded-[12px] bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)] disabled:bg-[color:var(--color-primary)]/50 disabled:cursor-not-allowed px-6 py-2 font-medium transition-opacity hover:opacity-90"
+                className="inline-flex items-center justify-center rounded-[12px] bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)] disabled:bg-[color:var(--color-primary)]/50 disabled:cursor-not-allowed" 
+                style={{ fontSize: 12, minWidth: 80, paddingLeft: 12, paddingRight: 12, paddingTop: 12, paddingBottom: 12 }}
               >
-                Launch Index
+                Launch
               </button>
             </div>
           </div>

@@ -68,6 +68,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
 }
 
 /* Global UI scale helper */
@@ -87,39 +88,137 @@ input[type="number"].no-spinner {
   appearance: textfield;
 }
 
-/* Enhanced Glassmorphism styles */
+/* Enhanced Glassmorphism styles - Improved for better visibility */
 .glass-nav {
-  @apply border border-white/30 bg-gradient-to-br from-white/15 to-white/5 backdrop-blur-xl backdrop-saturate-150 
-         shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.3)] 
-         relative before:absolute before:inset-0 before:rounded-full before:border before:border-white/20 before:backdrop-blur-sm;
+  background: var(--color-input-background);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  position: relative;
 }
 
 .glass-card {
-  @apply border border-white/25 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-xl backdrop-saturate-150
-         shadow-[0_16px_40px_rgba(0,0,0,0.4),0_4px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.25)]
-         transition-all duration-300 hover:shadow-[0_20px_48px_rgba(0,0,0,0.5),0_6px_16px_rgba(0,0,0,0.3)]
-         hover:bg-gradient-to-br hover:from-white/25 hover:to-white/8 hover:border-white/35;
+  background: var(--color-input-background);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 16px 40px rgba(0, 0, 0, 0.5),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  background: var(--color-input-background);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 
+    0 24px 60px rgba(0, 0, 0, 0.6),
+    0 8px 20px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
 }
 
 .glass-input {
-  @apply border border-white/25 bg-gradient-to-br from-white/15 to-white/8 backdrop-blur-lg backdrop-saturate-125
-         shadow-[0_4px_20px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.2)]
-         transition-all duration-200 focus-within:border-white/40 focus-within:shadow-[0_6px_24px_rgba(0,0,0,0.3)]
-         focus-within:bg-gradient-to-br focus-within:from-white/20 focus-within:to-white/10;
+  background: var(--color-input-background);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease-out;
+}
+
+.glass-input:focus-within {
+  background: var(--color-input-background);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 
+    0 6px 24px rgba(0, 0, 0, 0.4),
+    0 0 0 2px rgba(152, 252, 228, 0.3);
 }
 
 .glass-dropdown {
-  @apply border border-white/30 bg-gradient-to-br from-white/25 to-white/10 backdrop-blur-xl backdrop-saturate-150
-         shadow-[0_12px_32px_rgba(0,0,0,0.4),0_4px_8px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.3)]
-         animate-in fade-in-0 slide-in-from-top-2 duration-200;
+  background: var(--color-input-background);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 
+    0 12px 32px rgba(0, 0, 0, 0.8),
+    0 4px 8px rgba(0, 0, 0, 0.6);
+  animation: fadeIn 0.2s ease-out, slideInFromTop 0.2s ease-out;
 }
 
-/* Additional texture effects */
-.glass-nav::before,
-.glass-card::before,
-.glass-input::before {
-  content: '';
-  @apply absolute inset-0 rounded-[inherit] opacity-50
-         bg-gradient-to-br from-transparent via-white/5 to-transparent;
-  mask: linear-gradient(135deg, transparent 30%, white 50%, transparent 70%);
+/* No pseudo-element overlays - clean solid backgrounds */
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInFromTop {
+  from { transform: translateY(-8px); }
+  to { transform: translateY(0); }
+}
+
+/* Custom range slider styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  height: 20px;
+}
+
+/* Track */
+input[type="range"]::-webkit-slider-track {
+  background: rgba(255, 255, 255, 0.1);
+  height: 4px;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+input[type="range"]::-moz-range-track {
+  background: rgba(255, 255, 255, 0.1);
+  height: 4px;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Thumb */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+input[type="range"]::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Thumb hover and focus */
+input[type="range"]::-webkit-slider-thumb:hover {
+  background: rgba(152, 252, 228, 0.9);
+  box-shadow: 0 4px 12px rgba(152, 252, 228, 0.4);
+  transform: scale(1.1);
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+  background: rgba(152, 252, 228, 0.9);
+  box-shadow: 0 4px 12px rgba(152, 252, 228, 0.4);
+  transform: scale(1.1);
+}
+
+input[type="range"]:focus::-webkit-slider-thumb {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(152, 252, 228, 0.3);
+}
+
+input[type="range"]:focus::-moz-range-thumb {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(152, 252, 228, 0.3);
 }

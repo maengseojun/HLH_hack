@@ -63,7 +63,7 @@ export default function ConfirmLaunchModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="relative w-full max-w-2xl rounded-[16px] border border-[color:var(--color-border)] bg-[color:var(--color-card)]/95 backdrop-blur-md p-6 m-4">
+      <div className="relative w-full max-w-2xl glass-card rounded-[16px] p-6 m-4">
         {step === "confirm" ? (
           <>
             <div className="flex items-center justify-between mb-6">
@@ -78,7 +78,7 @@ export default function ConfirmLaunchModal({
 
             {/* Summary */}
             <div className="space-y-4 mb-6">
-              <div className="rounded-[12px] border border-[color:var(--color-border)] bg-[color:var(--color-input-background)] p-4">
+              <div className="glass-input rounded-[12px] p-4">
                 <h3 className="text-white font-medium mb-3">Index Summary</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
@@ -101,7 +101,7 @@ export default function ConfirmLaunchModal({
               </div>
 
               {/* Asset breakdown */}
-              <div className="rounded-[12px] border border-[color:var(--color-border)] bg-[color:var(--color-input-background)] p-4">
+              <div className="glass-input rounded-[12px] p-4">
                 <h3 className="text-white font-medium mb-3">Asset Breakdown</h3>
                 <div className="space-y-2 max-h-40 overflow-y-auto">
                   {selectedAssets.map((asset) => (
@@ -133,7 +133,7 @@ export default function ConfirmLaunchModal({
               </div>
 
               {/* Fees */}
-              <div className="rounded-[12px] border border-[color:var(--color-border)] bg-[color:var(--color-input-background)] p-4">
+              <div className="glass-input rounded-[12px] p-4">
                 <div className="flex justify-between items-center">
                   <span className="text-[color:var(--color-muted-foreground)]">Creation Fee (0.5%)</span>
                   <span className="text-white">${feeAmount.toFixed(2)}</span>

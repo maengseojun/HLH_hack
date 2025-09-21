@@ -10,7 +10,7 @@ export default function HeaderWalletButton() {
 
   if (!ready) {
     return (
-      <button className="rounded-[12px] border border-[color:var(--color-secondary)] px-3 py-1.5 text-[color:var(--color-secondary)] opacity-60" disabled>
+      <button className="glass-input rounded-[12px] px-3 py-1.5 text-[color:var(--color-secondary)] opacity-60" disabled>
         Loading…
       </button>
     );
@@ -20,7 +20,7 @@ export default function HeaderWalletButton() {
     return (
       <button
         onClick={login}
-        className="rounded-[12px] border border-[color:var(--color-secondary)] px-3 py-1.5 text-[color:var(--color-secondary)] hover:bg-[color:var(--color-secondary)] hover:text-[color:var(--color-background)]"
+        className="glass-input rounded-[12px] px-3 py-1.5 text-[color:var(--color-secondary)] hover:bg-[color:var(--color-secondary)] hover:text-white hover:-translate-y-1 hover:shadow-lg transition-all duration-200"
       >
         Connect Wallet
       </button>
@@ -30,7 +30,7 @@ export default function HeaderWalletButton() {
   return (
     <button
       onClick={logout}
-      className="rounded-[12px] border border-[color:var(--color-secondary)] px-3 py-1.5 text-[color:var(--color-secondary)] hover:bg-[color:var(--color-secondary)] hover:text-[color:var(--color-background)]"
+      className="glass-input rounded-[12px] px-3 py-1.5 text-[color:var(--color-secondary)] hover:bg-[color:var(--color-secondary)] hover:text-white hover:-translate-y-1 hover:shadow-lg transition-all duration-200"
       title="Click to disconnect"
     >
       {short || "Connected"}

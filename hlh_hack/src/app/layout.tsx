@@ -4,6 +4,7 @@ import "./globals.css";
 import HeaderNav from "@/components/HeaderNav";
 import PrivyClientProvider from "@/components/providers/PrivyClientProvider";
 import HeaderWalletButton from "@/components/HeaderWalletButton";
+import Link from "next/link";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,8 +34,10 @@ export default function RootLayout({
           <header className="sticky top-0 z-50 w-full">
             <div className="relative mx-auto max-w-[1440px] px-6 py-3">
               {/* Brand (left) */}
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 select-none">
-                <div className="text-white font-bold text-2xl leading-none tracking-tight">CoreIndex</div>
+              <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                <Link href="/" className="text-white font-bold text-2xl leading-none tracking-tight hover:text-[color:var(--color-primary)] transition-colors cursor-pointer">
+                  CoreIndex
+                </Link>
               </div>
               {/* Nav (center) */}
               <div className="flex justify-center">

@@ -43,12 +43,12 @@ type Props = {
 
 const mockChartData = [
   { date: "D1", value: 100 },
-  { date: "D2", value: 108 },
-  { date: "D3", value: 115 },
-  { date: "D4", value: 125 },
-  { date: "D5", value: 118 },
-  { date: "D6", value: 132 },
-  { date: "D7", value: 142 },
+  { date: "2", value: 108 },
+  { date: "3", value: 115 },
+  { date: "4", value: 125 },
+  { date: "5", value: 118 },
+  { date: "6", value: 132 },
+  { date: "7", value: 142 },
 ];
 
 const COLORS = ["#98FCE4", "#D7EAE8", "#A0B5B2", "#72a59a", "#5a8a7f"];
@@ -102,11 +102,22 @@ export default function IndexDetailsModal({ open, onClose, index }: Props) {
                 ))}
               </div>
             </div>
-            <div className="h-48">
+            <div className="h-48 pr-4">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={dataByTf}>
-                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: "#A0B5B2" }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: "#A0B5B2" }} />
+                  <XAxis 
+                    dataKey="date" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fill: "#A0B5B2", fontSize: 11 }} 
+                    interval={0}
+                  />
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fill: "#A0B5B2", fontSize: 11 }} 
+                    width={40}
+                  />
                   <Line type="monotone" dataKey="value" stroke="#98FCE4" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
