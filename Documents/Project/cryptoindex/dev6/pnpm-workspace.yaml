@@ -1,7 +1,0 @@
-onlyBuiltDependencies:
-  - '@reown/appkit'
-  - '@tsparticles/engine'
-  - bufferutil
-  - core-js
-  - sharp
-  - utf-8-validate
