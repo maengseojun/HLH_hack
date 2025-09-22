@@ -1,17 +1,13 @@
 {
   "version": 2,
-  "routes": [
+  "rewrites": [
     {
-      "src": "/healthz",
-      "dest": "/api/healthz"
+      "source": "/healthz",
+      "destination": "/api/healthz"
     },
     {
-      "src": "/readyz",
-      "dest": "/api/readyz"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "source": "/readyz",
+      "destination": "/api/readyz"
     }
   ],
   "headers": [
