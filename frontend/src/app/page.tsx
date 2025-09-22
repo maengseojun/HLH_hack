@@ -74,10 +74,46 @@ export default function LaunchPage() {
 
   // Search assets
   const [assets, setAssets] = useState<Asset[]>([]);
+  const [assetsLoading, setAssetsLoading] = useState(true);
+  const [assetsError, setAssetsError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+
   useEffect(() => {
     let cancel = false;
-    getAssets().then((list) => { if (!cancel) setAssets(list); }).catch(() => {});
+    setAssetsLoading(true);
+    setAssetsError(null);
+
+    // Debug environment variables
+    console.log('Environment check:', {
+      NODE_ENV: process.env.NODE_ENV,
+      NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+      NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL
+    });
+
+    getAssets()
+      .then((list) => {
+        if (!cancel) {
+          setAssets(list);
+          console.log(`✅ Loaded ${list.length} assets:`, list.slice(0, 3));
+        }
+      })
+      .catch((error) => {
+        if (!cancel) {
+          console.error('❌ Failed to load assets:', error);
+          console.error('API Base URL:', process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'Not set');
+          setAssetsError(error.message || 'Failed to load assets');
+          // Fallback to mock data for demo
+          setAssets([
+            { name: "Bitcoin", symbol: "BTC-PERP", markPx: 45000, dayNtlVlm: 1000000, openInterest: 500000, maxLeverage: 20, change24h: 2.5 },
+            { name: "Ethereum", symbol: "ETH-PERP", markPx: 3000, dayNtlVlm: 800000, openInterest: 400000, maxLeverage: 25, change24h: 1.8 },
+            { name: "Solana", symbol: "SOL-PERP", markPx: 120, dayNtlVlm: 300000, openInterest: 150000, maxLeverage: 20, change24h: -0.5 }
+          ]);
+        }
+      })
+      .finally(() => {
+        if (!cancel) setAssetsLoading(false);
+      });
+
     return () => { cancel = true; };
   }, []);
   const filtered = useMemo(() => {
@@ -315,13 +351,31 @@ export default function LaunchPage() {
             <div className="relative">
               <div className="glass-input rounded-[12px]">
                 <input
-                  placeholder="Search assets..."
+                  placeholder={assetsLoading ? "Loading assets..." : "Search assets..."}
                   value={search}
                   onChange={(e)=>setSearch(e.target.value)}
-                  className="w-full px-3 py-2 text-white bg-transparent border-none outline-none placeholder-gray-400"
+                  disabled={assetsLoading}
+                  className="w-full px-3 py-2 text-white bg-transparent border-none outline-none placeholder-gray-400 disabled:opacity-50"
                 />
               </div>
-              {search && filtered.length>0 && (
+
+              {/* Loading state */}
+              {assetsLoading && (
+                <div className="mt-2 text-sm text-[color:var(--color-muted-foreground)] flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                  Loading assets...
+                </div>
+              )}
+
+              {/* Error state */}
+              {assetsError && !assetsLoading && (
+                <div className="mt-2 text-sm text-yellow-400 bg-yellow-400/10 border border-yellow-400/20 rounded-lg p-2">
+                  ⚠️ {assetsError} (Using fallback data)
+                </div>
+              )}
+
+              {/* Search results */}
+              {search && filtered.length>0 && !assetsLoading && (
                 <div className="absolute z-[100] mt-2 w-full glass-dropdown rounded-[12px] p-2">
                   {filtered.map((a)=> (
                     <button key={a.symbol} onClick={()=>addAsset(a)} className="w-full text-left px-3 py-2 rounded-[8px] text-white hover:bg-white/20">
@@ -329,6 +383,13 @@ export default function LaunchPage() {
                       <div className="text-[color:var(--color-muted-foreground)] text-xs">{a.name}</div>
                     </button>
                   ))}
+                </div>
+              )}
+
+              {/* No results state */}
+              {search && filtered.length === 0 && !assetsLoading && assets.length > 0 && (
+                <div className="mt-2 text-sm text-[color:var(--color-muted-foreground)]">
+                  No assets found for "{search}"
                 </div>
               )}
             </div>
