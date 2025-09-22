@@ -1,0 +1,36 @@
+name: Smoke Test Cron
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # 10분마다 실행 (UTC 기준)
+  workflow_dispatch: {}       # 수동 실행 가능
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run smoke test
+        run: |
+          echo "Running smoke test at $(date)"
+
+          # Vercel 배포된 앱의 smoke test 엔드포인트 호출
+          response=$(curl -fsS -X POST \
+            -H "Authorization: Bearer ${{ secrets.JOB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            https://hlh-hack.vercel.app/api/jobs/smoke || echo "FAILED")
+
+          echo "Response: $response"
+
+          # 응답이 성공적인지 확인
+          if echo "$response" | grep -q '"ok":true'; then
+            echo "✅ Smoke test passed"
+          else
+            echo "❌ Smoke test failed"
+            echo "Response: $response"
+            exit 1
+          fi
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "🚨 Smoke test failed at $(date)"
+          # 여기에 실패 알림 로직 추가 가능 (Slack, Discord 등)
