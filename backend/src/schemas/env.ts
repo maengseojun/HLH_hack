@@ -4,7 +4,7 @@ import { zodIssues } from './common.js';
 
 const EnvSchema = z
   .object({
-    NODE_ENV: z.enum(['test', 'development', 'production']).default('development'),
+    NODE_ENV: z.enum(['test', 'development', 'production', 'testnet']).default('development'),
     PORT: z.coerce.number().int().positive().default(3000),
 
     HYPERLIQUID_API_URL: z.string().url().default('https://api.testnet.hyperliquid.xyz'),

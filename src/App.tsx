@@ -11,6 +11,10 @@ import { Checkbox } from "./components/ui/checkbox";
 import { Switch } from "./components/ui/switch";
 import { Search, Upload, TrendingUp, TrendingDown, Share, Eye, Minus, Plus, Filter, BarChart3, Users, Activity } from "lucide-react";
 
+// Import enhanced components from hlh_hack (relative paths for Next.js)
+import EnhancedLaunchPage from "../hlh_hack/src/app/page";
+import EnhancedIndexDetailsModal from "../hlh_hack/src/components/IndexDetailsModal";
+
 // Mock data
 const mockAssets = [
   { symbol: "BTC", name: "Bitcoin", price: 65432 },
@@ -1333,7 +1337,7 @@ export default function App() {
 
       {/* Main Content */}
       <div className="w-full">
-        {activeTab === "Launch" && <CoreIndexLaunch />}
+        {activeTab === "Launch" && <EnhancedLaunchPage />}
         {activeTab === "Index" && <CoreIndexHub />}
         {activeTab === "Admin" && <CoreIndexAdmin />}
       </div>

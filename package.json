@@ -16,7 +16,17 @@
     "cypress:run": "cypress run",
     "test:e2e": "cypress run",
     "test:e2e:open": "cypress open",
-    "test:all": "pnpm run test:backend && pnpm run test:e2e"
+    "test:all": "pnpm run test:backend && pnpm run test:e2e",
+    "test:rpc": "tsx scripts/testnet/test-rpc-connection.ts",
+    "test:rpc:silent": "tsx scripts/testnet/test-rpc-connection.ts > /dev/null 2>&1",
+    "test:wallet": "tsx scripts/testnet/test-wallet-gas.ts",
+    "test:wallet:silent": "tsx scripts/testnet/test-wallet-gas.ts > /dev/null 2>&1",
+    "test:hypercore": "tsx scripts/testnet/test-hypercore-integration.ts",
+    "test:hypercore:silent": "tsx scripts/testnet/test-hypercore-integration.ts > /dev/null 2>&1",
+    "deploy:token": "tsx scripts/testnet/deploy-index-token.ts",
+    "deploy:token:silent": "tsx scripts/testnet/deploy-index-token.ts > /dev/null 2>&1",
+    "test:testnet": "./scripts/testnet/run-testnet-checks.sh",
+    "test:all:testnet": "npm run test:testnet && npm run test:all"
   },
   "dependencies": {
     "@privy-io/react-auth": "^1.95.4",
@@ -44,8 +54,11 @@
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "cypress": "^15.2.0",
+    "dotenv": "^17.2.2",
     "eslint": "^9.12.0",
     "eslint-config-next": "15.2.4",
+    "ethers": "^6.15.0",
+    "tsx": "^4.20.5",
     "typescript": "^5.6.3",
     "wait-on": "^9.0.1"
   }

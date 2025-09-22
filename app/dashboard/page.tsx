@@ -4,6 +4,9 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+// Import the enhanced App component with real API integration
+import EnhancedApp from '../../src/App';
+
 interface UserProfile {
   id: string;
   authType: string;
@@ -81,77 +84,6 @@ export default function DashboardPage() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            Logout
-          </button>
-        </div>
-
-        <div className="mb-6">
-          <a
-            href="/api-test"
-            className="inline-block px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-          >
-            🔧 Test API v1 Endpoints
-          </a>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* User Info Card */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-semibold mb-4">User Information</h2>
-            {profile ? (
-              <div className="space-y-2">
-                <p><strong>ID:</strong> {profile.id}</p>
-                <p><strong>Auth Type:</strong> {profile.authType}</p>
-                {profile.email && <p><strong>Email:</strong> {profile.email}</p>}
-                {profile.walletAddress && (
-                  <p><strong>Wallet:</strong> {profile.walletAddress}</p>
-                )}
-                <p><strong>Privy ID:</strong> {profile.privyUserId}</p>
-                <p><strong>Created:</strong> {new Date(profile.createdAt).toLocaleDateString()}</p>
-                <p><strong>Last Login:</strong> {new Date(profile.lastLogin).toLocaleDateString()}</p>
-              </div>
-            ) : (
-              <p>Loading profile...</p>
-            )}
-          </div>
-
-          {/* Privy User Info Card */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-semibold mb-4">Privy Information</h2>
-            <div className="space-y-2">
-              <p><strong>Privy ID:</strong> {user?.id}</p>
-              <p><strong>Email:</strong> {user?.email?.address || 'Not set'}</p>
-              <p><strong>Email Verified:</strong> {(user?.email as any)?.verified ? 'Yes' : 'No'}</p>
-              <p><strong>Linked Accounts:</strong> {user?.linkedAccounts?.length || 0}</p>
-            </div>
-          </div>
-
-          {/* Wallets Card */}
-          {profile?.wallets && profile.wallets.length > 0 && (
-            <div className="bg-white p-6 rounded-lg shadow md:col-span-2">
-              <h2 className="text-xl font-semibold mb-4">Connected Wallets</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {profile.wallets.map((wallet, index) => (
-                  <div key={index} className="border p-4 rounded">
-                    <p><strong>Address:</strong> {wallet.wallet_address}</p>
-                    <p><strong>Provider:</strong> {wallet.wallet_provider}</p>
-                    <p><strong>Primary:</strong> {wallet.is_primary ? 'Yes' : 'No'}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+  // Show the enhanced CoreIndex application with real API integration
+  return <EnhancedApp />;
 }
