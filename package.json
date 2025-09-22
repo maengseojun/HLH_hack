@@ -4,9 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:local": "next dev --port 3000",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "validate:env": "tsx scripts/validate-env.ts",
+    "test": "npm run test:backend",
     "typecheck:base": "tsc -p tsconfig.json --noEmit",
     "typecheck:hack": "tsc -p tsconfig.hack.json --noEmit",
     "typecheck:all": "pnpm run typecheck:base && pnpm run typecheck:hack",
@@ -47,7 +50,8 @@
     "recharts": "^2.15.2",
     "sonner": "^2.0.3",
     "tailwind-merge": "*",
-    "vaul": "^1.1.2"
+    "vaul": "^1.1.2",
+    "viem": "^2.37.7"
   },
   "devDependencies": {
     "@types/node": "^22.7.6",

@@ -99,6 +99,6 @@ describe('Basic Integration Test', () => {
 
     // Visit frontend
     cy.visit('/');
-    cy.url().should('include', 'localhost:3002');
+    cy.url().should('include', 'localhost:3000');
   });
 });

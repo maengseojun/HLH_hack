@@ -5,7 +5,18 @@ import { zodIssues } from './common.js';
 const EnvSchema = z
   .object({
     NODE_ENV: z.enum(['test', 'development', 'production', 'testnet']).default('development'),
-    PORT: z.coerce.number().int().positive().default(3000),
+    PORT: z.coerce.number().int().positive().default(3001),
+    LOG_LEVEL: z.string().default('info'),
+    AUTH_MODE: z.enum(['bearer', 'jwt']).default('bearer'),
+    DEMO_BEARER_TOKEN: z.string().optional(),
+    DEMO_TOKEN: z.string().optional(),
+
+    NEXT_PUBLIC_API_URL: z.string().url().optional(),
+    NEXT_PUBLIC_SUPABASE_URL: z.string().url().optional(),
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional(),
+    SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+    NEXT_PUBLIC_PRIVY_APP_ID: z.string().optional(),
+    PRIVY_APP_SECRET: z.string().optional(),
 
     HYPERLIQUID_API_URL: z.string().url().default('https://api.testnet.hyperliquid.xyz'),
     REQUEST_TIMEOUT_MS: z.coerce.number().int().min(0).default(10_000),
@@ -32,8 +43,6 @@ const EnvSchema = z
 
     RATE_LIMIT_WINDOW_MS: z.coerce.number().int().min(0).default(60_000),
     RATE_LIMIT_MAX: z.coerce.number().int().min(0).default(100),
-
-    DEMO_TOKEN: z.string().optional(),
   })
   .passthrough();
 
@@ -57,4 +66,3 @@ export function loadEnv(): Env {
 }
 
 export const env = loadEnv();
-

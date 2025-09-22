@@ -2,6 +2,12 @@
 
 This is a Next.js project with Privy authentication and Supabase database integration for Hyperliquid trading and index management.
 
+## Conventions
+
+- Development server listens on `http://localhost:3000` (use `npm run dev:local`).
+- Avoid emoji or spaced directory names for CI compatibility; prefer kebab-case (see `docs/`).
+- Keep `.env*` files private and aligned with `docs/env-schema.md`.
+
 ## Setup
 
 1. Install dependencies:
@@ -10,12 +16,12 @@ npm install
 ```
 
 2. Set up environment variables:
-   - Copy `.env.local` and fill in the missing Supabase keys
+   - Copy `.env.example` to `.env.local` and fill in the missing keys (see `docs/env-schema.md`)
    - Get Supabase keys from your project dashboard
 
 3. Run the development server:
 ```bash
-npm run dev
+npm run dev:local
 ```
 
 ## Environment Variables
@@ -24,16 +30,16 @@ Required variables in `.env.local`:
 
 ```env
 # Privy Configuration
-NEXT_PUBLIC_PRIVY_APP_ID=cmft7is1h00b0la0cjse4m84t
-PRIVY_APP_SECRET=5FaLmPuZHcQpBeQEqshkLYnBrDPUfTSnFgedhH5ASCXatRhdPQqTCdKzw4VUeiCjsVnKRqLzJ9RiVG8RrmMTqgQM
-PRIVY_JWKS_ENDPOINT=https://auth.privy.io/api/v1/apps/cmft7is1h00b0la0cjse4m84t/jwks.json
+NEXT_PUBLIC_PRIVY_APP_ID=your-privy-app-id
+PRIVY_APP_SECRET=your-privy-app-secret
 
 # Supabase Configuration (TO BE FILLED)
-NEXT_PUBLIC_SUPABASE_URL=https://ergyahbwcefrgnbkmwfv.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_ANON_KEY_HERE
-SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY_HERE
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 # Application
+NEXT_PUBLIC_API_URL=http://localhost:3001/v1
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 NODE_ENV=development
 ```
