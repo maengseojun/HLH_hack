@@ -6,7 +6,7 @@ This is a Next.js project with Privy authentication and Supabase database integr
 
 1. Install dependencies:
 ```bash
-npm install
+pnpm install
 ```
 
 2. Set up environment variables:
@@ -15,7 +15,7 @@ npm install
 
 3. Run the development server:
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 ## Environment Variables

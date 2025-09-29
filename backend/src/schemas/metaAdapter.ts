@@ -104,13 +104,11 @@ function resolveSymbolAndName(meta: z.infer<typeof AssetMetaSchema>, index: numb
 }
 
 function resolveAssetId(meta: z.infer<typeof AssetMetaSchema>, index: number): number {
-  // assetId > marginTableId > index 순으로 우선순위
+  // assetId가 있고 유니크하면 사용, 아니면 index 사용 (marginTableId는 중복이 많아서 제외)
   if (typeof meta.assetId === 'number' && meta.assetId >= 0) {
     return meta.assetId;
   }
-  if (typeof meta.marginTableId === 'number' && meta.marginTableId >= 0) {
-    return meta.marginTableId;
-  }
+  // marginTableId는 중복이 많으므로 사용하지 않고 index를 사용
   return index;
 }
 
@@ -147,12 +145,23 @@ export function normalizeMetaAndAssetCtxs(input: unknown): NormalizedMetaAndAsse
   const list: NormalizedAsset[] = [];
 
   const minLen = Math.min(universe.length, assetCtxs.length);
+  console.log(`🔍 Processing ${minLen} assets from Hyperliquid API`);
 
   for (let i = 0; i < minLen; i++) {
     const meta = universe[i] ?? {};
     const ctx = assetCtxs[i] ?? {};
 
     const { symbol, name } = resolveSymbolAndName(meta, i);
+    
+    // DOGE 관련 자산 로깅
+    if (name.includes('DOGE') || meta.name?.includes('DOGE')) {
+      console.log(`🐕 Found DOGE asset at index ${i}:`, { 
+        name, 
+        symbol, 
+        metaName: meta.name,
+        isDelisted: meta.isDelisted 
+      });
+    }
     const { sz, px } = resolveDecimals(meta);
     const assetId = resolveAssetId(meta, i);
     const maxLeverage = (typeof meta.maxLeverage === 'number' && meta.maxLeverage > 0) ? meta.maxLeverage : null;
@@ -172,16 +181,58 @@ export function normalizeMetaAndAssetCtxs(input: unknown): NormalizedMetaAndAsse
       premium: toNumber(ctx.premium),
     };
 
+    // DOGE 관련 자산 로깅 (추가 정보)
+    if (name.includes('DOGE') || meta.name?.includes('DOGE')) {
+      console.log(`🐕 DOGE processing details:`, { 
+        assetId,
+        symbol,
+        name,
+        isDelisted: meta.isDelisted,
+        maxLeverage,
+        markPx: asset.markPx,
+        alreadyExists: byAssetId.has(assetId)
+      });
+    }
+
     // 중복 제거: 첫 번째 값 우선 정책
     if (!byAssetId.has(assetId)) {
       byAssetId.set(assetId, asset);
       bySymbol.set(symbol, asset);
       list.push(asset);
+      
+      // assetId 52를 사용하는 자산 로깅
+      if (assetId === 52) {
+        console.log(`🎯 AssetId 52 first claimed by: ${symbol} (${name})`);
+      }
+      
+      // DOGE가 실제로 list에 추가되었는지 확인
+      if (name.includes('DOGE') || meta.name?.includes('DOGE')) {
+        console.log(`🐕 DOGE successfully added to list!`);
+      }
+    } else {
+      // 중복된 assetId 사용 자산 로깅
+      if (assetId === 52) {
+        const existing = byAssetId.get(assetId);
+        console.log(`🎯 AssetId 52 conflict: ${symbol} (${name}) vs existing ${existing?.symbol} (${existing?.name})`);
+      }
+      
+      if (name.includes('DOGE') || meta.name?.includes('DOGE')) {
+        const existing = byAssetId.get(assetId);
+        console.log(`🐕 DOGE skipped due to duplicate assetId: ${assetId}, first used by: ${existing?.symbol} (${existing?.name})`);
+      }
     }
   }
 
   // 안정적인 정렬: symbol 기준 ASC
   list.sort((a, b) => a.symbol.localeCompare(b.symbol));
+  
+  console.log(`📊 Final asset list: ${list.length} assets (filtered from ${minLen})`);
+  const dogeInFinal = list.find(a => a.name.includes('DOGE'));
+  if (dogeInFinal) {
+    console.log(`🐕 DOGE in final list: ${dogeInFinal.symbol}`);
+  } else {
+    console.log(`❌ DOGE missing from final list!`);
+  }
 
   return {
     list,

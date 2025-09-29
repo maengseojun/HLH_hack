@@ -6,8 +6,8 @@ import { fetchAssetDetail } from './hyperliquid.js';
 import { once } from '../utils/inflight.js';
 import { withRetry } from '../utils/retry.js';
 import { AppError } from '../utils/httpError.js';
-import { CandleSnapshotSchema } from '../schemas/rpc.js';
-import { zodIssues } from '../schemas/common.js';
+import { CandleSnapshotSchema, CandleTupleSchema } from '../schemas/rpc.js';
+import { z, zodIssues } from '../schemas/common.js';
 import type { Candle } from '../types/domain.js';
 
 type FundingHistoryPoint = { timestamp: number; value: number };
@@ -27,17 +27,32 @@ export interface OnChainAsset {
   fundingRate: number;
 }
 
+// Use mainnet API for candleSnapshot since it's only available on public API
 const baseApiUrl = config.hyperliquid.apiUrl.replace(/\/$/, '');
 const infoUrl = baseApiUrl.endsWith('/info') ? baseApiUrl : `${baseApiUrl}/info`;
+const publicInfoUrl = 'https://api.hyperliquid.xyz/info'; // Always use public API for candles
 
 async function callInfo<T>(body: Record<string, unknown>): Promise<T> {
+  // Use public API for candleSnapshot, regular API for other requests
+  const apiUrl = body.type === 'candleSnapshot' ? publicInfoUrl : infoUrl;
+  
   return withRetry(
     async () => {
-      const { data } = await axios.post<T>(infoUrl, body, {
-        timeout: 10_000,
-        headers: { 'Content-Type': 'application/json' },
-      });
-      return data;
+      try {
+        console.log(`🌐 Using API: ${apiUrl} for request type: ${body.type}`);
+        console.log(`📤 Request body:`, JSON.stringify(body, null, 2));
+        const { data } = await axios.post<T>(apiUrl, body, {
+          timeout: 10_000,
+          headers: { 'Content-Type': 'application/json' },
+        });
+        console.log(`📥 Response data:`, JSON.stringify(data).substring(0, 200) + '...');
+        return data;
+      } catch (error: any) {
+        console.error('>>> AXIOS ERROR:', error.message);
+        console.error('>>> AXIOS RESPONSE BODY:', JSON.stringify(error.response?.data));
+        console.error('>>> FULL ERROR:', error);
+        throw error;
+      }
     },
     { retries: 3, minDelayMs: 300, factor: 2 },
   );
@@ -53,16 +68,10 @@ function alignToHour(timestamp: number): number {
 }
 
 function resolveCandlePlan(
-  interval: '1h' | '1d' | '7d',
+  interval: '5m' | '1h' | '1d',
   from: number,
   to: number,
-): { candleInterval: '1h' | '1d'; startTime: number; endTime: number } {
-  if (interval === '7d') {
-    const endTime = to || Date.now();
-    const startTime = from || endTime - 7 * 24 * 60 * 60 * 1000;
-    return { candleInterval: '1d', startTime, endTime };
-  }
-
+): { candleInterval: '5m' | '1h' | '1d'; startTime: number; endTime: number } {
   return {
     candleInterval: interval,
     startTime: from,
@@ -80,19 +89,17 @@ function parseCandles(rawData: unknown): Candle[] {
     });
   }
 
-  const raw = parsed.data.candles ?? [];
+  const raw = parsed.data;
   const seen = new Set<number>();
   const candles: Candle[] = [];
 
   for (const row of raw) {
-    if (!Array.isArray(row)) continue;
-
-    const timestamp = Number(row[0]);
-    const open = Number(row[1]);
-    const high = Number(row[2]);
-    const low = Number(row[3]);
-    const close = Number(row[4]);
-    const volume = Number(row[5]);
+    const timestamp = Number(row.t);
+    const open = Number(row.o);
+    const high = Number(row.h);
+    const low = Number(row.l);
+    const close = Number(row.c);
+    const volume = Number(row.v);
 
     if (!Number.isFinite(timestamp) || ![open, high, low, close, volume].every(Number.isFinite)) {
       continue;
@@ -101,10 +108,17 @@ function parseCandles(rawData: unknown): Candle[] {
     if (seen.has(timestamp)) continue;
     seen.add(timestamp);
 
-    candles.push({ timestamp, open, high, low, close, volume });
+    candles.push({ 
+      t: timestamp, 
+      o: open, 
+      h: high, 
+      l: low, 
+      c: close, 
+      v: volume 
+    });
   }
 
-  candles.sort((a, b) => a.timestamp - b.timestamp);
+  candles.sort((a, b) => a.t - b.t);
   return candles;
 }
 
@@ -148,13 +162,13 @@ function parseFundingHistory(rawData: unknown, limit: number): FundingHistoryPoi
   return history;
 }
 
-function enforceCandleLimit(interval: '1h' | '1d' | '7d', start: number, end: number) {
+function enforceCandleLimit(interval: '5m' | '1h' | '1d', start: number, end: number) {
   const duration = end - start;
   if (duration <= 0) {
     return;
   }
 
-  const perCandleMs = interval === '1h' ? HOUR_MS : DAY_MS;
+  const perCandleMs = interval === '5m' ? 5 * 60 * 1000 : interval === '1h' ? HOUR_MS : DAY_MS;
   const estimatedCandles = Math.ceil(duration / perCandleMs);
   if (estimatedCandles > FIVE_THOUSAND) {
     throw new AppError(400, {
@@ -171,7 +185,7 @@ function enforceCandleLimit(interval: '1h' | '1d' | '7d', start: number, end: nu
 
 export async function getCandles(
   symbol: string,
-  interval: '1h' | '1d' | '7d',
+  interval: '5m' | '1h' | '1d',
   from: number,
   to: number,
 ): Promise<Candle[]> {
@@ -193,17 +207,68 @@ export async function getCandles(
   };
 
   const fetchAndCache = async () => {
+    console.log(`🔍 Requesting candles for ${coin} (original: ${symbol}):`, {
+      interval: plan.candleInterval,
+      startTime: plan.startTime,
+      endTime: plan.endTime,
+      startTimeISO: new Date(plan.startTime).toISOString(),
+      endTimeISO: new Date(plan.endTime).toISOString(),
+      isValidStart: Number.isFinite(plan.startTime) && plan.startTime > 0,
+      isValidEnd: Number.isFinite(plan.endTime) && plan.endTime > 0,
+    });
+    
     const data = await callInfo(body);
+    console.log(`🔄 Parsing candles data...`);
     const candles = parseCandles(data);
+    console.log(`✅ Successfully parsed ${candles.length} candles`);
+    
+    console.log(`📊 Raw candles response for ${coin}:`, {
+      candlesCount: candles.length,
+      firstCandle: candles[0] ? new Date(candles[0].t).toISOString() : 'none',
+      lastCandle: candles[candles.length - 1] ? new Date(candles[candles.length - 1].t).toISOString() : 'none'
+    });
 
     if (!candles.length) {
-      throw new AppError(503, {
-        code: 'EMPTY_CANDLES',
-        message: `No candles returned for ${coin} (official API exposes only the most recent 5000 candles)`,
+      // Try with a more recent time range (last 24 hours) for newly listed assets
+      console.log(`⚠️ No candles for ${coin} in requested range, trying recent data...`);
+      
+      const recentEndTime = Date.now();
+      const recentStartTime = recentEndTime - (24 * 60 * 60 * 1000); // Last 24 hours
+      
+      const recentBody = {
+        type: 'candleSnapshot',
+        req: {
+          coin,
+          interval: '1h', // Use 1h for better coverage
+          startTime: recentStartTime,
+          endTime: recentEndTime,
+        },
+      };
+      
+      const recentData = await callInfo(recentBody);
+      const recentCandles = parseCandles(recentData);
+      
+      console.log(`📊 Recent candles for ${coin}:`, {
+        candlesCount: recentCandles.length,
+        firstCandle: recentCandles[0] ? new Date(recentCandles[0].t).toISOString() : 'none',
+        lastCandle: recentCandles[recentCandles.length - 1] ? new Date(recentCandles[recentCandles.length - 1].t).toISOString() : 'none'
       });
+      
+      if (!recentCandles.length) {
+        throw new AppError(503, {
+          code: 'EMPTY_CANDLES',
+          message: `No candles returned for ${coin} (asset may be too recently listed or delisted). Requested period: ${new Date(plan.startTime).toISOString()} to ${new Date(plan.endTime).toISOString()}`,
+        });
+      }
+      
+      // Cache and return recent candles
+      cacheService.set(cacheKey, recentCandles, 60);
+      return recentCandles;
     }
 
+    console.log(`💾 Caching ${candles.length} candles...`);
     cacheService.set(cacheKey, candles, 60);
+    console.log(`🎉 Returning ${candles.length} candles to client`);
     return candles;
   };
 
@@ -291,13 +356,13 @@ export async function getChange7dPct(symbol: string): Promise<number | null> {
   const endTime = Date.now();
   const startTime = endTime - CHANGE_7D_WINDOW_MS;
 
-  const candles = await getCandles(symbol, '7d', startTime, endTime);
+  const candles = await getCandles(symbol, '1d', startTime, endTime);
   if (!candles.length) {
     return null;
   }
 
-  const first = candles[0]?.close;
-  const last = candles[candles.length - 1]?.close;
+  const first = candles[0]?.c;
+  const last = candles[candles.length - 1]?.c;
 
   if (!Number.isFinite(first) || !Number.isFinite(last) || first === 0) {
     return null;

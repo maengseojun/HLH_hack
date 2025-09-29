@@ -1,95 +1,226 @@
-// API types and functions
-export type PositionSide = "long" | "short";
+// Lightweight API client for HyperIndex v1 endpoints
+// Reads NEXT_PUBLIC_API_BASE (should include the /v1 prefix)
 
-export type Asset = {
+export type ApiErrorCode =
+  | "INVALID_QUERY"
+  | "WEIGHT_SUM_INVALID"
+  | "RANGE_TOO_LARGE"
+  | "UPSTREAM_503"
+  | string;
+
+export interface ApiErrorEnvelope {
+  error: {
+    code: ApiErrorCode;
+    message: string;
+    details?: Record<string, unknown>;
+    retryAfterSec?: number;
+  };
+}
+
+export interface Asset {
   name: string;
   symbol: string;
-  markPx: number | null;
-  prevDayPx: number | null;
-  change24hPct: number | null;
-  funding: number | null;
-  openInterest: number | null;
-  dayNtlVlm: number | null;
-  premium: number | null;
-  maxLeverage: number | null;
-  szDecimals: number;
-  priceDecimals: number;
-};
-
-export type Candle = {
-  t?: number | string;
-  o?: number;
-  h?: number;
-  l?: number;
-  c?: number;
-  v?: number;
-  close?: number;
-};
-
-export type BasketItemInput = {
-  symbol: string;
-  weight: number;
-  position: PositionSide;
-  leverage: number;
-};
-
-export type BasketCalculationPoint = {
-  date?: string;
-  value?: number;
-  nav?: number;
-};
-
-export type BasketCalculationResponse = {
-  data?: BasketCalculationPoint[];
-};
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
-
-async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer test_token_for_testnet_e2e',
-      ...options.headers,
-    },
-    ...options,
-  });
-
-  if (!response.ok) {
-    throw new Error(`API request failed: ${response.status}`);
-  }
-
-  return response.json();
+  markPx: number;
+  dayNtlVlm: number;
+  openInterest: number;
+  maxLeverage: number;
+  change24h?: number | null;
+  funding?: number | null;
+  premium?: number | null;
 }
+
+export interface AssetDetail extends Asset {
+  change7d?: number | null;
+  impactPxs?: number[];
+}
+
+export interface Candle {
+  t: number; // timestamp (ms or s depending on backend)
+  o: number;
+  h: number;
+  l: number;
+  c: number;
+  v?: number;
+}
+
+export interface CandlesResponse<TMeta = unknown> {
+  data?: Candle[];
+  candles?: Candle[]; // allow either key
+  meta?: TMeta;
+}
+
+export type PositionSide = "long" | "short";
+
+export interface BasketItemInput {
+  symbol: string; // e.g., BTC-PERP
+  weight: number; // sum to 1.0 (±1e-6)
+  position: PositionSide;
+  leverage?: number; // optional per IA
+}
+
+export interface BasketCalculateInput {
+  interval: "1d" | "7d" | string;
+  assets: BasketItemInput[];
+}
+
+const API_BASE = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/$/, "");
+
+function codeToMessage(code: ApiErrorCode): string {
+  switch (code) {
+    case "WEIGHT_SUM_INVALID":
+      return "Weights must sum to 1.0";
+    case "RANGE_TOO_LARGE":
+      return "Requested time range is too large";
+    case "UPSTREAM_503":
+      return "Upstream temporarily unavailable. Please try again";
+    case "INVALID_QUERY":
+      return "Invalid query parameters";
+    default:
+      return "Unexpected error";
+  }
+}
+
+async function fetchJson<T>(path: string, init?: RequestInit & { timeoutMs?: number }): Promise<T> {
+  if (!API_BASE) throw new Error("NEXT_PUBLIC_API_BASE is not set");
+  const url = `${API_BASE}${path}`;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), init?.timeoutMs ?? 30000);
+  try {
+    const res = await fetch(url, {
+      ...init,
+      headers: { "Content-Type": "application/json", ...(init?.headers || {}) },
+      signal: controller.signal,
+    });
+
+    const text = await res.text();
+    let json: unknown = undefined;
+    try {
+      json = text ? JSON.parse(text) : undefined;
+    } catch {
+      // leave json undefined
+    }
+
+    if (!res.ok) {
+      const env = json as ApiErrorEnvelope | undefined;
+      const code = env?.error?.code ?? `${res.status}`;
+      const message = env?.error?.message ?? codeToMessage(code) ?? "API Error";
+      const retryAfterSec = env?.error?.retryAfterSec;
+      console.log("🚨 Public API Error:", { code, message, env, status: res.status, url });
+      const error: Error & { code?: ApiErrorCode; retryAfterSec?: number; details?: unknown } = new Error(String(message));
+      error.code = code;
+      if (retryAfterSec) error.retryAfterSec = retryAfterSec;
+      error.details = env?.error?.details;
+      throw error;
+    }
+
+    return (json as T) ?? ({} as T);
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function fetchJsonWithAuth<T>(path: string, init?: RequestInit & { timeoutMs?: number }, requireAuth: boolean = true): Promise<T> {
+  if (!API_BASE) throw new Error("NEXT_PUBLIC_API_BASE is not set");
+  const url = `${API_BASE}${path}`;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), init?.timeoutMs ?? 30000);
+  
+  const headers: Record<string, string> = { "Content-Type": "application/json", ...(init?.headers || {}) };
+  
+  if (requireAuth) {
+    const demoToken = typeof window !== 'undefined' 
+      ? (window as any).NEXT_PUBLIC_DEMO_BEARER_TOKEN 
+      : process.env.NEXT_PUBLIC_DEMO_BEARER_TOKEN;
+    if (demoToken) {
+      headers.Authorization = `Bearer ${demoToken}`;
+    }
+  }
+  
+  try {
+    const res = await fetch(url, {
+      ...init,
+      headers,
+      signal: controller.signal,
+    });
+
+    const text = await res.text();
+    let json: unknown = undefined;
+    try {
+      json = text ? JSON.parse(text) : undefined;
+    } catch {
+      // leave json undefined
+    }
+
+    if (!res.ok) {
+      const env = json as ApiErrorEnvelope | undefined;
+      const code = env?.error?.code ?? `${res.status}`;
+      const message = env?.error?.message ?? codeToMessage(code) ?? "API Error";
+      const retryAfterSec = env?.error?.retryAfterSec;
+      console.log("🚨 API Error Debug:", { code, message, env, status: res.status, url });
+      const error: Error & { code?: ApiErrorCode; retryAfterSec?: number; details?: unknown } = new Error(String(message));
+      error.code = code;
+      if (retryAfterSec) error.retryAfterSec = retryAfterSec;
+      error.details = env?.error?.details;
+      throw error;
+    }
+
+    return (json as T) ?? ({} as T);
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+// Public endpoints
 
 export async function getAssets(): Promise<Asset[]> {
-  try {
-    return await apiRequest<Asset[]>('/v1/assets');
-  } catch (error) {
-    console.error('Failed to fetch assets:', error);
-    return [];
+  return fetchJson<Asset[]>(`/assets`);
+}
+
+export async function getAsset(symbol: string): Promise<AssetDetail> {
+  return fetchJson<AssetDetail>(`/assets/${encodeURIComponent(symbol)}`);
+}
+
+export async function getCandles(symbol: string, interval: string): Promise<CandlesResponse> {
+  return fetchJson<CandlesResponse>(`/assets/${encodeURIComponent(symbol)}/candles?interval=${encodeURIComponent(interval)}`);
+}
+
+export function validateWeightsSumOne(items: BasketItemInput[]): { ok: true } | { ok: false; sum: number } {
+  const sum = items.reduce((a, b) => a + (Number.isFinite(b.weight) ? b.weight : 0), 0);
+  return Math.abs(sum - 1) <= 1e-6 ? { ok: true } : { ok: false, sum };
+}
+
+type WeightValidationResult = ReturnType<typeof validateWeightsSumOne>;
+
+function isInvalidWeightResult(result: WeightValidationResult): result is Extract<WeightValidationResult, { ok: false }> {
+  return result.ok === false;
+}
+
+export async function postBasketCalculate(
+  input: BasketCalculateInput,
+  authenticated: boolean = false
+): Promise<unknown> {
+  const check = validateWeightsSumOne(input.assets);
+  if (!isInvalidWeightResult(check)) {
+    return fetchJsonWithAuth<unknown>(
+      `/baskets/calculate`,
+      {
+        method: "POST",
+        body: JSON.stringify(input),
+      },
+      authenticated
+    );
   }
+
+  const err = new Error(`Weights must sum to 1.0 (got ${check.sum.toFixed(4)})`);
+  (err as Error & { code?: ApiErrorCode }).code = "WEIGHT_SUM_INVALID" as ApiErrorCode;
+  throw err;
 }
 
-export async function getAsset(symbol: string): Promise<Asset> {
-  return await apiRequest<Asset>(`/v1/assets/${symbol}`);
-}
-
-export async function getCandles(symbol: string, interval: string): Promise<{ candles: Candle[] }> {
-  try {
-    return await apiRequest<{ candles: Candle[] }>(`/v1/candles/${symbol}?interval=${interval}`);
-  } catch (error) {
-    console.error('Failed to fetch candles:', error);
-    return { candles: [] };
-  }
-}
-
-export async function postBasketCalculate(params: {
-  interval: string;
-  assets: BasketItemInput[];
-}): Promise<BasketCalculationResponse> {
-  return await apiRequest<BasketCalculationResponse>('/v1/baskets/calculate', {
-    method: 'POST',
-    body: JSON.stringify(params),
-  });
+// Health endpoint (outside /v1 in some envs). Use best effort.
+export async function getHealth(): Promise<unknown> {
+  // If API_BASE already has /v1, go up one level for /health
+  const base = API_BASE.endsWith("/v1") ? API_BASE.slice(0, -3) : API_BASE;
+  const url = `${base}/health`;
+  const res = await fetch(url, { cache: "no-store" });
+  return res.json().catch(() => ({}));
 }

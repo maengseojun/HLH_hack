@@ -4,7 +4,11 @@
     "baseUrl": ".",
     "paths": {
       "@/*": [
+        "./src/*",
         "./*"
+      ],
+      "@figma/*": [
+        "figma/*"
       ]
     }
   },
@@ -13,6 +17,8 @@
     "globals.d.ts",
     "app/**/*.ts",
     "app/**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
     "components/**/*.ts",
     "components/**/*.tsx",
     "lib/**/*.ts",
@@ -23,7 +29,6 @@
   "exclude": [
     "node_modules",
     "backend",
-    "src",
     "hlh_hack"
   ]
 }

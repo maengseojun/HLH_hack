@@ -3,8 +3,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./hlh_hack/src/*"
+      "@figma/*": [
+        "figma/*"
       ]
     },
     "strict": false,
@@ -16,15 +16,13 @@
     "alwaysStrict": true
   },
   "include": [
-    "hlh_hack/next-env.d.ts",
-    "hlh_hack/src/**/*.ts",
-    "hlh_hack/src/**/*.tsx",
-    "hlh_hack/.next/types/**/*.ts"
+    "figma/src/**/*.ts",
+    "figma/src/**/*.tsx"
   ],
   "exclude": [
     "node_modules",
-    "hlh_hack/node_modules",
     "backend",
-    ".next"
+    ".next",
+    "node_modules"
   ]
 }

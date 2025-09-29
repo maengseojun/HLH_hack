@@ -19,12 +19,12 @@ export interface AssetDetail extends Asset {
 }
 
 export interface Candle {
-  timestamp: number;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  volume: number;
+  t: number; // timestamp
+  o: number; // open
+  h: number; // high
+  l: number; // low
+  c: number; // close
+  v: number; // volume
 }
 
 export type Position = 'long' | 'short';
