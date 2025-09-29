@@ -118,6 +118,44 @@ type PortfolioComposition = {
 - 툴팁 날짜 형식 통일 (MM/DD/YYYY)
 - 파일: `/src/components/HeaderNav.tsx`, `/src/components/IndexDetailsModal.tsx`
 
+### 15. HyperLiquid API 통합 및 시간 단위 업데이트 ✅
+**문제**: Mock 데이터가 실제 API 연동 문제를 가리고 있었음
+**해결**:
+- **API URL 수정**: candleSnapshot 요청을 testnet이 아닌 공식 public API (`https://api.hyperliquid.xyz/info`)로 변경
+- **시간 단위 업데이트**: 
+  - `7d` → `1d` (일별 캔들, 30일치 데이터)
+  - `1d` → `1h` (시간별 캔들, 1주일치 데이터)  
+  - `1h` → `5m` (5분별 캔들, 하루치 데이터)
+- **시간 포맷팅 개선**:
+  - `5m`: `15:30` (시:분 형식)
+  - `1h`: `15:00` (시간별, 24시간 형식)
+  - `1d`: `09/27` (월/일 형식)
+- **Mock 데이터 완전 제거**: 실제 API 데이터만 사용하도록 수정
+- **에러 처리 개선**: MATIC 등 HyperLiquid에서 지원하지 않는 asset에 대한 우아한 에러 처리
+- 파일: `/backend/src/services/hypercore.ts`, `/src/components/IndexDetailsModal.tsx`, `/src/app/page.tsx`
+
+### 16. 차트 가독성 개선 ✅
+**문제**: X축 라벨이 너무 촘촘해서 겹쳐 보임
+**해결**:
+- **X축 간격 조정**: Recharts의 `interval` 속성으로 라벨 간격 조정
+  - `5m`: `preserveStartEnd` (시작과 끝만 표시)
+  - `1h`: 전체 데이터를 8등분해서 표시
+  - `1d`: 전체 데이터를 6등분해서 표시
+- **툴팁 유지**: 모든 데이터 포인트에서 정확한 시간 정보 제공
+- **Preview와 IndexDetails 모두 적용**: 일관된 사용자 경험 제공
+- 파일: `/src/components/IndexDetailsModal.tsx`, `/src/app/page.tsx`
+
+### 17. 백엔드 API 시간 간격 지원 확장 ✅
+**변경 사항**:
+- **CandleInterval 타입**: `'1h' | '1d' | '7d'` → `'5m' | '1h' | '1d'`
+- **candlePresets 설정**:
+  - `5m`: 1일치 데이터 (5분 간격)
+  - `1h`: 7일치 데이터 (1시간 간격)
+  - `1d`: 30일치 데이터 (1일 간격)
+- **API route 업데이트**: `/v1/assets/:symbol/candles` 엔드포인트에서 새로운 간격 지원
+- **HyperLiquid 형식 유지**: 응답을 `{t, o, h, l, c, v}` 형식으로 반환하여 프론트엔드 호환성 보장
+- 파일: `/backend/src/utils/candlePresets.ts`, `/backend/src/routes/assets.ts`, `/backend/src/services/hypercore.ts`
+
 ## 📦 의존성 및 호환성 정보
 
 ### 패키지 매니저
@@ -128,10 +166,12 @@ type PortfolioComposition = {
 ### 주요 기술 스택
 - **Frontend**: Next.js 15 + React 19 + TypeScript
 - **Backend**: Express + TypeScript + tsx (dev 실행)
+- **API 통합**: HyperLiquid Public API (실시간 암호화폐 데이터)
 - **API 호출**: fetch API (axios 아님)
 - **차트**: Recharts (ResponsiveContainer, AreaChart, LineChart, PieChart)
 - **상태 관리**: React useState + localStorage (Redux/Zustand 없음)
 - **스타일링**: Tailwind CSS + CSS 변수
+- **데이터 형식**: HyperLiquid candleSnapshot 형식 (`{t, o, h, l, c, v}`)
 
 ### 환경 변수
 ```bash
