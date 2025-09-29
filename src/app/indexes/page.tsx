@@ -4,7 +4,6 @@ import { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 // Work around a Next 15 dev manifest bug by client-only loading
 const IndexDetailsModal = dynamic(() => import("@/components/IndexDetailsModal"), {
