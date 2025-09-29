@@ -1,3 +1,6 @@
+packages:
+  - .
+  - backend
 onlyBuiltDependencies:
   - '@tailwindcss/oxide'
   - sharp
