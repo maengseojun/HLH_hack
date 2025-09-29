@@ -1,8 +1,4 @@
-import nextDynamic from "next/dynamic";
-
-const IndexHubClient = nextDynamic(() => import("./IndexHubClient"), {
-  ssr: false,
-});
+import IndexHubClient from "./IndexHubClient";
 
 export const dynamic = "force-dynamic";
 
