@@ -1,6 +1,6 @@
 import { AppError } from './httpError.js';
 
-export type CandleInterval = '5m' | '1h' | '1d';
+export type CandleInterval = '5m' | '1h' | '1d' | '7d';
 
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
@@ -22,6 +22,10 @@ const CANDLE_PRESETS: Record<CandleInterval, PresetConfig> = {
   '1d': {
     durationMs: 30 * DAY_MS, // 30 days of 1-day candles
     allowedDurationsMs: [30 * DAY_MS],
+  },
+  '7d': {
+    durationMs: 7 * DAY_MS, // 7 days of 1-day candles grouped weekly
+    allowedDurationsMs: [7 * DAY_MS],
   },
 };
 

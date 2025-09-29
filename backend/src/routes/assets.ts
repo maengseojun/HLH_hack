@@ -33,7 +33,7 @@ assetsRouter.get('/:symbol/candles', async (req, res, next) => {
   try {
     const paramsSchema = z.object({ symbol: z.string().min(2) });
     const querySchema = z.object({ 
-      interval: z.enum(['5m', '1h', '1d']).default('1d'),
+      interval: z.enum(['5m', '1h', '1d', '7d']).default('1d'),
       from: z.string().optional(),
       to: z.string().optional()
     });

@@ -5,6 +5,7 @@ export interface AppErrorPayload {
     | 'LOOKBACK_EXCEEDED'
     | 'UNSUPPORTED_PRESET'
     | 'UNSUPPORTED_SYMBOL'
+    | 'ASSET_NOT_FOUND'
     | 'WEIGHT_SUM_INVALID'
     | 'EMPTY_CANDLES'
     | 'UPSTREAM_UNAVAILABLE'

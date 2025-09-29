@@ -16,17 +16,17 @@ export interface IndividualResult {
 
 export function computeIndividualReturnSeries(candles: Candle[], position: Position, leverage = 1): ReturnPoint[] {
   if (!candles?.length) return [];
-  const base = candles[0].close;
+  const base = candles[0].c;
   if (!Number.isFinite(base) || base === 0) return [];
 
   return candles.map((candle) => {
-    const price = candle.close;
+    const price = candle.c;
     const longReturn = ((price / base) - 1) * 100;
     const shortReturn = ((base / price) - 1) * 100;
     const directional = position === 'long' ? longReturn : shortReturn;
 
     return {
-      timestamp: candle.timestamp,
+      timestamp: candle.t,
       retPct: directional * leverage,
     };
   });

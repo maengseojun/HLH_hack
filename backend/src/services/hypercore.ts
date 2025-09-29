@@ -6,7 +6,7 @@ import { fetchAssetDetail } from './hyperliquid.js';
 import { once } from '../utils/inflight.js';
 import { withRetry } from '../utils/retry.js';
 import { AppError } from '../utils/httpError.js';
-import { CandleSnapshotSchema, CandleTupleSchema } from '../schemas/rpc.js';
+import { CandleSnapshotSchema } from '../schemas/rpc.js';
 import { z, zodIssues } from '../schemas/common.js';
 import type { Candle } from '../types/domain.js';
 
@@ -68,12 +68,13 @@ function alignToHour(timestamp: number): number {
 }
 
 function resolveCandlePlan(
-  interval: '5m' | '1h' | '1d',
+  interval: '5m' | '1h' | '1d' | '7d',
   from: number,
   to: number,
 ): { candleInterval: '5m' | '1h' | '1d'; startTime: number; endTime: number } {
+  const candleInterval = interval === '7d' ? '1d' : interval;
   return {
-    candleInterval: interval,
+    candleInterval,
     startTime: from,
     endTime: to,
   };
@@ -162,13 +163,14 @@ function parseFundingHistory(rawData: unknown, limit: number): FundingHistoryPoi
   return history;
 }
 
-function enforceCandleLimit(interval: '5m' | '1h' | '1d', start: number, end: number) {
+function enforceCandleLimit(interval: '5m' | '1h' | '1d' | '7d', start: number, end: number) {
   const duration = end - start;
   if (duration <= 0) {
     return;
   }
 
-  const perCandleMs = interval === '5m' ? 5 * 60 * 1000 : interval === '1h' ? HOUR_MS : DAY_MS;
+  const normalized = interval === '7d' ? '1d' : interval;
+  const perCandleMs = normalized === '5m' ? 5 * 60 * 1000 : normalized === '1h' ? HOUR_MS : DAY_MS;
   const estimatedCandles = Math.ceil(duration / perCandleMs);
   if (estimatedCandles > FIVE_THOUSAND) {
     throw new AppError(400, {
@@ -185,7 +187,7 @@ function enforceCandleLimit(interval: '5m' | '1h' | '1d', start: number, end: nu
 
 export async function getCandles(
   symbol: string,
-  interval: '5m' | '1h' | '1d',
+  interval: '5m' | '1h' | '1d' | '7d',
   from: number,
   to: number,
 ): Promise<Candle[]> {

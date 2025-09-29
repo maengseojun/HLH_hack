@@ -13,6 +13,7 @@ const AssetMetaSchema = z.object({
   sizeDecimals: z.number().int().min(0).max(18).optional(),
   priceDecimals: z.number().int().min(0).max(18).optional(),
   assetId: z.number().int().nonnegative().optional(),
+  isDelisted: z.boolean().optional(),
 });
 
 const AssetContextSchema = z.object({
