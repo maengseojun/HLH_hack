@@ -156,6 +156,14 @@ type PortfolioComposition = {
 - **HyperLiquid 형식 유지**: 응답을 `{t, o, h, l, c, v}` 형식으로 반환하여 프론트엔드 호환성 보장
 - 파일: `/backend/src/utils/candlePresets.ts`, `/backend/src/routes/assets.ts`, `/backend/src/services/hypercore.ts`
 
+### 18. Next 빌드 안정화 및 배포 준비 ✅
+**문제**: Vercel 빌드에서 `/index` 프리렌더 버그, 클라이언트 전용 컴포넌트 SSR 오류, 네이티브 의존성 빌드 스크립트 경고가 발생함.
+**해결**:
+- `/index` 페이지를 서버 리다이렉트 전용으로 단순화하고 프리렌더를 차단 (`src/app/index/page.tsx`).
+- `/indexes` UI를 클라이언트 전용 컴포넌트로 분리해 서버 컴포넌트에서 안전하게 임포트 (`src/app/indexes/page.tsx`, `src/app/indexes/IndexHubClient.tsx`, `src/app/indexes/loading.tsx`).
+- pnpm 네이티브 의존성 빌드 스크립트를 허용하도록 `.npmrc`를 추가해 Vercel 경고 제거 (`.npmrc`).
+- `NEXT_PUBLIC_API_BASE` 미설정 시 프런트가 즉시 오류를 던지므로, 필요한 값을 Vercel 환경 변수에 직접 등록하도록 문서화.
+
 ## 📦 의존성 및 호환성 정보
 
 ### 패키지 매니저
@@ -252,6 +260,16 @@ NEXT_PUBLIC_API_BASE=http://localhost:3001/v1
 2. **Mock 데이터 미표시**:
    - localStorage에 'mock-indexes' 키 존재 여부 확인
    - storage 이벤트 리스너 동작 확인
+
+## 🚀 백엔드 배포 및 환경 변수 가이드
+- **프런트 환경 변수**
+  - `NEXT_PUBLIC_API_BASE`: 프런트가 호출할 백엔드 공개 URL (Vercel에서는 `localhost` 값을 사용하면 안 되고, 외부에서 접근 가능한 주소 필요)
+  - `NEXT_PUBLIC_API_PROXY_TARGET` (선택): Next.js `rewrites`에서 `/v1/*` 경로를 프록시하고 싶을 때 대상 URL 지정
+- **백엔드 배포 옵션** (`backend/` Express 앱 기준)
+  1. **PaaS 배포**: Render, Railway, Fly.io 등에 Express 서버를 올리고 발급된 URL을 환경 변수에 설정
+  2. **컨테이너 배포**: Docker 이미지를 만들어 AWS ECS/Fargate, Fly.io 등 컨테이너 플랫폼에 배포
+  3. **Next.js API로 포팅**: 라우트를 `/app/api/*` 구조로 이전하여 Vercel Serverless Functions에서 운영 (작업량이 많지만 단일 배포 가능)
+- **중요**: Vercel은 로컬 `.env` 파일을 읽지 않으므로, 필요한 값은 프로젝트 Settings → Environment Variables에 직접 등록해야 함
 
 ## 📞 최종 상태 요약
 - **Portfolio UX**: 완전히 새로 설계됨 ✅
