@@ -1,5 +1,8 @@
 import express from 'express';
-import rateLimit from 'express-rate-limit';
+import rateLimitImport from 'express-rate-limit';
+// Typings for express-rate-limit@7 don't expose a callable default export under NodeNext module resolution.
+// Cast here so both CommonJS (default export) and ESM builds work without runtime branching.
+const rateLimit = rateLimitImport as unknown as typeof import('express-rate-limit')['rateLimit'];
 import { config } from './config.js';
 import { assetsRouter } from './routes/assets.js';
 import { healthRouter } from './routes/health.js';
@@ -67,13 +70,17 @@ app.use(errorHandler);
 
 const port = config.port;
 
-app.listen(port, () => {
-  logger.info({
-    port,
-    env: process.env.NODE_ENV || 'development',
-    version: process.env.npm_package_version || '0.1.0',
-    auth_mode: process.env.AUTH_MODE || 'bearer',
-  }, 'HyperIndex backend server started');
-});
+// Avoid starting a listener when running inside serverless platforms (e.g. Vercel).
+if (!process.env.VERCEL) {
+  app.listen(port, () => {
+    logger.info({
+      port,
+      env: process.env.NODE_ENV || 'development',
+      version: process.env.npm_package_version || '0.1.0',
+      auth_mode: process.env.AUTH_MODE || 'bearer',
+    }, 'HyperIndex backend server started');
+  });
+}
 
 export { app };
+export default app;
