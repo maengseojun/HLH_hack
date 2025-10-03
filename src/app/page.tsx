@@ -83,6 +83,7 @@ type SelectedAsset = {
   name: string;
   side: PositionSide;
   leverage: number;
+  marketType: 'perp' | 'spot';
 };
 
 type PortfolioComposition = {
@@ -163,8 +164,9 @@ export default function LaunchPage() {
       const next: SelectedAsset = {
         symbol: a.symbol,
         name: a.name,
-        side: POSITION_SIDES[0],
+        side: a.marketType === "spot" ? "long" : POSITION_SIDES[0],
         leverage: 1,
+        marketType: a.marketType,
       };
       const newSelected = [...prev, next];
       
@@ -183,9 +185,22 @@ export default function LaunchPage() {
     });
     setSearch("");
   };
-  
+
   const updateAsset = (symbol: string, patch: Partial<SelectedAsset>) => {
-    setSelected((prev) => prev.map((s) => (s.symbol === symbol ? { ...s, ...patch } : s)));
+    setSelected((prev) => prev.map((s) => {
+      if (s.symbol !== symbol) return s;
+      if (s.marketType === "spot") {
+        const filteredPatch: Partial<SelectedAsset> = { ...patch };
+        if (filteredPatch.leverage !== undefined) {
+          filteredPatch.leverage = 1;
+        }
+        if (filteredPatch.side && filteredPatch.side !== "long") {
+          filteredPatch.side = "long";
+        }
+        return { ...s, ...filteredPatch };
+      }
+      return { ...s, ...patch };
+    }));
   };
   
   const removeAsset = (symbol: string) => {
@@ -290,8 +305,8 @@ export default function LaunchPage() {
             const basketItems: BasketItemInput[] = selected.map(s => ({
               symbol: s.symbol,
               weight: (composition.allocations[s.symbol] || 0) / 100,
-              position: s.side,
-              leverage: s.leverage
+              position: s.marketType === "spot" ? "long" : s.side,
+              leverage: s.marketType === "spot" ? 1 : s.leverage
             }));
             
             console.log("🚀 API call with basketItems:", basketItems);
@@ -349,8 +364,9 @@ export default function LaunchPage() {
               continue;
             }
             const base = closes[0] || 1;
-            const sign = s.side === "short" ? -1 : 1;
-            const lev = Math.max(1, s.leverage || 1);
+            const isSpot = s.marketType === "spot";
+            const sign = isSpot ? 1 : (s.side === "short" ? -1 : 1);
+            const lev = isSpot ? 1 : Math.max(1, s.leverage || 1);
             const weight = (composition.allocations[s.symbol] || 0) / 100;
             const amount = getAssetAmount(s.symbol);
             
@@ -534,7 +550,12 @@ export default function LaunchPage() {
                 <div className="absolute z-[100] mt-2 w-full glass-dropdown rounded-[12px] p-2 max-h-64 overflow-y-auto">
                   {filtered.map((a)=> (
                     <button key={a.symbol} onClick={()=>addAsset(a)} className="w-full text-left px-3 py-2 rounded-[8px] text-white hover:bg-white/20">
-                      <div className="font-medium">{a.symbol}</div>
+                      <div className="font-medium flex items-center gap-2">
+                        {a.symbol}
+                        <span className="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded-md bg-white/10 text-[color:var(--color-muted-foreground)]">
+                          {a.marketType}
+                        </span>
+                      </div>
                       <div className="text-[color:var(--color-muted-foreground)] text-xs">{a.name}</div>
                     </button>
                   ))}
@@ -546,56 +567,74 @@ export default function LaunchPage() {
               {selected.map((s)=> (
                 <div key={s.symbol} className="glass-card rounded-[12px] p-3">
                   <div className="flex items-center justify-between">
-                    <div className="text-white font-medium">{s.symbol} <span className="text-[color:var(--color-muted-foreground)] text-xs">{s.name}</span></div>
+                    <div className="text-white font-medium flex items-center gap-2">
+                      <span>{s.symbol}</span>
+                      <span className="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded-md bg-white/10 text-[color:var(--color-muted-foreground)]">{s.marketType}</span>
+                      <span className="text-[color:var(--color-muted-foreground)] text-xs">{s.name}</span>
+                    </div>
                     <button onClick={()=>removeAsset(s.symbol)} className="text-red-400 border border-red-400 rounded-[10px] px-2 py-1 hover:bg-red-400 hover:text-white">Remove</button>
                   </div>
                   <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
                     <div>
                       <div className="text-[color:var(--color-muted-foreground)] mb-1">Side</div>
-                      <div className="inline-flex rounded-xl p-1 bg-[color:var(--color-card)] border border-[color:var(--color-border)]">
-                        {POSITION_SIDES.map((v) => (
-                          <button key={v} onClick={()=>updateAsset(s.symbol,{ side: v })} className={`px-2.5 py-1 rounded-lg text-xs ${s.side===v?"bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)]":"text-[color:var(--color-muted-foreground)] hover:bg-[color:var(--color-muted)]"}`}>{v}</button>
-                        ))}
-                      </div>
+                      {s.marketType === "spot" ? (
+                        <div className="text-xs text-white px-2 py-1 rounded-lg bg-white/10 inline-flex items-center gap-2">
+                          Long
+                          <span className="text-[color:var(--color-muted-foreground)]">(spot only)</span>
+                        </div>
+                      ) : (
+                        <div className="inline-flex rounded-xl p-1 bg-[color:var(--color-card)] border border-[color:var(--color-border)]">
+                          {POSITION_SIDES.map((v) => (
+                            <button key={v} onClick={()=>updateAsset(s.symbol,{ side: v })} className={`px-2.5 py-1 rounded-lg text-xs ${s.side===v?"bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)]":"text-[color:var(--color-muted-foreground)] hover:bg-[color:var(--color-muted)]"}`}>{v}</button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <div>
                       <div className="text-[color:var(--color-muted-foreground)] mb-1">Leverage</div>
-                      <div className="space-y-2">
-                        <div className="glass-input rounded-[8px] w-16 relative flex">
-                          <input 
-                            type="number" 
-                            min={1} 
-                            max={50} 
-                            value={s.leverage} 
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              if (val === '' || val === '0') {
-                                updateAsset(s.symbol, { leverage: 1 });
-                              } else {
-                                updateAsset(s.symbol, { leverage: clamp01_50(parseInt(val) || 1) });
-                              }
-                            }}
-                            className="no-spinner flex-1 px-2 py-2 text-white bg-transparent border-none outline-none text-center" 
-                          />
-                          <div className="flex flex-col">
-                            <button
-                              type="button"
-                              onClick={() => updateAsset(s.symbol, { leverage: clamp01_50(s.leverage + 1) })}
-                              className="px-1 py-0.5 text-[#A0B5B2] hover:text-[#98FCE4] text-xs leading-none"
-                            >
-                              ▲
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => updateAsset(s.symbol, { leverage: clamp01_50(s.leverage - 1) })}
-                              className="px-1 py-0.5 text-[#A0B5B2] hover:text-[#98FCE4] text-xs leading-none"
-                            >
-                              ▼
-                            </button>
-                          </div>
+                      {s.marketType === "spot" ? (
+                        <div className="text-xs text-white px-2 py-1 rounded-lg bg-white/10 inline-flex items-center gap-2">
+                          1x
+                          <span className="text-[color:var(--color-muted-foreground)]">(spot)</span>
                         </div>
-                        <input type="range" min={1} max={50} value={s.leverage} onChange={(e)=>updateAsset(s.symbol,{ leverage: clamp01_50(Number(e.target.value)) })} className="w-full" />
-                      </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <div className="glass-input rounded-[8px] w-16 relative flex">
+                            <input 
+                              type="number" 
+                              min={1} 
+                              max={50} 
+                              value={s.leverage} 
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                if (val === '' || val === '0') {
+                                  updateAsset(s.symbol, { leverage: 1 });
+                                } else {
+                                  updateAsset(s.symbol, { leverage: clamp01_50(parseInt(val) || 1) });
+                                }
+                              }}
+                              className="no-spinner flex-1 px-2 py-2 text-white bg-transparent border-none outline-none text-center" 
+                            />
+                            <div className="flex flex-col">
+                              <button
+                                type="button"
+                                onClick={() => updateAsset(s.symbol, { leverage: clamp01_50(s.leverage + 1) })}
+                                className="px-1 py-0.5 text-[#A0B5B2] hover:text-[#98FCE4] text-xs leading-none"
+                              >
+                                ▲
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => updateAsset(s.symbol, { leverage: clamp01_50(s.leverage - 1) })}
+                                className="px-1 py-0.5 text-[#A0B5B2] hover:text-[#98FCE4] text-xs leading-none"
+                              >
+                                ▼
+                              </button>
+                            </div>
+                          </div>
+                          <input type="range" min={1} max={50} value={s.leverage} onChange={(e)=>updateAsset(s.symbol,{ leverage: clamp01_50(Number(e.target.value)) })} className="w-full" />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -916,7 +955,7 @@ export default function LaunchPage() {
               minimumFractionDigits: 0,
               maximumFractionDigits: 0
             }),
-            maxLeverage: Math.max(...selected.map(s => s.leverage)).toString() + "x",
+            maxLeverage: Math.max(...selected.map(s => (s.marketType === "spot" ? 1 : s.leverage))).toString() + "x",
             sinceInceptionReturnPct: (Math.random() * 10 - 5).toFixed(2) + "%", // -5% to +5%
             // Performance chart data for different timeframes
             performanceData: {

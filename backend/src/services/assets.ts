@@ -3,6 +3,8 @@ import { change24hPct, getInstrumentsIndex, resolveInstrument } from './meta.js'
 export type Asset = {
   name: string;
   symbol: string;
+  marketType: 'perp' | 'spot';
+  spotIndex?: number;
   markPx: number | null;
   prevDayPx: number | null;
   change24hPct: number | null;
@@ -20,6 +22,8 @@ export async function listAssets(): Promise<Asset[]> {
   return idx.list.map((row) => ({
     name: row.name,
     symbol: row.symbol,
+    marketType: row.marketType,
+    spotIndex: row.spotIndex,
     markPx: row.markPx,
     prevDayPx: row.prevDayPx,
     change24hPct: change24hPct(row.markPx, row.prevDayPx),
@@ -38,6 +42,8 @@ export async function getAsset(symbol: string): Promise<Asset> {
   return {
     name: row.name,
     symbol: row.symbol,
+    marketType: row.marketType,
+    spotIndex: row.spotIndex,
     markPx: row.markPx,
     prevDayPx: row.prevDayPx,
     change24hPct: change24hPct(row.markPx, row.prevDayPx),

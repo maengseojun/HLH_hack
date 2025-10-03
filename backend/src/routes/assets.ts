@@ -57,7 +57,9 @@ assetsRouter.get('/:symbol/candles', async (req, res, next) => {
       to: to ? parseInt(to) : undefined 
     });
     
-    const candles = await getCandles(symbol, interval, range.from, range.to);
+    // 자산 정보를 먼저 조회해서 marketType 확인
+    const asset = await getAsset(symbol);
+    const candles = await getCandles(symbol, interval, range.from, range.to, asset.marketType, asset.spotIndex);
     
     res.json({
       candles,

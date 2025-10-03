@@ -20,6 +20,7 @@ export interface ApiErrorEnvelope {
 export interface Asset {
   name: string;
   symbol: string;
+  marketType: 'perp' | 'spot';
   markPx: number;
   dayNtlVlm: number;
   openInterest: number;

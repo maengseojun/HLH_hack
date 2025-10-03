@@ -63,6 +63,27 @@ function normalizeSymbol(symbol: string): string {
   return trimmed.endsWith('-PERP') ? trimmed.replace('-PERP', '') : trimmed;
 }
 
+async function resolveSymbolForCandles(symbol: string, marketType?: 'perp' | 'spot', spotIndex?: number): Promise<string> {
+  // Spot 자산인 경우 @{index} 형식으로 변환
+  if (marketType === 'spot') {
+    // 이미 @index 형식인 경우 그대로 사용
+    if (symbol.trim().startsWith('@')) {
+      return symbol.trim();
+    }
+    
+    // spotIndex가 제공된 경우 @{index} 형식으로 변환
+    if (typeof spotIndex === 'number') {
+      return `@${spotIndex}`;
+    }
+    
+    // fallback: 원본 심볼 그대로 사용
+    return symbol.trim();
+  }
+  
+  // Perp 자산인 경우 기존 로직 사용
+  return normalizeSymbol(symbol);
+}
+
 function alignToHour(timestamp: number): number {
   return Math.floor(timestamp / HOUR_MS) * HOUR_MS;
 }
@@ -190,12 +211,14 @@ export async function getCandles(
   interval: '5m' | '1h' | '1d' | '7d',
   from: number,
   to: number,
+  marketType?: 'perp' | 'spot',
+  spotIndex?: number,
 ): Promise<Candle[]> {
-  const coin = normalizeSymbol(symbol);
+  const coin = await resolveSymbolForCandles(symbol, marketType, spotIndex);
   const plan = resolveCandlePlan(interval, from, to);
   const effectiveEnd = plan.endTime ?? plan.startTime;
   enforceCandleLimit(plan.candleInterval, plan.startTime, effectiveEnd);
-  const cacheKey = `candles:${coin}:${plan.candleInterval}:${plan.startTime}:${plan.endTime}`;
+  const cacheKey = `candles:${coin}:${plan.candleInterval}:${plan.startTime}:${plan.endTime}:${marketType || 'perp'}`;
   const cacheHit = cacheService.getWithMeta<Candle[]>(cacheKey);
 
   const body = {

@@ -164,6 +164,34 @@ type PortfolioComposition = {
 - pnpm 네이티브 의존성 빌드 스크립트를 허용하도록 `.npmrc`를 추가해 Vercel 경고 제거 (`.npmrc`).
 - `NEXT_PUBLIC_API_BASE` 미설정 시 프런트가 즉시 오류를 던지므로, 필요한 값을 Vercel 환경 변수에 직접 등록하도록 문서화.
 
+
+### 19. Vercel 백엔드 안정화 및 CORS 처리 ✅
+**문제**: 서버리스 환경에서 `app.listen()` 실행, `pino-pretty` 모듈, `express-rate-limit` 검증, 프리플라이트 차단 등으로 500 에러가 지속적으로 발생함.
+**해결**:
+- Vercel 환경에서는 `app.listen()`을 호출하지 않고, serverless 함수에서 `dist/index.js`를 동적 import (`backend/api/index.ts`).
+- 로컬에서만 `pino-pretty` transport 사용, Vercel에서는 기본 로거만 사용 (`backend/src/infra/logger.ts`).
+- `app.set('trust proxy', 1)` 적용, CORS 헤더 및 204 `OPTIONS` 응답 추가 (`backend/src/index.ts`).
+- 프런트 환경 변수 `NEXT_PUBLIC_API_BASE`, `NEXT_PUBLIC_API_PROXY_TARGET`, `NEXT_PUBLIC_DEMO_BEARER_TOKEN`을 새 백엔드 URL에 맞춰 재배포.
+
+### 20. Spot/Perp 동시 표시를 위한 프런트 준비 ✅
+- 백엔드 자산 정규화에 `marketType` 필드를 추가하고 spot 변형을 함께 제공 (`backend/src/schemas/metaAdapter.ts`, `backend/src/services/assets.ts`).
+- 프론트 타입과 UI가 `marketType`을 표시하고, Spot 선택 시 롱/1x 고정 및 배지를 노출 (`src/lib/api.ts`, `src/app/page.tsx`).
+- Basket 계산과 Preview 계산에서 Spot 자산은 항상 `long` / `1x`로 취급하도록 로직을 보강.
+
+### 21. Spot 자산 검색 기능 완전 구현 ✅
+**문제**: 실제 spot 자산 데이터 공급 및 검색 가능하도록 백엔드 구현 필요
+**해결**:
+- **백엔드 스키마 확장**: `NormalizedAsset`에 `spotIndex` 필드 추가하여 spot 자산의 `@{index}` 형식 지원 (`backend/src/schemas/metaAdapter.ts`)
+- **심볼 검색 로직 개선**: `getAssetBySymbolOrThrow` 함수에서 spot 심볼, 대소문자 무관 검색, perp 형식 변환 등 다양한 검색 방식 지원
+- **캔들 데이터 처리**: `hypercore.ts`에 `resolveSymbolForCandles` 함수 추가하여 spot 자산은 `@{index}` 형식으로 변환 후 API 호출
+- **API 엔드포인트 통합**: `/v1/assets/:symbol/candles`에서 자산 타입에 따라 적절한 캔들 데이터 fetch
+- **환경 설정**: 로컬 테스트용으로 mainnet API 사용하도록 환경변수 수정 (`backend/.env`)
+- **검증 완료**: 
+  - `/v1/assets` - 총 408개 자산 반환 (193 perp + 215 spot)
+  - `/v1/assets/BTC` - spot 자산 정상 반환 (`marketType: 'spot'`, `maxLeverage: 1`)
+  - `/v1/assets/BTC-PERP` - perp 자산 정상 반환 (`marketType: 'perp'`, funding/premium 포함)
+- 파일: `backend/src/schemas/metaAdapter.ts`, `backend/src/services/hypercore.ts`, `backend/src/routes/assets.ts`
+
 ## 📦 의존성 및 호환성 정보
 
 ### 패키지 매니저
@@ -261,6 +289,16 @@ NEXT_PUBLIC_API_BASE=http://localhost:3001/v1
    - localStorage에 'mock-indexes' 키 존재 여부 확인
    - storage 이벤트 리스너 동작 확인
 
+## 🗂 다음 우선 작업 (Priority)
+1. **실제 Spot 자산 데이터 연동 (1순위)** 
+   - 현재는 perp 자산 기반으로 mock spot 자산을 생성하는 방식
+   - 향후 실제 `spotMetaAndAssetCtxs` API 연동 시 기반 구조가 모두 준비되어 있어 쉽게 업그레이드 가능
+   - `backend/src/services/meta.ts`에서 병렬 호출 로직으로 전환하고 `normalizeMetaAndAssetCtxs`에서 실제 spot 데이터 처리
+
+2. **프론트엔드 Spot 자산 UI 테스트**
+   - spot 자산 선택 → 롱/1x 고정, Preview/Basket 계산이 정상 동작하는지 회귀 테스트
+   - 레버리지 슬라이더 비활성화, spot 배지 표시 등 UI 검증
+
 ## 🚀 백엔드 배포 및 환경 변수 가이드
 - **프런트 환경 변수**
   - `NEXT_PUBLIC_API_BASE`: 프런트가 호출할 백엔드 공개 URL (Vercel에서는 `localhost` 값을 사용하면 안 되고, 외부에서 접근 가능한 주소 필요)
@@ -280,5 +318,13 @@ NEXT_PUBLIC_API_BASE=http://localhost:3001/v1
 - **차트 인터랙션**: 호버, 툴팁 구현 완료 ✅
 - **필터링 시스템**: 검색, 정렬, 상태 필터 완료 ✅
 - **UI/UX 정리**: 모든 개선사항 적용 완료 ✅
+- **Spot 자산 검색**: 백엔드 구현 완료, API 테스트 통과 ✅
 
 **🎉 프로젝트 개발 완료: 모든 주요 기능이 구현되어 사용 준비 완료**
+
+### 최신 개발 성과 (Spot 자산 지원)
+- **총 자산 수**: 408개 (193 perp + 215 spot)
+- **API 엔드포인트**: `/v1/assets`, `/v1/assets/:symbol`, `/v1/assets/:symbol/candles` 모두 spot/perp 지원
+- **자산 구분**: `marketType` 필드로 명확히 구분 ('perp' | 'spot')
+- **Spot 특성**: `maxLeverage: 1`, `funding: null`, `premium: null`
+- **캔들 데이터**: spot 자산도 `@{index}` 형식으로 정상 처리

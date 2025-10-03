@@ -29,8 +29,52 @@ const AssetContextSchema = z.object({
   dayBaseVlm: z.union([z.string(), z.number(), z.null()]).optional(),
 });
 
-// 응답 형식 유니온: [객체, 배열] 또는 객체
+// Spot 관련 스키마
+const SpotTokenSchema = z.object({
+  name: z.string(),
+  szDecimals: z.number().int().min(0).max(18),
+  weiDecimals: z.number().int().min(0).max(18),
+  index: z.number().int().nonnegative(),
+  tokenId: z.string(),
+  isCanonical: z.boolean(),
+  evmContract: z.string().nullable(),
+  fullName: z.string().nullable(),
+});
+
+const SpotUniverseSchema = z.object({
+  name: z.string(),
+  tokens: z.array(z.number().int().nonnegative()),
+  index: z.number().int().nonnegative(),
+  isCanonical: z.boolean(),
+});
+
+const SpotMetaAndAssetCtxsSchema = z.tuple([
+  z.object({
+    tokens: z.array(SpotTokenSchema),
+    universe: z.array(SpotUniverseSchema),
+  }),
+  z.array(AssetContextSchema),
+]);
+
+// 응답 형식 유니온: [객체, 배열] 또는 객체 또는 {perp, spot} 형식
 const MetaAndAssetCtxsInputSchema = z.union([
+  // 새로운 통합 형식: { perp: [...], spot: [...] }
+  z.object({
+    perp: z.union([
+      z.tuple([
+        z.object({
+          universe: z.array(AssetMetaSchema),
+          marginTables: z.array(z.any()).optional(),
+        }),
+        z.array(AssetContextSchema),
+      ]),
+      z.object({
+        universe: z.array(AssetMetaSchema),
+        assetCtxs: z.array(AssetContextSchema),
+      }),
+    ]),
+    spot: SpotMetaAndAssetCtxsSchema,
+  }),
   // 실제 HyperLiquid 형식: [{ universe: [...], marginTables: [...] }, [...]]
   z.tuple([
     z.object({
@@ -51,6 +95,7 @@ export interface NormalizedAsset {
   assetId: number;
   symbol: string;
   name: string;
+  marketType: 'perp' | 'spot';
   szDecimals: number;
   priceDecimals: number;
   maxLeverage: number | null;
@@ -60,6 +105,7 @@ export interface NormalizedAsset {
   openInterest: number | null;
   dayNtlVlm: number | null;
   premium: number | null;
+  spotIndex?: number; // spot 자산의 경우 @{index} 형식으로 사용할 index
 }
 
 // 표준화된 응답 구조
@@ -126,100 +172,173 @@ export function normalizeMetaAndAssetCtxs(input: unknown): NormalizedMetaAndAsse
     });
   }
 
-  // 배열/객체 형식 정규화
-  let universe: z.infer<typeof AssetMetaSchema>[];
-  let assetCtxs: z.infer<typeof AssetContextSchema>[];
-
-  if (Array.isArray(parsed)) {
-    // [{ universe: [...] }, [...]] 형식
-    const [metaObj, contexts] = parsed;
-    universe = metaObj.universe || [];
-    assetCtxs = contexts || [];
-  } else {
-    // { universe: [...], assetCtxs: [...] } 형식
-    universe = parsed.universe || [];
-    assetCtxs = parsed.assetCtxs || [];
-  }
-
   const byAssetId = new Map<number, NormalizedAsset>();
   const bySymbol = new Map<string, NormalizedAsset>();
   const list: NormalizedAsset[] = [];
 
-  const minLen = Math.min(universe.length, assetCtxs.length);
-  console.log(`🔍 Processing ${minLen} assets from Hyperliquid API`);
+  // 새로운 통합 형식인지 확인
+  if ('perp' in parsed && 'spot' in parsed) {
+    // Perp 데이터 처리
+    const perpData = parsed.perp;
+    let perpUniverse: z.infer<typeof AssetMetaSchema>[];
+    let perpAssetCtxs: z.infer<typeof AssetContextSchema>[];
 
-  for (let i = 0; i < minLen; i++) {
-    const meta = universe[i] ?? {};
-    const ctx = assetCtxs[i] ?? {};
-
-    const { symbol, name } = resolveSymbolAndName(meta, i);
-    
-    // DOGE 관련 자산 로깅
-    if (name.includes('DOGE') || meta.name?.includes('DOGE')) {
-      console.log(`🐕 Found DOGE asset at index ${i}:`, { 
-        name, 
-        symbol, 
-        metaName: meta.name,
-        isDelisted: meta.isDelisted 
-      });
+    if (Array.isArray(perpData)) {
+      const [metaObj, contexts] = perpData;
+      perpUniverse = metaObj.universe || [];
+      perpAssetCtxs = contexts || [];
+    } else {
+      perpUniverse = perpData.universe || [];
+      perpAssetCtxs = perpData.assetCtxs || [];
     }
-    const { sz, px } = resolveDecimals(meta);
-    const assetId = resolveAssetId(meta, i);
-    const maxLeverage = (typeof meta.maxLeverage === 'number' && meta.maxLeverage > 0) ? meta.maxLeverage : null;
 
-    const asset: NormalizedAsset = {
-      assetId,
-      symbol,
-      name,
-      szDecimals: sz,
-      priceDecimals: px,
-      maxLeverage,
-      markPx: toNumber(ctx.markPx),
-      prevDayPx: toNumber(ctx.prevDayPx),
-      funding: toNumber(ctx.funding),
-      openInterest: toNumber(ctx.openInterest),
-      dayNtlVlm: toNumber(ctx.dayNtlVlm),
-      premium: toNumber(ctx.premium),
-    };
+    // Perp 자산 처리
+    const perpMinLen = Math.min(perpUniverse.length, perpAssetCtxs.length);
+    console.log(`🔍 Processing ${perpMinLen} perp assets from Hyperliquid API`);
 
-    // DOGE 관련 자산 로깅 (추가 정보)
-    if (name.includes('DOGE') || meta.name?.includes('DOGE')) {
-      console.log(`🐕 DOGE processing details:`, { 
+    for (let i = 0; i < perpMinLen; i++) {
+      const meta = perpUniverse[i] ?? {};
+      const ctx = perpAssetCtxs[i] ?? {};
+
+      const { symbol, name } = resolveSymbolAndName(meta, i);
+      const { sz, px } = resolveDecimals(meta);
+      const assetId = resolveAssetId(meta, i);
+      const maxLeverage = (typeof meta.maxLeverage === 'number' && meta.maxLeverage > 0) ? meta.maxLeverage : null;
+
+      const perpAsset: NormalizedAsset = {
         assetId,
         symbol,
         name,
-        isDelisted: meta.isDelisted,
+        marketType: 'perp',
+        szDecimals: sz,
+        priceDecimals: px,
         maxLeverage,
-        markPx: asset.markPx,
-        alreadyExists: byAssetId.has(assetId)
-      });
+        markPx: toNumber(ctx.markPx),
+        prevDayPx: toNumber(ctx.prevDayPx),
+        funding: toNumber(ctx.funding),
+        openInterest: toNumber(ctx.openInterest),
+        dayNtlVlm: toNumber(ctx.dayNtlVlm),
+        premium: toNumber(ctx.premium),
+      };
+
+      if (!byAssetId.has(assetId)) {
+        byAssetId.set(assetId, perpAsset);
+        bySymbol.set(symbol, perpAsset);
+        list.push(perpAsset);
+      }
     }
 
-    // 중복 제거: 첫 번째 값 우선 정책
-    if (!byAssetId.has(assetId)) {
-      byAssetId.set(assetId, asset);
-      bySymbol.set(symbol, asset);
-      list.push(asset);
+    // Spot 데이터 처리
+    const [spotMetaObj, spotContexts] = parsed.spot;
+    const tokens = spotMetaObj.tokens || [];
+    const spotUniverse = spotMetaObj.universe || [];
+    
+    console.log(`🔍 Processing ${spotUniverse.length} spot assets from Hyperliquid API`);
+
+    for (let i = 0; i < Math.min(spotUniverse.length, spotContexts.length); i++) {
+      const spotPair = spotUniverse[i];
+      const ctx = spotContexts[i] ?? {};
+
+      // Spot 심볼은 원래 이름 그대로 사용 (PURR/USDC, @1 등)
+      const symbol = spotPair.name;
+      const name = symbol;
       
-      // assetId 52를 사용하는 자산 로깅
-      if (assetId === 52) {
-        console.log(`🎯 AssetId 52 first claimed by: ${symbol} (${name})`);
-      }
+      // Spot 자산 ID는 10000 + index로 설정하여 perp와 충돌 방지
+      const assetId = 10000 + spotPair.index;
       
-      // DOGE가 실제로 list에 추가되었는지 확인
-      if (name.includes('DOGE') || meta.name?.includes('DOGE')) {
-        console.log(`🐕 DOGE successfully added to list!`);
+      // 토큰 정보에서 decimals 정보 추출
+      const baseTokenIndex = spotPair.tokens[0];
+      const baseToken = tokens.find(t => t.index === baseTokenIndex);
+      const sz = baseToken?.szDecimals ?? 6;
+      const px = 6; // spot은 일반적으로 6자리 소수점
+
+      const spotAsset: NormalizedAsset = {
+        assetId,
+        symbol,
+        name,
+        marketType: 'spot',
+        szDecimals: sz,
+        priceDecimals: px,
+        maxLeverage: 1, // spot은 레버리지 1x
+        markPx: toNumber(ctx.markPx),
+        prevDayPx: toNumber(ctx.prevDayPx),
+        funding: null, // spot에는 funding 없음
+        openInterest: null, // spot에는 open interest 없음
+        dayNtlVlm: toNumber(ctx.dayNtlVlm),
+        premium: null, // spot에는 premium 없음
+        spotIndex: spotPair.index, // @{index} 형식으로 사용할 index
+      };
+
+      if (!byAssetId.has(assetId) && !bySymbol.has(symbol)) {
+        byAssetId.set(assetId, spotAsset);
+        bySymbol.set(symbol, spotAsset);
+        list.push(spotAsset);
       }
+    }
+  } else {
+    // 레거시 형식 처리 (perp만)
+    let universe: z.infer<typeof AssetMetaSchema>[];
+    let assetCtxs: z.infer<typeof AssetContextSchema>[];
+
+    if (Array.isArray(parsed)) {
+      const [metaObj, contexts] = parsed;
+      universe = metaObj.universe || [];
+      assetCtxs = contexts || [];
     } else {
-      // 중복된 assetId 사용 자산 로깅
-      if (assetId === 52) {
-        const existing = byAssetId.get(assetId);
-        console.log(`🎯 AssetId 52 conflict: ${symbol} (${name}) vs existing ${existing?.symbol} (${existing?.name})`);
+      universe = parsed.universe || [];
+      assetCtxs = parsed.assetCtxs || [];
+    }
+
+    const minLen = Math.min(universe.length, assetCtxs.length);
+    console.log(`🔍 Processing ${minLen} assets from Hyperliquid API (legacy format)`);
+
+    for (let i = 0; i < minLen; i++) {
+      const meta = universe[i] ?? {};
+      const ctx = assetCtxs[i] ?? {};
+
+      const { symbol, name } = resolveSymbolAndName(meta, i);
+      const { sz, px } = resolveDecimals(meta);
+      const assetId = resolveAssetId(meta, i);
+      const maxLeverage = (typeof meta.maxLeverage === 'number' && meta.maxLeverage > 0) ? meta.maxLeverage : null;
+
+      const perpAsset: NormalizedAsset = {
+        assetId,
+        symbol,
+        name,
+        marketType: 'perp',
+        szDecimals: sz,
+        priceDecimals: px,
+        maxLeverage,
+        markPx: toNumber(ctx.markPx),
+        prevDayPx: toNumber(ctx.prevDayPx),
+        funding: toNumber(ctx.funding),
+        openInterest: toNumber(ctx.openInterest),
+        dayNtlVlm: toNumber(ctx.dayNtlVlm),
+        premium: toNumber(ctx.premium),
+      };
+
+      if (!byAssetId.has(assetId)) {
+        byAssetId.set(assetId, perpAsset);
+        bySymbol.set(symbol, perpAsset);
+        list.push(perpAsset);
       }
-      
-      if (name.includes('DOGE') || meta.name?.includes('DOGE')) {
-        const existing = byAssetId.get(assetId);
-        console.log(`🐕 DOGE skipped due to duplicate assetId: ${assetId}, first used by: ${existing?.symbol} (${existing?.name})`);
+
+      // 레거시 형식에서는 mock spot 자산도 생성
+      const spotSymbol = name;
+      const spotAssetId = assetId * 10 + 1;
+      if (!bySymbol.has(spotSymbol)) {
+        const spotAsset: NormalizedAsset = {
+          ...perpAsset,
+          assetId: spotAssetId,
+          symbol: spotSymbol,
+          marketType: 'spot',
+          maxLeverage: 1,
+          funding: null,
+          premium: null,
+        };
+        byAssetId.set(spotAssetId, spotAsset);
+        bySymbol.set(spotSymbol, spotAsset);
+        list.push(spotAsset);
       }
     }
   }
@@ -227,13 +346,10 @@ export function normalizeMetaAndAssetCtxs(input: unknown): NormalizedMetaAndAsse
   // 안정적인 정렬: symbol 기준 ASC
   list.sort((a, b) => a.symbol.localeCompare(b.symbol));
   
-  console.log(`📊 Final asset list: ${list.length} assets (filtered from ${minLen})`);
-  const dogeInFinal = list.find(a => a.name.includes('DOGE'));
-  if (dogeInFinal) {
-    console.log(`🐕 DOGE in final list: ${dogeInFinal.symbol}`);
-  } else {
-    console.log(`❌ DOGE missing from final list!`);
-  }
+  console.log(`📊 Final asset list: ${list.length} assets`);
+  const spotAssets = list.filter(a => a.marketType === 'spot');
+  const perpAssets = list.filter(a => a.marketType === 'perp');
+  console.log(`📊 Assets breakdown: ${perpAssets.length} perp, ${spotAssets.length} spot`);
 
   return {
     list,
@@ -257,12 +373,36 @@ export function getAssetByIdOrThrow(norm: NormalizedMetaAndAssetCtxs, assetId: n
 
 export function getAssetBySymbolOrThrow(norm: NormalizedMetaAndAssetCtxs, symbol: string): NormalizedAsset {
   const normalized = symbol.trim().toUpperCase();
-  const lookup = normalized.endsWith('-PERP') ? norm.bySymbol.get(normalized) : norm.bySymbol.get(toPerpSymbol(normalized));
-  if (!lookup) {
-    throw new AppError(400, {
-      code: 'UNSUPPORTED_SYMBOL',
-      message: `Unknown instrument: ${symbol}`,
-    });
+  
+  // 1. 직접 매치 시도 (spot 심볼 포함)
+  const direct = norm.bySymbol.get(normalized);
+  if (direct) {
+    return direct;
   }
-  return lookup;
+  
+  // 2. 원본 심볼로도 시도 (케이스 보존)
+  const original = symbol.trim();
+  const originalMatch = norm.bySymbol.get(original);
+  if (originalMatch) {
+    return originalMatch;
+  }
+  
+  // 3. Perp 형식으로 변환해서 시도
+  const perpSymbol = toPerpSymbol(normalized);
+  const perpMatch = norm.bySymbol.get(perpSymbol);
+  if (perpMatch) {
+    return perpMatch;
+  }
+  
+  // 4. 모든 가능한 변형 시도
+  for (const [key, asset] of norm.bySymbol) {
+    if (key.toLowerCase() === symbol.toLowerCase()) {
+      return asset;
+    }
+  }
+  
+  throw new AppError(400, {
+    code: 'UNSUPPORTED_SYMBOL',
+    message: `Unknown instrument: ${symbol}`,
+  });
 }
