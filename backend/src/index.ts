@@ -20,6 +20,18 @@ import { logger } from './infra/logger.js';
 const app = express();
 app.set('trust proxy', 1);
 
+const allowedOrigin = process.env.CORS_ALLOW_ORIGIN || '*';
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', req.header('Access-Control-Request-Headers') || 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Max-Age', '86400');
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+  next();
+});
+
 // Request parsing
 app.use(express.json({ limit: '1mb' }));
 
