@@ -18,6 +18,7 @@ import { authBearer, optionalAuth, validateDemoToken } from './middlewares/auth.
 import { logger } from './infra/logger.js';
 
 const app = express();
+app.set('trust proxy', 1);
 
 // Request parsing
 app.use(express.json({ limit: '1mb' }));
