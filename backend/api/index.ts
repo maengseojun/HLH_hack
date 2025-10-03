@@ -1,3 +1,4 @@
+/// <reference path="./types.d.ts" />
 import type { NextApiRequest, NextApiResponse } from "next";
 import app from "../dist/index.js";
 
