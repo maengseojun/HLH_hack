@@ -1,0 +1,56 @@
+{
+  "name": "hyperindex-integrated",
+  "version": "1.0.0",
+  "description": "HyperIndex Integrated Platform - HyperCore + AMM + IndexToken",
+  "keywords": ["hyperindex", "hypercore", "amm", "defi", "index-tokens"],
+  "license": "MIT",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "./docker-dev.sh dev",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "clean": "./docker-dev.sh clean",
+    "setup": "./scripts/setup/init.sh",
+
+    "docker:dev": "./docker-dev.sh dev",
+    "docker:prod": "./docker-dev.sh prod",
+    "docker:stop": "./docker-dev.sh stop",
+    "docker:logs": "./docker-dev.sh logs",
+    "docker:status": "./docker-dev.sh status",
+    "docker:shell": "./docker-dev.sh shell",
+
+    "contracts:compile": "cd contracts && npm run compile",
+    "contracts:test": "cd contracts && npm run test",
+    "contracts:deploy": "cd contracts && npm run deploy",
+
+    "backend:dev": "cd backend && npm run dev",
+    "backend:build": "cd backend && npm run build",
+    "backend:test": "cd backend && npm run test",
+
+    "frontend:dev": "cd frontend && pnpm dev",
+    "frontend:build": "cd frontend && pnpm build",
+    "frontend:test": "cd frontend && pnpm test"
+  },
+  "devDependencies": {
+    "@types/node": "^22.17.2",
+    "typescript": "^5.9.2",
+    "prettier": "^3.0.0",
+    "eslint": "^9.33.0"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/hyperindex.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/hyperindex/issues"
+  },
+  "homepage": "https://hyperindex.io"
+}

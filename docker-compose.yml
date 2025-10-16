@@ -1,0 +1,109 @@
+version: '3.8'
+
+services:
+  # Redis Cache for HyperLiquid API caching
+  redis:
+    image: redis:7-alpine
+    container_name: hlh-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+      - ./docker/redis/redis.conf:/etc/redis/redis.conf:ro
+    command: redis-server /etc/redis/redis.conf
+    networks:
+      - hlh-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # HyperIndex Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hlh-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-3001}:3001"
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 3001
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      # HyperLiquid API
+      HYPERLIQUID_API_URL: ${HYPERLIQUID_API_URL:-https://api.hyperliquid.xyz}
+      HYPERLIQUID_TESTNET_URL: ${HYPERLIQUID_TESTNET_URL:-https://api.hyperliquid-testnet.xyz}
+      # Environment specific
+      API_RATE_LIMIT: ${API_RATE_LIMIT:-100}
+      CACHE_TTL: ${CACHE_TTL:-60}
+    volumes:
+      - ./logs/backend:/app/logs
+      - ./backend/src:/app/src:ro # Development hot reload
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - hlh-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend Next.js Application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: hlh-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      NEXT_PUBLIC_API_URL: http://backend:3001/v1
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      # External APIs
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      NEXT_PUBLIC_PRIVY_APP_ID: ${NEXT_PUBLIC_PRIVY_APP_ID}
+      # Backend connection
+      BACKEND_INTERNAL_URL: http://backend:3001
+    volumes:
+      - ./logs/frontend:/app/logs
+      - ./frontend/src:/app/src:ro # Development hot reload
+    depends_on:
+      - backend
+    networks:
+      - hlh-network
+
+  # Development utilities container
+  dev-utils:
+    image: node:22-alpine
+    container_name: hlh-dev-utils
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - /workspace/node_modules
+      - /workspace/frontend/node_modules
+      - /workspace/backend/node_modules
+    networks:
+      - hlh-network
+    profiles:
+      - dev
+    command: tail -f /dev/null # Keep container running
+
+volumes:
+  redis_data:
+    driver: local
+
+networks:
+  hlh-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
